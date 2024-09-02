@@ -1,4 +1,13 @@
 import "./style.css";
+import axios from "axios";
+
+const response = await axios.get("http://localhost:3000/api/youtube", {
+  responseType: "blob",
+});
+
+const url = URL.createObjectURL(response.data);
+
+console.log(response);
 
 const formatTime = (seconds: number) => {
   const minutes = Math.floor(seconds / 60);
@@ -9,9 +18,9 @@ const formatTime = (seconds: number) => {
 };
 
 // const bodyDom = document.body;
-const audio = new Audio("./music/Kagami.mp3");
 
-// const audioDuration =
+const audio = new Audio(url);
+// const audio = new Audio("./music/Kagami.mp3");
 
 const playBtn = document.querySelector(".play");
 playBtn?.addEventListener("click", () => {
@@ -52,7 +61,6 @@ const seekBar = document.querySelector(".seekBar") as HTMLInputElement;
 
 seekBar?.addEventListener("input", (e: any) => {
   const seekTo = audio.duration * e.target.value;
-  console.log(seekTo);
   if (audio) {
     audio.currentTime = seekTo;
   }
