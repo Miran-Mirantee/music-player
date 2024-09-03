@@ -1,13 +1,17 @@
 import "./style.css";
 import axios from "axios";
 
-const response = await axios.get("http://localhost:3000/api/youtube", {
-  responseType: "blob",
-});
+const getMusic = async (url: string) => {
+  const response = await axios.get("http://localhost:3000/api/youtube", {
+    responseType: "blob",
+    params: { url },
+  });
 
-const url = URL.createObjectURL(response.data);
+  // console.log(response);
 
-console.log(response);
+  const audio = URL.createObjectURL(response.data);
+  return audio;
+};
 
 const formatTime = (seconds: number) => {
   const minutes = Math.floor(seconds / 60);
@@ -19,8 +23,10 @@ const formatTime = (seconds: number) => {
 
 // const bodyDom = document.body;
 
-const audio = new Audio(url);
-// const audio = new Audio("./music/Kagami.mp3");
+// const url = await getMusic("https://www.youtube.com/watch?v=_9uJoQzbFEc");
+
+// const audio = new Audio(url);
+const audio = new Audio("./music/Kagami.mp3");
 
 const playBtn = document.querySelector(".play");
 playBtn?.addEventListener("click", () => {
@@ -63,5 +69,16 @@ seekBar?.addEventListener("input", (e: any) => {
   const seekTo = audio.duration * e.target.value;
   if (audio) {
     audio.currentTime = seekTo;
+  }
+});
+
+const form = document.getElementById("searchForm");
+form?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const inputValue = document.getElementById("searchField") as HTMLInputElement;
+  if (inputValue) {
+    const newMusic = await getMusic(inputValue.value);
+    audio.src = newMusic;
   }
 });
