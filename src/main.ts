@@ -2,15 +2,18 @@ import "./style.css";
 import axios from "axios";
 
 const getMusic = async (url: string) => {
-  const response = await axios.get("http://localhost:3000/api/youtube", {
-    responseType: "blob",
-    params: { url },
-  });
+  try {
+    const response = await axios.get("http://localhost:3000/api/youtube", {
+      responseType: "blob",
+      params: { url },
+    });
+    // console.log(response);
 
-  // console.log(response);
-
-  const audio = URL.createObjectURL(response.data);
-  return audio;
+    const audio = URL.createObjectURL(response.data);
+    return audio;
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const formatTime = (seconds: number) => {
@@ -21,20 +24,24 @@ const formatTime = (seconds: number) => {
     .padStart(2, "0")}`;
 };
 
-// const bodyDom = document.body;
+const audio = new Audio();
+// const audio = new Audio("./music/Kagami.mp3");
 
-// const url = await getMusic("https://www.youtube.com/watch?v=_9uJoQzbFEc");
-
-// const audio = new Audio(url);
-const audio = new Audio("./music/Kagami.mp3");
-
-const playBtn = document.querySelector(".play");
+const playBtn = document.querySelector(".play") as HTMLButtonElement;
+playBtn.disabled = true;
 playBtn?.addEventListener("click", () => {
   audio.play();
   if (durationDom) {
     durationDom.textContent = formatTime(audio.duration);
   }
 });
+
+const url = "https://www.youtube.com/watch?v=sXhhdNL05sY";
+const music = await getMusic(url);
+if (music) {
+  audio.src = music;
+  playBtn.disabled = false;
+}
 
 const pauseBtn = document.querySelector(".pause");
 pauseBtn?.addEventListener("click", () => {
@@ -79,6 +86,8 @@ form?.addEventListener("submit", async (e) => {
   const inputValue = document.getElementById("searchField") as HTMLInputElement;
   if (inputValue) {
     const newMusic = await getMusic(inputValue.value);
-    audio.src = newMusic;
+    if (newMusic) {
+      audio.src = newMusic;
+    }
   }
 });
