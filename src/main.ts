@@ -1,6 +1,22 @@
 import "./style.css";
 import axios from "axios";
 
+/**
+ * TODO:
+ *  - Implement streaming
+ *  - Get search result from youtube (search by name)
+ *  - Create a local playlist
+ *  - Get a playlist from youtube
+ *  - Import a playlist from spotify
+ *  - Create better player functionalities
+ *    - Implement loop
+ *    - Implement previous and next song button
+ *    - Implement shuffle
+ *    - Implement queue
+ *  - Create a better UI
+ *    - Using Three.js (optional)
+ */
+
 const getMusic = async (url: string) => {
   try {
     const response = await axios.get("http://localhost:3000/api/youtube", {
