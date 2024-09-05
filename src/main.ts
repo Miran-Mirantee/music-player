@@ -1,6 +1,8 @@
 import "./style.css";
 import axios from "axios";
 
+import songCard from "./components/songCard";
+
 /**
  * TODO:
  *  - Implement streaming
@@ -15,7 +17,21 @@ import axios from "axios";
  *    - Implement queue
  *  - Create a better UI
  *    - Using Three.js (optional)
+ *  - add pagination for search
  */
+
+const searchSongs = async (query: string) => {
+  try {
+    const response = await axios.get("http://localhost:3000/api/searchSongs", {
+      params: { search: query },
+    });
+
+    console.log(response);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 const getMusic = async (url: string) => {
   try {
@@ -52,12 +68,15 @@ playBtn?.addEventListener("click", () => {
   }
 });
 
-const url = "https://www.youtube.com/watch?v=sXhhdNL05sY";
-const music = await getMusic(url);
-if (music) {
-  audio.src = music;
-  playBtn.disabled = false;
-}
+audio.src = "./music/Kagami.mp3";
+playBtn.disabled = false;
+
+// const url = "https://www.youtube.com/watch?v=sXhhdNL05sY";
+// const music = await getMusic(url);
+// if (music) {
+//   audio.src = music;
+//   playBtn.disabled = false;
+// }
 
 const pauseBtn = document.querySelector(".pause");
 pauseBtn?.addEventListener("click", () => {
@@ -95,15 +114,23 @@ seekBar?.addEventListener("input", (e: any) => {
   }
 });
 
-const form = document.getElementById("searchForm");
+const form = document.getElementById("search-form");
 form?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const inputValue = document.getElementById("searchField") as HTMLInputElement;
-  if (inputValue) {
-    const newMusic = await getMusic(inputValue.value);
-    if (newMusic) {
-      audio.src = newMusic;
+  const inputValue = document.getElementById(
+    "search-field"
+  ) as HTMLInputElement;
+
+  const listDom = document.querySelector(".songs-list");
+
+  if (inputValue && listDom) {
+    const songs = await searchSongs(inputValue.value);
+    for (const song of songs) {
+      const newCard = songCard(song);
+      listDom.append(newCard);
     }
+
+    console.log(songs);
   }
 });
