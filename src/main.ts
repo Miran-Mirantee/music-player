@@ -2,11 +2,15 @@ import "./style.css";
 import axios from "axios";
 
 import songCard from "./components/songCard";
+import Song from "./types/song";
 
 /**
  * TODO:
  *  - Implement streaming
  *  - Get search result from youtube (search by name)
+ *    - Search playlist
+ *    - Search artist
+ *    - Search videos
  *  - Create a local playlist
  *  - Get a playlist from youtube
  *  - Import a playlist from spotify
@@ -17,7 +21,7 @@ import songCard from "./components/songCard";
  *    - Implement queue
  *  - Create a better UI
  *    - Using Three.js (optional)
- *  - add pagination for search
+ *  - Add pagination for search
  */
 
 const searchSongs = async (query: string) => {
@@ -57,15 +61,18 @@ const formatTime = (seconds: number) => {
 };
 
 const audio = new Audio();
+audio.addEventListener("loadedmetadata", () => {
+  const duration = audio.duration;
+  if (durationDom) {
+    durationDom.textContent = formatTime(duration);
+  }
+});
 // const audio = new Audio("./music/Kagami.mp3");
 
 const playBtn = document.querySelector(".play") as HTMLButtonElement;
 playBtn.disabled = true;
 playBtn?.addEventListener("click", () => {
   audio.play();
-  if (durationDom) {
-    durationDom.textContent = formatTime(audio.duration);
-  }
 });
 
 audio.src = "./music/Kagami.mp3";
@@ -125,10 +132,24 @@ form?.addEventListener("submit", async (e) => {
   const listDom = document.querySelector(".songs-list");
 
   if (inputValue && listDom) {
-    const songs = await searchSongs(inputValue.value);
+    const songs: Song[] = await searchSongs(inputValue.value);
+    listDom.textContent = "";
+
     for (const song of songs) {
       const newCard = songCard(song);
       listDom.append(newCard);
+
+      newCard.addEventListener("click", async () => {
+        playBtn.disabled = true;
+        const newSong = await getMusic(
+          `https://www.youtube.com/watch?v=${song.videoId}`
+        );
+        if (newSong) {
+          audio.src = newSong;
+          playBtn.disabled = false;
+          audio.play();
+        }
+      });
     }
 
     console.log(songs);

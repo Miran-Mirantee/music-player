@@ -26,7 +26,12 @@ body {
 
 .card {
   display: flex;
-  border: 1px solid green;
+  cursor: pointer;
+  background-color: green;
+}
+
+.card:hover {
+  background-color: lime;
 }
 
 .card-info {
