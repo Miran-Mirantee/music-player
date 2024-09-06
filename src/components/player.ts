@@ -1,8 +1,44 @@
 import formatTime from "../utils/formalTime";
+import SongObject from "../types/SongObject";
 
 const player = () => {
-  const playSong = (audioSrc: string) => {
-    audio.src = audioSrc;
+  const queue: SongObject[] = [];
+
+  let _currentOrder: number = 0;
+
+  const _nextSong = () => {
+    if (queue.length == _currentOrder + 1) {
+      _currentOrder = 0;
+    } else {
+      _currentOrder++;
+    }
+    _playSong(queue[_currentOrder]);
+  };
+
+  const _prevSong = () => {
+    if (_currentOrder == 0) {
+      _currentOrder = queue.length - 1;
+    } else {
+      _currentOrder--;
+    }
+    _playSong(queue[_currentOrder]);
+  };
+
+  const _playSong = (song: SongObject) => {
+    audio.src = song.url;
+    audio.play();
+  };
+
+  const _loopSong = () => {
+    audio.loop = !audio.loop;
+  };
+
+  const addSong = (newSong: SongObject) => {
+    queue.push(newSong);
+
+    if (queue.length == 1) {
+      _playSong(queue[_currentOrder]);
+    }
   };
 
   const audio = new Audio();
@@ -18,6 +54,12 @@ const player = () => {
     seekBar.value = (audio.currentTime / audio.duration).toString();
   });
 
+  audio.addEventListener("ended", () => {
+    if (!audio.loop) {
+      _nextSong();
+    }
+  });
+
   const playerDom = document.createElement("div");
   playerDom.classList.add("player");
 
@@ -27,18 +69,26 @@ const player = () => {
   const prevBtn = document.createElement("button");
   prevBtn.classList.add("player-prev-btn");
   prevBtn.textContent = "prev";
+  prevBtn.addEventListener("click", _prevSong);
 
   const playBtn = document.createElement("button");
   playBtn.classList.add("player-play-btn");
   playBtn.textContent = "play";
   playBtn.disabled = true;
   playBtn.addEventListener("click", () => {
-    audio.play();
+    if (audio.paused) {
+      audio.play();
+      playBtn.textContent = "play";
+    } else {
+      audio.pause();
+      playBtn.textContent = "pause";
+    }
   });
 
   const nextBtn = document.createElement("button");
   nextBtn.classList.add("player-next-btn");
   nextBtn.textContent = "next";
+  nextBtn.addEventListener("click", _nextSong);
 
   const middlePanel = document.createElement("div");
   middlePanel.classList.add("player-middle-panel");
@@ -69,10 +119,6 @@ const player = () => {
   const rightPanel = document.createElement("div");
   rightPanel.classList.add("player-right-panel");
 
-  const muteBtn = document.createElement("button");
-  muteBtn.classList.add("player-mute-btn");
-  muteBtn.textContent = "mute";
-
   const volumeBar = document.createElement("input");
   volumeBar.classList.add("player-volume-bar");
   volumeBar.min = "0";
@@ -88,6 +134,7 @@ const player = () => {
   const loopBtn = document.createElement("button");
   loopBtn.classList.add("player-loop-btn");
   loopBtn.textContent = "loop";
+  loopBtn.addEventListener("click", _loopSong);
 
   const shuffleBtn = document.createElement("button");
   shuffleBtn.classList.add("player-shuffle-btn");
@@ -97,9 +144,9 @@ const player = () => {
   leftPanel.append(prevBtn, playBtn, nextBtn);
   middlePanel.append(seekBar, timeDom);
   timeDom.append(currenttimeDom, " / ", durationDom);
-  rightPanel.append(muteBtn, volumeBar, loopBtn, shuffleBtn);
+  rightPanel.append(volumeBar, loopBtn, shuffleBtn);
 
-  return { playerDom, playSong };
+  return { playerDom, addSong, queue };
 };
 
 export default player;
