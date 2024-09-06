@@ -1,4 +1,4 @@
-import Song from "../types/song";
+import Song from "../types/SongResponse";
 
 const songCard = (song: Song) => {
   const cardDom = document.createElement("div");
