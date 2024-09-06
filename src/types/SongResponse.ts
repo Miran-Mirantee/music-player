@@ -1,4 +1,4 @@
-type Song = {
+type SongResponse = {
   album: { name: string; albumId: string };
   artist: { name: string; artistId: string };
   duration: number;
@@ -8,4 +8,4 @@ type Song = {
   videoId: string;
 };
 
-export default Song;
+export default SongResponse;
