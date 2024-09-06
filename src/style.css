@@ -16,6 +16,9 @@ body {
   width: 50%;
   height: 100vh;
   background-color: rgb(253, 230, 165);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .songs-list {
@@ -50,4 +53,59 @@ body {
 .card-subInfo2 {
   display: flex;
   justify-content: space-between;
+}
+
+.player {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  width: 100%;
+}
+
+.player-left-panel {
+  display: flex;
+}
+
+.player-prev-btn {
+}
+
+.player-play-btn {
+}
+
+.player-next-btn {
+}
+
+.player-middle-panel {
+  display: flex;
+  flex-grow: 1;
+}
+
+.player-seek-bar {
+  flex-grow: 1;
+}
+
+.player-time {
+}
+
+.player-currenttime {
+}
+
+.player-duration {
+}
+
+.player-right-panel {
+  display: flex;
+}
+
+.player-mute-btn {
+}
+
+.player-volume-bar {
+}
+
+.player-loop-btn {
+}
+
+.player-shuffle-btn {
 }

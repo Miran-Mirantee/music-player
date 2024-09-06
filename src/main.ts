@@ -2,6 +2,8 @@ import "./style.css";
 import axios from "axios";
 
 import songCard from "./components/songCard";
+import player from "./components/player";
+
 import Song from "./types/song";
 
 /**
@@ -52,31 +54,26 @@ const getMusic = async (url: string) => {
   }
 };
 
-const formatTime = (seconds: number) => {
-  const minutes = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${minutes.toString().padStart(2, "0")}:${secs
-    .toString()
-    .padStart(2, "0")}`;
-};
+const queue: string[] = [];
 
-const audio = new Audio();
-audio.addEventListener("loadedmetadata", () => {
-  const duration = audio.duration;
-  if (durationDom) {
-    durationDom.textContent = formatTime(duration);
-  }
-});
+// const audio = new Audio();
+// audio.addEventListener("loadedmetadata", () => {
+//   const duration = audio.duration;
+//   playBtn.disabled = false;
+//   if (durationDom) {
+//     durationDom.textContent = formatTime(duration);
+//   }
+// });
 // const audio = new Audio("./music/Kagami.mp3");
 
-const playBtn = document.querySelector(".play") as HTMLButtonElement;
-playBtn.disabled = true;
-playBtn?.addEventListener("click", () => {
-  audio.play();
-});
+// const playBtn = document.querySelector(".play") as HTMLButtonElement;
+// playBtn.disabled = true;
+// playBtn?.addEventListener("click", () => {
+//   audio.play();
+// });
 
-audio.src = "./music/Kagami.mp3";
-playBtn.disabled = false;
+// audio.src = "./music/Kagami.mp3";
+// playBtn.disabled = false;
 
 // const url = "https://www.youtube.com/watch?v=sXhhdNL05sY";
 // const music = await getMusic(url);
@@ -85,73 +82,83 @@ playBtn.disabled = false;
 //   playBtn.disabled = false;
 // }
 
-const pauseBtn = document.querySelector(".pause");
-pauseBtn?.addEventListener("click", () => {
-  audio.pause();
-});
+// const pauseBtn = document.querySelector(".pause");
+// pauseBtn?.addEventListener("click", () => {
+//   audio.pause();
+// });
 
-const currentTimeDom = document.querySelector(".time");
-const durationDom = document.querySelector(".maxTime");
+// const currentTimeDom = document.querySelector(".time");
+// const durationDom = document.querySelector(".maxTime");
 
-audio.addEventListener("timeupdate", () => {
-  if (currentTimeDom) {
-    currentTimeDom.textContent = formatTime(audio.currentTime);
-  }
-  if (seekBar) {
-    seekBar.value = (audio.currentTime / audio.duration).toString();
-  }
-});
+// audio.addEventListener("timeupdate", () => {
+// if (currentTimeDom) {
+//   currentTimeDom.textContent = formatTime(audio.currentTime);
+// }
+// if (seekBar) {
+//   seekBar.value = (audio.currentTime / audio.duration).toString();
+// }
+// });
 
-const volumnRange = document.querySelector(".volumn") as HTMLInputElement;
+// const volumnRange = document.querySelector(".volumn") as HTMLInputElement;
 
-(() => {
-  audio.volume = parseFloat(volumnRange.value);
-})();
+// (() => {
+//   audio.volume = parseFloat(volumnRange.value);
+// })();
 
-volumnRange?.addEventListener("input", (e: any) => {
-  audio.volume = e.target.value;
-});
+// volumnRange?.addEventListener("input", (e: any) => {
+//   audio.volume = e.target.value;
+// });
 
-const seekBar = document.querySelector(".seekBar") as HTMLInputElement;
+// const seekBar = document.querySelector(".seekBar") as HTMLInputElement;
 
-seekBar?.addEventListener("input", (e: any) => {
-  const seekTo = audio.duration * e.target.value;
-  if (audio) {
-    audio.currentTime = seekTo;
-  }
-});
+// seekBar?.addEventListener("input", (e: any) => {
+//   const seekTo = audio.duration * e.target.value;
+//   if (audio) {
+//     audio.currentTime = seekTo;
+//   }
+// });
 
-const form = document.getElementById("search-form");
-form?.addEventListener("submit", async (e) => {
+const columnDom = document.querySelector(".column");
+
+const mediaPlayer = player();
+
+columnDom?.append(mediaPlayer.playerDom);
+
+const formDom = document.createElement("form");
+formDom.classList.add("search-form");
+formDom.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const inputValue = document.getElementById(
-    "search-field"
-  ) as HTMLInputElement;
+  const songs: Song[] = await searchSongs(inputDom.value);
+  resultDom.textContent = "";
 
-  const listDom = document.querySelector(".songs-list");
+  for (const song of songs) {
+    const newCard = songCard(song);
+    resultDom.append(newCard);
 
-  if (inputValue && listDom) {
-    const songs: Song[] = await searchSongs(inputValue.value);
-    listDom.textContent = "";
-
-    for (const song of songs) {
-      const newCard = songCard(song);
-      listDom.append(newCard);
-
-      newCard.addEventListener("click", async () => {
-        playBtn.disabled = true;
-        const newSong = await getMusic(
-          `https://www.youtube.com/watch?v=${song.videoId}`
-        );
-        if (newSong) {
-          audio.src = newSong;
-          playBtn.disabled = false;
-          audio.play();
-        }
-      });
-    }
-
-    console.log(songs);
+    newCard.addEventListener("click", async () => {
+      // playBtn.disabled = true;
+      const newSong = await getMusic(
+        `https://www.youtube.com/watch?v=${song.videoId}`
+      );
+      if (newSong) {
+        queue.push(newSong);
+        mediaPlayer.playSong(newSong);
+        // audio.src = newSong;
+        // playBtn.disabled = false;
+        // audio.play();
+      }
+    });
   }
+  console.log(songs);
 });
+
+const inputDom = document.createElement("input");
+inputDom.id = "search-field";
+inputDom.placeholder = "search";
+
+const resultDom = document.createElement("div");
+resultDom.classList.add("songs-list");
+
+formDom.append(inputDom);
+columnDom?.append(formDom, resultDom);
