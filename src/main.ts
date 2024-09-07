@@ -3,6 +3,7 @@ import axios from "axios";
 
 import songCard from "./components/songCard";
 import player from "./components/player";
+import queuePanel from "./components/queuePanel";
 
 import SongResponse from "./types/SongResponse";
 import SongObject from "./types/SongObject";
@@ -85,9 +86,7 @@ formDom.addEventListener("submit", async (e) => {
 
         console.log(newSongObj);
         mediaPlayer.addSong(newSongObj);
-        // audio.src = newSong;
-        // playBtn.disabled = false;
-        // audio.play();
+        queueObject.updateQueue(mediaPlayer.queue);
       }
     });
   }
@@ -100,6 +99,9 @@ inputDom.placeholder = "search";
 
 const resultDom = document.createElement("div");
 resultDom.classList.add("songs-list");
+
+const queueObject = queuePanel();
+document.body.append(queueObject.queueDom);
 
 formDom.append(inputDom);
 columnDom?.append(formDom, resultDom);

@@ -109,8 +109,46 @@ body {
 
 .queue {
   position: fixed;
+  display: flex;
+  flex-direction: column;
   bottom: 0;
   width: 25%;
-  height: 100px;
   background-color: rebeccapurple;
+}
+
+.queue-item {
+  display: flex;
+  gap: 4px;
+}
+
+.queue-thumbnail {
+}
+
+.queue-song-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.queue-song-name {
+}
+
+.queue-buttom-info {
+  display: flex;
+  justify-content: space-between;
+}
+
+.queue-artist {
+}
+
+.queue-duration {
+}
+
+.queue-button-panel {
+  display: flex;
+}
+
+.queue-move-btn {
+}
+
+.queue-remove-btn {
 }
