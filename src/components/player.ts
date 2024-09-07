@@ -33,6 +33,28 @@ const player = () => {
     audio.loop = !audio.loop;
   };
 
+  const _shuffleSong = () => {
+    // Step 1: Extract the current song from the array
+    const currentSong = queue[_currentOrder];
+
+    // Step 2: Create a new array excluding the current song
+    const remainingSongs = queue.filter((_, index) => index !== _currentOrder);
+
+    // Step 3: Shuffle the remaining songs using Fisher-Yates algorithm
+    for (let i = remainingSongs.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [remainingSongs[i], remainingSongs[j]] = [
+        remainingSongs[j],
+        remainingSongs[i],
+      ];
+    }
+
+    // Step 4: Place the current song at the beginning of the array
+    const newQueue = [currentSong, ...remainingSongs];
+    queue.splice(0, queue.length, ...newQueue);
+    _currentOrder = 0;
+  };
+
   const addSong = (newSong: SongObject) => {
     queue.push(newSong);
 
@@ -139,6 +161,7 @@ const player = () => {
   const shuffleBtn = document.createElement("button");
   shuffleBtn.classList.add("player-shuffle-btn");
   shuffleBtn.textContent = "shuffle";
+  shuffleBtn.addEventListener("click", _shuffleSong);
 
   playerDom.append(leftPanel, middlePanel, rightPanel);
   leftPanel.append(prevBtn, playBtn, nextBtn);

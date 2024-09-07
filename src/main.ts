@@ -17,11 +17,7 @@ import SongObject from "./types/SongObject";
  *  - Create a local playlist
  *  - Get a playlist from youtube
  *  - Import a playlist from spotify
- *  - Create better player functionalities
- *    - Implement loop
- *    - Implement previous and next song button
- *    - Implement shuffle
- *    - Implement queue
+ *  - Create queue UI
  *  - Create a better UI
  *    - Using Three.js (optional)
  *  - Add pagination for search
