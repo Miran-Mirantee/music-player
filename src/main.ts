@@ -2,8 +2,8 @@ import "./style.css";
 import axios from "axios";
 
 import songCard from "./components/songCard";
-import player from "./components/player";
-import queuePanel from "./components/queuePanel";
+
+import { AudioController } from "./class/audioController";
 
 import SongResponse from "./types/SongResponse";
 import SongObject from "./types/SongObject";
@@ -54,9 +54,9 @@ const getMusic = async (url: string) => {
 
 const columnDom = document.querySelector(".column");
 
-const mediaPlayer = player();
-
-columnDom?.append(mediaPlayer.playerDom);
+const audioController = new AudioController();
+columnDom?.append(audioController.playerDom);
+document.body.append(audioController.queueDom);
 
 const formDom = document.createElement("form");
 formDom.classList.add("search-form");
@@ -85,8 +85,7 @@ formDom.addEventListener("submit", async (e) => {
         };
 
         console.log(newSongObj);
-        mediaPlayer.addSong(newSongObj);
-        queueObject.updateQueue(mediaPlayer.queue);
+        audioController.addSong(newSongObj);
       }
     });
   }
@@ -99,9 +98,6 @@ inputDom.placeholder = "search";
 
 const resultDom = document.createElement("div");
 resultDom.classList.add("songs-list");
-
-const queueObject = queuePanel();
-document.body.append(queueObject.queueDom);
 
 formDom.append(inputDom);
 columnDom?.append(formDom, resultDom);
