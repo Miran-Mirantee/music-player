@@ -19,9 +19,15 @@ import SongObject from "./types/SongObject";
  *  - Get a playlist from youtube
  *  - Import a playlist from spotify
  *  - Create queue UI
+ *    - Implement a draggable queue changing
  *  - Create a better UI
  *    - Using Three.js (optional)
  *  - Add pagination for search
+ */
+
+/**
+ * BUGS:
+ *  - Looping not working as intended
  */
 
 const searchSongs = async (query: string) => {

@@ -2,6 +2,7 @@ import formatTime from "../utils/formalTime";
 import SongObject from "../types/SongObject";
 
 export class AudioController {
+  private queue: SongObject[] = [];
   private currentOrder: number = 0;
   private audio: HTMLAudioElement;
   private currenttimeDom: HTMLSpanElement;
@@ -9,7 +10,6 @@ export class AudioController {
   private playBtn: HTMLButtonElement;
   private seekBar: HTMLInputElement;
 
-  public queue: SongObject[] = [];
   public playerDom: HTMLDivElement;
   public queueDom: HTMLDivElement;
 
@@ -58,15 +58,21 @@ export class AudioController {
 
     this.audio.addEventListener("timeupdate", () => {
       this.currenttimeDom.textContent = formatTime(this.audio.currentTime);
-      this.seekBar.value = (
-        this.audio.currentTime / this.audio.duration
-      ).toString();
+      if (this.audio.duration) {
+        this.seekBar.value = (
+          this.audio.currentTime / this.audio.duration
+        ).toString();
+      }
     });
 
     this.audio.addEventListener("ended", () => {
       if (!this.audio.loop) {
         this.nextSong();
       }
+    });
+
+    this.audio.addEventListener("emptied", () => {
+      this.seekBar.value = "0";
     });
 
     this.playerDom = this.createPlayerDom();
@@ -184,7 +190,15 @@ export class AudioController {
     return dom;
   };
 
-  private createQueueItem = (song: SongObject) => {
+  private resetPlayerDom = () => {
+    this.audio.src = "";
+    this.durationDom.textContent = "00:00";
+    this.currenttimeDom.textContent = "00:00";
+    this.playBtn.disabled = true;
+    this.playBtn.textContent = "play";
+  };
+
+  private createQueueItemDom = (song: SongObject, index: number) => {
     const itemDom = document.createElement("div");
     itemDom.classList.add("queue-item");
 
@@ -220,6 +234,19 @@ export class AudioController {
     const removeBtn = document.createElement("button");
     removeBtn.classList.add("queue-remove-btn");
     removeBtn.textContent = "X";
+    removeBtn.addEventListener("click", () => {
+      if (this.currentOrder > index) {
+        this.currentOrder--;
+      } else if (this.currentOrder == index) {
+        if (this.queue.length > 1) {
+          this.nextSong();
+        } else {
+          this.resetPlayerDom();
+        }
+      }
+      this.queue.splice(index, 1);
+      this.updateQueueDom();
+    });
 
     itemDom.append(thumbnailDom, songInfoDom, buttonPanel);
     songInfoDom.append(songNameDom, btmInfoDom);
@@ -237,8 +264,8 @@ export class AudioController {
 
   private updateQueueDom = () => {
     this.queueDom.textContent = "";
-    for (const song of this.queue) {
-      const newQueueItem = this.createQueueItem(song);
+    for (const [index, song] of this.queue.entries()) {
+      const newQueueItem = this.createQueueItemDom(song, index);
       this.queueDom.append(newQueueItem);
     }
   };
@@ -249,5 +276,7 @@ export class AudioController {
     if (this.queue.length == 1) {
       this.playSong(this.queue[this.currentOrder]);
     }
+
+    this.updateQueueDom();
   };
 }
