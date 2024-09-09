@@ -3,7 +3,7 @@ import axios from "axios";
 
 import songCard from "./components/songCard";
 
-import { AudioController } from "./class/audioController";
+import { AudioController } from "./class/AudioController";
 
 import SongResponse from "./types/SongResponse";
 import SongObject from "./types/SongObject";
