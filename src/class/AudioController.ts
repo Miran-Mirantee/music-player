@@ -2,7 +2,41 @@ import formatTime from "../utils/formalTime";
 import SongObject from "../types/SongObject";
 
 export class AudioController {
-  private queue: SongObject[] = [];
+  private queue: SongObject[] = [
+    {
+      artist: "ChouCho",
+      duration: 289,
+      name: "kagami1",
+      thumbnail:
+        "https://lh3.googleusercontent.com/cPyEotRklRgMeWyS2eBMdCKsb5xTntN7Z959M_CvhQiRE6Kxsj-1XExUxarbDrE7NnbAkcCvkFanU4Q=w120-h120-s-l90-rj",
+      url: "blob:http://localhost:5173/4aa5927f-6631-4f34-a406-16f7831d47be",
+    },
+    {
+      artist: "ChouCho",
+      duration: 289,
+      name: "kagami2",
+      thumbnail:
+        "https://lh3.googleusercontent.com/cPyEotRklRgMeWyS2eBMdCKsb5xTntN7Z959M_CvhQiRE6Kxsj-1XExUxarbDrE7NnbAkcCvkFanU4Q=w120-h120-s-l90-rj",
+      url: "blob:http://localhost:5173/4aa5927f-6631-4f34-a406-16f7831d47be",
+    },
+    {
+      artist: "ChouCho",
+      duration: 289,
+      name: "kagami3",
+      thumbnail:
+        "https://lh3.googleusercontent.com/cPyEotRklRgMeWyS2eBMdCKsb5xTntN7Z959M_CvhQiRE6Kxsj-1XExUxarbDrE7NnbAkcCvkFanU4Q=w120-h120-s-l90-rj",
+      url: "blob:http://localhost:5173/4aa5927f-6631-4f34-a406-16f7831d47be",
+    },
+    {
+      artist: "ChouCho",
+      duration: 289,
+      name: "kagami4",
+      thumbnail:
+        "https://lh3.googleusercontent.com/cPyEotRklRgMeWyS2eBMdCKsb5xTntN7Z959M_CvhQiRE6Kxsj-1XExUxarbDrE7NnbAkcCvkFanU4Q=w120-h120-s-l90-rj",
+      url: "blob:http://localhost:5173/4aa5927f-6631-4f34-a406-16f7831d47be",
+    },
+  ];
+  // private queue: SongObject[] = [];
   private currentOrder: number = 0;
   private audio: HTMLAudioElement;
   private currenttimeDom: HTMLSpanElement;
@@ -78,6 +112,9 @@ export class AudioController {
     this.playerDom = this.createPlayerDom();
 
     this.queueDom = this.createQueueDom();
+
+    // temp
+    this.updateQueueDom();
   }
 
   private nextSong = () => {
@@ -199,8 +236,78 @@ export class AudioController {
   };
 
   private createQueueItemDom = (song: SongObject, index: number) => {
+    let isBtnHeld = false;
+    let isDragging = false;
+    let initialY = 0;
+    let offsetY = 0;
+
+    let prevSibling: any;
+
     const itemDom = document.createElement("div");
     itemDom.classList.add("queue-item");
+    itemDom.addEventListener("mousedown", (e) => {
+      if (isBtnHeld) {
+        isDragging = true;
+        initialY = e.clientY;
+        offsetY = 0;
+        itemDom.classList.add("dragging");
+      }
+    });
+
+    document.addEventListener("mousemove", (e) => {
+      if (isDragging && isBtnHeld) {
+        offsetY = e.clientY - initialY;
+
+        const draggingItem = this.queueDom.querySelector(".dragging");
+        if (draggingItem) {
+          const draggingItemRect = draggingItem.getBoundingClientRect();
+          const queueDomRect = this.queueDom.getBoundingClientRect();
+
+          // check if draggin item is in the container
+          if (
+            e.clientY - queueDomRect.top > draggingItemRect.height / 2 &&
+            e.clientY - queueDomRect.top <
+              queueDomRect.height - draggingItemRect.height / 2
+          ) {
+            itemDom.style.transform = `translateY(${offsetY}px)`;
+          }
+
+          const siblings = [
+            ...this.queueDom.querySelectorAll(".queue-item:not(.dragging)"),
+          ];
+
+          const nextSibling =
+            siblings.find((sibling) => {
+              if (sibling instanceof HTMLElement) {
+                return (
+                  e.clientY - queueDomRect.top <=
+                  sibling.offsetTop + sibling.offsetHeight / 2
+                );
+              }
+            }) || null;
+
+          if (prevSibling != nextSibling) {
+            console.log("heh");
+            offsetY = 0;
+            initialY = e.clientY;
+            itemDom.style.transform = `translateY(${offsetY}px)`;
+
+            this.queueDom.insertBefore(draggingItem, nextSibling);
+          }
+
+          prevSibling = nextSibling;
+        }
+      }
+    });
+
+    document.addEventListener("mouseup", () => {
+      if (isDragging) {
+        isBtnHeld = false;
+        isDragging = false;
+        itemDom.classList.remove("dragging");
+        itemDom.style.transform = `translateY(0px)`;
+      }
+    });
 
     const thumbnailDom = document.createElement("img");
     thumbnailDom.classList.add("queue-thumbnail");
@@ -230,7 +337,9 @@ export class AudioController {
     const moveBtn = document.createElement("button");
     moveBtn.classList.add("queue-move-btn");
     moveBtn.textContent = "move";
-
+    moveBtn.addEventListener("mousedown", () => {
+      isBtnHeld = true;
+    });
     const removeBtn = document.createElement("button");
     removeBtn.classList.add("queue-remove-btn");
     removeBtn.textContent = "X";

@@ -28,6 +28,7 @@ import SongObject from "./types/SongObject";
 /**
  * BUGS:
  *  - Looping not working as intended
+ *  - Song didn't stop when removing from queue (when the queue is more than one song and trying to remove all from the queue)
  */
 
 const searchSongs = async (query: string) => {

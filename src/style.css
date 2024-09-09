@@ -112,6 +112,7 @@ body {
   display: flex;
   flex-direction: column;
   bottom: 0;
+  left: 0;
   width: 25%;
   background-color: rebeccapurple;
 }
@@ -122,6 +123,12 @@ body {
   background-color: violet;
   padding: 8px;
   margin: 8px;
+  user-select: none;
+}
+
+.queue-item.dragging {
+  background-color: aquamarine;
+  z-index: 1;
 }
 
 .queue-thumbnail {
