@@ -119,14 +119,21 @@ body {
 .queue-item {
   display: flex;
   gap: 4px;
+  background-color: violet;
+  padding: 8px;
+  margin: 8px;
 }
 
 .queue-thumbnail {
+  height: 80px;
 }
 
 .queue-song-info {
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
+  justify-content: center;
+  padding: 4px;
 }
 
 .queue-song-name {
@@ -145,6 +152,8 @@ body {
 
 .queue-button-panel {
   display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .queue-move-btn {
