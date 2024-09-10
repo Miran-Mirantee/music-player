@@ -322,8 +322,20 @@ export class AudioController {
     thumbnailDom.classList.add("queue-thumbnail");
     thumbnailDom.src = song.thumbnail;
 
+    thumbnailDom.addEventListener("click", () => {
+      this.playSong(this.queue[index]);
+      this.currentOrder = index;
+      this.playBtn.textContent = "play";
+    });
+
     const songInfoDom = document.createElement("div");
     songInfoDom.classList.add("queue-song-info");
+
+    songInfoDom.addEventListener("click", () => {
+      this.playSong(this.queue[index]);
+      this.currentOrder = index;
+      this.playBtn.textContent = "play";
+    });
 
     const songNameDom = document.createElement("span");
     songNameDom.classList.add("queue-song-name");

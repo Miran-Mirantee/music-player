@@ -18,11 +18,10 @@ import SongObject from "./types/SongObject";
  *  - Create a local playlist
  *  - Get a playlist from youtube
  *  - Import a playlist from spotify
- *  - Create queue UI
- *    - Implement a draggable queue changing
  *  - Create a better UI
  *    - Using Three.js (optional)
  *  - Add pagination for search
+ *  - Add cookie to prevent youtube block
  */
 
 /**

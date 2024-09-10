@@ -133,6 +133,7 @@ body {
 
 .queue-thumbnail {
   height: 80px;
+  cursor: pointer;
 }
 
 .queue-song-info {
@@ -141,6 +142,7 @@ body {
   flex-grow: 1;
   justify-content: center;
   padding: 4px;
+  cursor: pointer;
 }
 
 .queue-song-name {
