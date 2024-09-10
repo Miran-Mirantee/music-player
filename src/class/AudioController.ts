@@ -2,41 +2,7 @@ import formatTime from "../utils/formalTime";
 import SongObject from "../types/SongObject";
 
 export class AudioController {
-  private queue: SongObject[] = [
-    {
-      artist: "ChouCho",
-      duration: 289,
-      name: "kagami1",
-      thumbnail:
-        "https://lh3.googleusercontent.com/cPyEotRklRgMeWyS2eBMdCKsb5xTntN7Z959M_CvhQiRE6Kxsj-1XExUxarbDrE7NnbAkcCvkFanU4Q=w120-h120-s-l90-rj",
-      url: "blob:http://localhost:5173/4aa5927f-6631-4f34-a406-16f7831d47be",
-    },
-    {
-      artist: "ChouCho",
-      duration: 289,
-      name: "kagami2",
-      thumbnail:
-        "https://lh3.googleusercontent.com/cPyEotRklRgMeWyS2eBMdCKsb5xTntN7Z959M_CvhQiRE6Kxsj-1XExUxarbDrE7NnbAkcCvkFanU4Q=w120-h120-s-l90-rj",
-      url: "blob:http://localhost:5173/4aa5927f-6631-4f34-a406-16f7831d47be",
-    },
-    {
-      artist: "ChouCho",
-      duration: 289,
-      name: "kagami3",
-      thumbnail:
-        "https://lh3.googleusercontent.com/cPyEotRklRgMeWyS2eBMdCKsb5xTntN7Z959M_CvhQiRE6Kxsj-1XExUxarbDrE7NnbAkcCvkFanU4Q=w120-h120-s-l90-rj",
-      url: "blob:http://localhost:5173/4aa5927f-6631-4f34-a406-16f7831d47be",
-    },
-    {
-      artist: "ChouCho",
-      duration: 289,
-      name: "kagami4",
-      thumbnail:
-        "https://lh3.googleusercontent.com/cPyEotRklRgMeWyS2eBMdCKsb5xTntN7Z959M_CvhQiRE6Kxsj-1XExUxarbDrE7NnbAkcCvkFanU4Q=w120-h120-s-l90-rj",
-      url: "blob:http://localhost:5173/4aa5927f-6631-4f34-a406-16f7831d47be",
-    },
-  ];
-  // private queue: SongObject[] = [];
+  private queue: SongObject[] = [];
   private currentOrder: number = 0;
   private audio: HTMLAudioElement;
   private currenttimeDom: HTMLSpanElement;
@@ -112,9 +78,6 @@ export class AudioController {
     this.playerDom = this.createPlayerDom();
 
     this.queueDom = this.createQueueDom();
-
-    // temp
-    this.updateQueueDom();
   }
 
   private nextSong = () => {
@@ -258,45 +221,91 @@ export class AudioController {
       if (isDragging && isBtnHeld) {
         offsetY = e.clientY - initialY;
 
-        const draggingItem = this.queueDom.querySelector(".dragging");
-        if (draggingItem) {
-          const draggingItemRect = draggingItem.getBoundingClientRect();
-          const queueDomRect = this.queueDom.getBoundingClientRect();
+        const draggingItemRect = itemDom.getBoundingClientRect();
+        const queueDomRect = this.queueDom.getBoundingClientRect();
 
-          // check if draggin item is in the container
-          if (
-            e.clientY - queueDomRect.top > draggingItemRect.height / 2 &&
-            e.clientY - queueDomRect.top <
-              queueDomRect.height - draggingItemRect.height / 2
-          ) {
-            itemDom.style.transform = `translateY(${offsetY}px)`;
-          }
-
-          const siblings = [
-            ...this.queueDom.querySelectorAll(".queue-item:not(.dragging)"),
-          ];
-
-          const nextSibling =
-            siblings.find((sibling) => {
-              if (sibling instanceof HTMLElement) {
-                return (
-                  e.clientY - queueDomRect.top <=
-                  sibling.offsetTop + sibling.offsetHeight / 2
-                );
-              }
-            }) || null;
-
-          if (prevSibling != nextSibling) {
-            console.log("heh");
-            offsetY = 0;
-            initialY = e.clientY;
-            itemDom.style.transform = `translateY(${offsetY}px)`;
-
-            this.queueDom.insertBefore(draggingItem, nextSibling);
-          }
-
-          prevSibling = nextSibling;
+        // check if draggin item is in the container
+        if (
+          e.clientY - queueDomRect.top > draggingItemRect.height / 2 &&
+          e.clientY - queueDomRect.top <
+            queueDomRect.height - draggingItemRect.height / 2
+        ) {
+          itemDom.style.transform = `translateY(${offsetY}px)`;
         }
+
+        const siblings = [
+          ...this.queueDom.querySelectorAll(".queue-item:not(.dragging)"),
+        ];
+
+        const nextSibling =
+          siblings.find((sibling) => {
+            if (sibling instanceof HTMLElement) {
+              return (
+                e.clientY - queueDomRect.top <=
+                sibling.offsetTop + sibling.offsetHeight / 2
+              );
+            }
+          }) || null;
+
+        // Swapping if the last nextSibling is different
+        if (prevSibling != nextSibling) {
+          offsetY = 0;
+          initialY = e.clientY;
+          itemDom.style.transform = `translateY(${offsetY}px)`;
+
+          this.queueDom.insertBefore(itemDom, nextSibling);
+
+          // Swapping previous and current song in queue
+          if (itemDom.previousSibling instanceof HTMLElement) {
+            if (
+              itemDom.previousSibling &&
+              parseInt(itemDom.previousSibling.id) > parseInt(itemDom.id)
+            ) {
+              // changing current order of song
+              if (parseInt(itemDom.previousSibling.id) == this.currentOrder) {
+                this.currentOrder = parseInt(itemDom.id);
+              } else if (parseInt(itemDom.id) == this.currentOrder) {
+                this.currentOrder = parseInt(itemDom.previousSibling.id);
+              }
+              [
+                this.queue[parseInt(itemDom.id)],
+                this.queue[parseInt(itemDom.previousSibling.id)],
+              ] = [
+                this.queue[parseInt(itemDom.previousSibling.id)],
+                this.queue[parseInt(itemDom.id)],
+              ];
+              const temp = itemDom.id;
+              itemDom.id = itemDom.previousSibling.id;
+              itemDom.previousSibling.id = temp;
+            }
+          }
+
+          // Swapping next and current song in queue
+          if (itemDom.nextSibling instanceof HTMLElement) {
+            if (
+              itemDom.nextSibling &&
+              parseInt(itemDom.nextSibling.id) < parseInt(itemDom.id)
+            ) {
+              // changing current order of song
+              if (parseInt(itemDom.nextSibling.id) == this.currentOrder) {
+                this.currentOrder = parseInt(itemDom.id);
+              } else if (parseInt(itemDom.id) == this.currentOrder) {
+                this.currentOrder = parseInt(itemDom.nextSibling.id);
+              }
+              [
+                this.queue[parseInt(itemDom.id)],
+                this.queue[parseInt(itemDom.nextSibling.id)],
+              ] = [
+                this.queue[parseInt(itemDom.nextSibling.id)],
+                this.queue[parseInt(itemDom.id)],
+              ];
+              const temp = itemDom.id;
+              itemDom.id = itemDom.nextSibling.id;
+              itemDom.nextSibling.id = temp;
+            }
+          }
+        }
+        prevSibling = nextSibling;
       }
     });
 
@@ -375,6 +384,7 @@ export class AudioController {
     this.queueDom.textContent = "";
     for (const [index, song] of this.queue.entries()) {
       const newQueueItem = this.createQueueItemDom(song, index);
+      newQueueItem.id = index.toString();
       this.queueDom.append(newQueueItem);
     }
   };
