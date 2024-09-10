@@ -7,6 +7,7 @@ import { AudioController } from "./class/AudioController";
 
 import SongResponse from "./types/SongResponse";
 import SongObject from "./types/SongObject";
+import PlaylistResponse from "./types/PlaylistResponse";
 
 /**
  * TODO:
@@ -30,11 +31,29 @@ import SongObject from "./types/SongObject";
  *  - Song didn't stop when removing from queue (when the queue is more than one song and trying to remove all from the queue)
  */
 
+let currentSearchType = "song";
+
 const searchSongs = async (query: string) => {
   try {
     const response = await axios.get("http://localhost:3000/api/searchSongs", {
       params: { search: query },
     });
+
+    console.log(response);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const searchPlaylists = async (query: string) => {
+  try {
+    const response = await axios.get(
+      "http://localhost:3000/api/searchPlaylists",
+      {
+        params: { search: query },
+      }
+    );
 
     console.log(response);
     return response.data;
@@ -58,6 +77,19 @@ const getMusic = async (url: string) => {
   }
 };
 
+const getPlaylist = async (query: string) => {
+  try {
+    const response = await axios.get("http://localhost:3000/api/getPlaylist", {
+      params: { playlistId: query },
+    });
+    console.log("getting playlist");
+    console.log(response);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const columnDom = document.querySelector(".column");
 
 const audioController = new AudioController();
@@ -68,42 +100,81 @@ const formDom = document.createElement("form");
 formDom.classList.add("search-form");
 formDom.addEventListener("submit", async (e) => {
   e.preventDefault();
-
-  const songs: SongResponse[] = await searchSongs(inputDom.value);
   resultDom.textContent = "";
 
-  for (const song of songs) {
-    const newCard = songCard(song);
-    resultDom.append(newCard);
+  switch (currentSearchType) {
+    case "song":
+      const songs: SongResponse[] = await searchSongs(inputDom.value);
 
-    newCard.addEventListener("click", async () => {
-      // playBtn.disabled = true;
-      const newSong = await getMusic(
-        `https://www.youtube.com/watch?v=${song.videoId}`
-      );
-      if (newSong) {
-        const newSongObj: SongObject = {
-          url: newSong,
-          artist: song.artist.name,
-          thumbnail: song.thumbnails[1].url,
-          duration: song.duration,
-          name: song.name,
-        };
+      for (const song of songs) {
+        const newCard = songCard(song);
+        resultDom.append(newCard);
 
-        console.log(newSongObj);
-        audioController.addSong(newSongObj);
+        newCard.addEventListener("click", async () => {
+          // playBtn.disabled = true;
+          const newSong = await getMusic(
+            `https://www.youtube.com/watch?v=${song.videoId}`
+          );
+          if (newSong) {
+            const newSongObj: SongObject = {
+              url: newSong,
+              artist: song.artist.name,
+              thumbnail: song.thumbnails[1].url,
+              duration: song.duration,
+              name: song.name,
+            };
+
+            console.log(newSongObj);
+            audioController.addSong(newSongObj);
+          }
+        });
       }
-    });
+      console.log(songs);
+      break;
+    case "playlist":
+      const playlists: PlaylistResponse[] = await searchPlaylists(
+        inputDom.value
+      );
+
+      console.log(playlists);
+      break;
+
+    default:
+      break;
   }
-  console.log(songs);
 });
 
 const inputDom = document.createElement("input");
 inputDom.id = "search-field";
 inputDom.placeholder = "search";
 
+const tabDom = document.createElement("div");
+tabDom.classList.add("tab");
+
+const songTabDom = document.createElement("div");
+songTabDom.classList.add("tab-song");
+songTabDom.textContent = "Songs";
+songTabDom.addEventListener("click", () => {
+  currentSearchType = "song";
+});
+
+const playlistTabDom = document.createElement("div");
+playlistTabDom.classList.add("tab-playlist");
+playlistTabDom.textContent = "Playlists";
+playlistTabDom.addEventListener("click", () => {
+  currentSearchType = "playlist";
+});
+
+const videoTabDom = document.createElement("div");
+videoTabDom.classList.add("tab-video");
+videoTabDom.textContent = "Videos";
+videoTabDom.addEventListener("click", () => {
+  currentSearchType = "video";
+});
+
 const resultDom = document.createElement("div");
 resultDom.classList.add("songs-list");
 
+tabDom.append(songTabDom, playlistTabDom, videoTabDom);
 formDom.append(inputDom);
-columnDom?.append(formDom, resultDom);
+columnDom?.append(formDom, tabDom, resultDom);
