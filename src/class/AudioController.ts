@@ -82,6 +82,7 @@ export class AudioController {
   }
 
   private nextSong = () => {
+    this.resetPlayerDom();
     if (this.queue.length == this.currentOrder + 1) {
       this.currentOrder = 0;
     } else {
@@ -91,6 +92,7 @@ export class AudioController {
   };
 
   private prevSong = () => {
+    this.resetPlayerDom();
     if (this.currentOrder == 0) {
       this.currentOrder = this.queue.length - 1;
     } else {

@@ -79,7 +79,6 @@ formDom.addEventListener("submit", async (e) => {
           const playlistSongs = await getPlaylist(playlist.playlistId);
 
           for (const song of playlistSongs) {
-            console.log(song);
             const newSongObj: SongObject = {
               videoId: song.videoId,
               artist: song.artist.name,
@@ -97,7 +96,6 @@ formDom.addEventListener("submit", async (e) => {
           console.log(playlistSongs);
         });
       }
-
       console.log(playlists);
       break;
 
