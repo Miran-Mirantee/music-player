@@ -2,6 +2,7 @@ import "./style.css";
 import axios from "axios";
 
 import songCard from "./components/songCard";
+import playlistCard from "./components/playlistCard";
 
 import { AudioController } from "./class/AudioController";
 
@@ -135,6 +136,17 @@ formDom.addEventListener("submit", async (e) => {
       const playlists: PlaylistResponse[] = await searchPlaylists(
         inputDom.value
       );
+
+      for (const playlist of playlists) {
+        const newCard = playlistCard(playlist);
+        resultDom.append(newCard);
+
+        newCard.addEventListener("click", async () => {
+          const playlistSongs = await getPlaylist(playlist.playlistId);
+
+          console.log(playlistSongs);
+        });
+      }
 
       console.log(playlists);
       break;

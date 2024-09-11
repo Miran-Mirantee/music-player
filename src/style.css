@@ -46,6 +46,11 @@ body {
   padding: 12px;
 }
 
+.card-thumbnail {
+  height: 120px;
+  width: 120px;
+}
+
 .card-subInfo1 {
   display: flex;
   flex-direction: column;
