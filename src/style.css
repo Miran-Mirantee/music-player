@@ -115,12 +115,15 @@ body {
 
 .queue {
   position: fixed;
+  max-height: 100vh;
   display: flex;
   flex-direction: column;
   bottom: 0;
   left: 0;
   width: 25%;
   background-color: rebeccapurple;
+  overflow-x: hidden;
+  overflow-y: scroll;
 }
 
 .queue-item {
@@ -139,6 +142,8 @@ body {
 
 .queue-thumbnail {
   height: 80px;
+  width: 80px;
+  object-fit: cover;
   cursor: pointer;
 }
 
