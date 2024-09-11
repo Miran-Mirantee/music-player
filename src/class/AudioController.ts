@@ -405,7 +405,7 @@ export class AudioController {
     this.queue.push(newSong);
 
     if (this.queue.length == 1) {
-      this.playSong(this.queue[this.currentOrder]);
+      // this.playSong(this.queue[this.currentOrder]);
     }
 
     this.updateQueueDom();

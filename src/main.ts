@@ -144,6 +144,22 @@ formDom.addEventListener("submit", async (e) => {
         newCard.addEventListener("click", async () => {
           const playlistSongs = await getPlaylist(playlist.playlistId);
 
+          for (const song of playlistSongs) {
+            console.log(song);
+            const newSongObj: SongObject = {
+              url: song.videoId,
+              artist: song.artist.name,
+              thumbnail: song.thumbnails[1]
+                ? song.thumbnails[1].url
+                : song.thumbnails[0].url,
+              duration: song.duration,
+              name: song.name,
+            };
+
+            // console.log(newSongObj);
+            audioController.addSong(newSongObj);
+          }
+
           console.log(playlistSongs);
         });
       }

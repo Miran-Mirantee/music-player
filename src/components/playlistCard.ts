@@ -6,7 +6,9 @@ const playlistCard = (playlist: PlaylistResponse) => {
 
   const thumbnailDom = document.createElement("img");
   thumbnailDom.classList.add("card-thumbnail");
-  thumbnailDom.src = playlist.thumbnails[1].url;
+  thumbnailDom.src = playlist.thumbnails[1]
+    ? playlist.thumbnails[1].url
+    : playlist.thumbnails[0].url;
 
   const infoDom = document.createElement("div");
   infoDom.classList.add("card-info");
