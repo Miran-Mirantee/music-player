@@ -1,4 +1,5 @@
 import formatTime from "../utils/formalTime";
+import getMusic from "../utils/getMusic";
 import SongObject from "../types/SongObject";
 
 export class AudioController {
@@ -98,8 +99,18 @@ export class AudioController {
     this.playSong(this.queue[this.currentOrder]);
   };
 
-  private playSong = (song: SongObject) => {
-    this.audio.src = song.url;
+  private playSong = async (song: SongObject) => {
+    if (song.source) {
+      this.audio.src = song.source;
+    } else {
+      const source = await getMusic(
+        `https://www.youtube.com/watch?v=${song.videoId}`
+      );
+      if (source) {
+        song.source = source;
+        this.audio.src = source;
+      }
+    }
     this.audio.play();
   };
 
@@ -203,8 +214,13 @@ export class AudioController {
     let isDragging = false;
     let initialY = 0;
     let offsetY = 0;
-
     let prevSibling: any;
+
+    const _handleClickQueuePlaySong = () => {
+      this.resetPlayerDom();
+      this.playSong(this.queue[index]);
+      this.currentOrder = index;
+    };
 
     const itemDom = document.createElement("div");
     itemDom.classList.add("queue-item");
@@ -322,20 +338,12 @@ export class AudioController {
     thumbnailDom.classList.add("queue-thumbnail");
     thumbnailDom.src = song.thumbnail;
 
-    thumbnailDom.addEventListener("click", () => {
-      this.playSong(this.queue[index]);
-      this.currentOrder = index;
-      this.playBtn.textContent = "play";
-    });
+    thumbnailDom.addEventListener("click", _handleClickQueuePlaySong);
 
     const songInfoDom = document.createElement("div");
     songInfoDom.classList.add("queue-song-info");
 
-    songInfoDom.addEventListener("click", () => {
-      this.playSong(this.queue[index]);
-      this.currentOrder = index;
-      this.playBtn.textContent = "play";
-    });
+    songInfoDom.addEventListener("click", _handleClickQueuePlaySong);
 
     const songNameDom = document.createElement("span");
     songNameDom.classList.add("queue-song-name");
@@ -405,7 +413,7 @@ export class AudioController {
     this.queue.push(newSong);
 
     if (this.queue.length == 1) {
-      // this.playSong(this.queue[this.currentOrder]);
+      this.playSong(this.queue[this.currentOrder]);
     }
 
     this.updateQueueDom();

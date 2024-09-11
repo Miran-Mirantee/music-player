@@ -3,7 +3,8 @@ type SongObject = {
   artist: string;
   thumbnail: string;
   duration: number;
-  url: string;
+  videoId: string;
+  source?: string;
 };
 
 export default SongObject;

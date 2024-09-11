@@ -1,11 +1,10 @@
 import "./style.css";
-import axios from "axios";
-
 import songCard from "./components/songCard";
 import playlistCard from "./components/playlistCard";
-
 import { AudioController } from "./class/AudioController";
-
+import searchPlaylists from "./utils/searchPlaylists";
+import searchSongs from "./utils/searchSongs";
+import getPlaylist from "./utils/getPlaylist";
 import SongResponse from "./types/SongResponse";
 import SongObject from "./types/SongObject";
 import PlaylistResponse from "./types/PlaylistResponse";
@@ -14,11 +13,9 @@ import PlaylistResponse from "./types/PlaylistResponse";
  * TODO:
  *  - Implement streaming
  *  - Get search result from youtube (search by name)
- *    - Search playlist
  *    - Search artist
  *    - Search videos
  *  - Create a local playlist
- *  - Get a playlist from youtube
  *  - Import a playlist from spotify
  *  - Create a better UI
  *    - Using Three.js (optional)
@@ -33,63 +30,6 @@ import PlaylistResponse from "./types/PlaylistResponse";
  */
 
 let currentSearchType = "song";
-
-const searchSongs = async (query: string) => {
-  try {
-    const response = await axios.get("http://localhost:3000/api/searchSongs", {
-      params: { search: query },
-    });
-
-    console.log(response);
-    return response.data;
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const searchPlaylists = async (query: string) => {
-  try {
-    const response = await axios.get(
-      "http://localhost:3000/api/searchPlaylists",
-      {
-        params: { search: query },
-      }
-    );
-
-    console.log(response);
-    return response.data;
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const getMusic = async (url: string) => {
-  try {
-    const response = await axios.get("http://localhost:3000/api/youtube", {
-      responseType: "blob",
-      params: { url },
-    });
-    // console.log(response);
-
-    const audio = URL.createObjectURL(response.data);
-    return audio;
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const getPlaylist = async (query: string) => {
-  try {
-    const response = await axios.get("http://localhost:3000/api/getPlaylist", {
-      params: { playlistId: query },
-    });
-    console.log("getting playlist");
-    console.log(response);
-    return response.data;
-  } catch (error) {
-    console.log(error);
-  }
-};
 
 const columnDom = document.querySelector(".column");
 
@@ -112,22 +52,16 @@ formDom.addEventListener("submit", async (e) => {
         resultDom.append(newCard);
 
         newCard.addEventListener("click", async () => {
-          // playBtn.disabled = true;
-          const newSong = await getMusic(
-            `https://www.youtube.com/watch?v=${song.videoId}`
-          );
-          if (newSong) {
-            const newSongObj: SongObject = {
-              url: newSong,
-              artist: song.artist.name,
-              thumbnail: song.thumbnails[1].url,
-              duration: song.duration,
-              name: song.name,
-            };
+          const newSongObj: SongObject = {
+            videoId: song.videoId,
+            artist: song.artist.name,
+            thumbnail: song.thumbnails[1].url,
+            duration: song.duration,
+            name: song.name,
+          };
 
-            console.log(newSongObj);
-            audioController.addSong(newSongObj);
-          }
+          console.log(newSongObj);
+          audioController.addSong(newSongObj);
         });
       }
       console.log(songs);
@@ -147,7 +81,7 @@ formDom.addEventListener("submit", async (e) => {
           for (const song of playlistSongs) {
             console.log(song);
             const newSongObj: SongObject = {
-              url: song.videoId,
+              videoId: song.videoId,
               artist: song.artist.name,
               thumbnail: song.thumbnails[1]
                 ? song.thumbnails[1].url
