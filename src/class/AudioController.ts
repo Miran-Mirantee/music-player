@@ -420,4 +420,10 @@ export class AudioController {
 
     this.updateQueueDom();
   };
+
+  public clearQueue = () => {
+    this.resetPlayerDom();
+    this.currentOrder = 0;
+    this.queue = [];
+  };
 }

@@ -11,7 +11,7 @@ import PlaylistResponse from "./types/PlaylistResponse";
 
 /**
  * TODO:
- *  - Implement streaming
+ *  - Implement streaming (too difficult, still don't quite understand the concept)
  *  - Get search result from youtube (search by name)
  *    - Search artist
  *    - Search videos
@@ -21,12 +21,14 @@ import PlaylistResponse from "./types/PlaylistResponse";
  *    - Using Three.js (optional)
  *  - Add pagination for search
  *  - Add cookie to prevent youtube block
+ *  - Where did we store music after we loaded? (biggest mystery)
  */
 
 /**
  * BUGS:
  *  - Looping not working as intended
  *  - Song didn't stop when removing from queue (when the queue is more than one song and trying to remove all from the queue)
+ *  - If the user download the song then change to other song, the player will play the skipped song once it's fully loaded
  */
 
 let currentSearchType = "song";
@@ -78,6 +80,7 @@ formDom.addEventListener("submit", async (e) => {
         newCard.addEventListener("click", async () => {
           const playlistSongs = await getPlaylist(playlist.playlistId);
 
+          audioController.clearQueue();
           for (const song of playlistSongs) {
             const newSongObj: SongObject = {
               videoId: song.videoId,
