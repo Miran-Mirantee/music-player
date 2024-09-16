@@ -1,4 +1,5 @@
 import VideoResponse from "../types/VideoResponse";
+import formatTime from "../utils/formalTime";
 
 const videoCard = (video: VideoResponse) => {
   const cardDom = document.createElement("div");
@@ -26,7 +27,7 @@ const videoCard = (video: VideoResponse) => {
 
   const durationDom = document.createElement("div");
   durationDom.classList.add("card-duration");
-  durationDom.textContent = video.duration ? video.duration.toString() : "0";
+  durationDom.textContent = video.duration ? formatTime(video.duration) : "0";
 
   cardDom.append(thumbnailDom, infoDom);
   infoDom.append(songNameDom, subInfoDom2);

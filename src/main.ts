@@ -128,6 +128,21 @@ const handleSearchPlaylists = async () => {
   }
 };
 
+const handleSearchVideos = async () => {
+  try {
+    const videos: VideoResponse[] = await searchVideos(inputDom.value);
+
+    for (const video of videos) {
+      const newCard = videoCard(video);
+      resultDom.append(newCard);
+    }
+
+    console.log(videos);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 const columnDom = document.querySelector(".column");
 
 const audioController = new AudioController();
@@ -149,6 +164,7 @@ formDom.addEventListener("submit", async (e) => {
       break;
 
     case "video":
+      await handleSearchVideos();
       break;
 
     default:
