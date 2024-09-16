@@ -6,6 +6,7 @@ import { AudioController } from "./class/AudioController";
 import searchPlaylists from "./utils/searchPlaylists";
 import searchSongs from "./utils/searchSongs";
 import getPlaylist from "./utils/getPlaylist";
+import searchVideos from "./utils/searchVideos";
 import SongResponse from "./types/SongResponse";
 import SongObject from "./types/SongObject";
 import PlaylistResponse from "./types/PlaylistResponse";
@@ -52,71 +53,79 @@ const addSong = (song: VideoResponse | SongResponse) => {
 };
 
 const handleSerachSongs = async () => {
-  const songs: SongResponse[] = await searchSongs(inputDom.value);
+  try {
+    const songs: SongResponse[] = await searchSongs(inputDom.value);
 
-  for (const song of songs) {
-    const newCard = songCard(song);
-    resultDom.append(newCard);
-
-    newCard.addEventListener("click", async () => {
-      addSong(song);
-    });
-  }
-  console.log(songs);
-};
-
-const handleSearchPlaylists = async () => {
-  const playlists: PlaylistResponse[] = await searchPlaylists(inputDom.value);
-
-  const initialPlaylists = playlists;
-
-  const renderPlaylists = (playlists: PlaylistResponse[]) => {
-    for (const playlist of playlists) {
-      const newCard = playlistCard(playlist);
+    for (const song of songs) {
+      const newCard = songCard(song);
       resultDom.append(newCard);
 
       newCard.addEventListener("click", async () => {
-        const playlistSongs: VideoResponse[] = await getPlaylist(
-          playlist.playlistId
-        );
-
-        resultDom.textContent = "";
-        const btnPanel = document.createElement("div");
-        btnPanel.classList.add("results-btn-panel");
-
-        const backBtn = document.createElement("button");
-        backBtn.textContent = "back";
-        backBtn.addEventListener("click", () => {
-          resultDom.textContent = "";
-          renderPlaylists(initialPlaylists);
-        });
-
-        const enqueueBtn = document.createElement("button");
-        enqueueBtn.textContent = "enqueue";
-        enqueueBtn.addEventListener("click", () => {
-          audioController.clearQueue();
-          for (const video of playlistSongs) {
-            addSong(video);
-          }
-        });
-
-        btnPanel.append(backBtn, enqueueBtn);
-        resultDom.append(btnPanel);
-
-        for (const video of playlistSongs) {
-          const newCard = videoCard(video);
-          resultDom.append(newCard);
-
-          newCard.addEventListener("click", async () => {
-            addSong(video);
-          });
-        }
+        addSong(song);
       });
     }
-  };
+    console.log(songs);
+  } catch (error) {
+    console.error(error);
+  }
+};
 
-  renderPlaylists(initialPlaylists);
-  console.log(playlists);
+const handleSearchPlaylists = async () => {
+  try {
+    const playlists: PlaylistResponse[] = await searchPlaylists(inputDom.value);
+
+    const initialPlaylists = playlists;
+
+    const renderPlaylists = (playlists: PlaylistResponse[]) => {
+      for (const playlist of playlists) {
+        const newCard = playlistCard(playlist);
+        resultDom.append(newCard);
+
+        newCard.addEventListener("click", async () => {
+          const playlistSongs: VideoResponse[] = await getPlaylist(
+            playlist.playlistId
+          );
+
+          resultDom.textContent = "";
+          const btnPanel = document.createElement("div");
+          btnPanel.classList.add("results-btn-panel");
+
+          const backBtn = document.createElement("button");
+          backBtn.textContent = "back";
+          backBtn.addEventListener("click", () => {
+            resultDom.textContent = "";
+            renderPlaylists(initialPlaylists);
+          });
+
+          const enqueueBtn = document.createElement("button");
+          enqueueBtn.textContent = "enqueue";
+          enqueueBtn.addEventListener("click", () => {
+            audioController.clearQueue();
+            for (const video of playlistSongs) {
+              addSong(video);
+            }
+          });
+
+          btnPanel.append(backBtn, enqueueBtn);
+          resultDom.append(btnPanel);
+
+          for (const video of playlistSongs) {
+            const newCard = videoCard(video);
+            resultDom.append(newCard);
+
+            newCard.addEventListener("click", async () => {
+              addSong(video);
+            });
+          }
+        });
+      }
+    };
+
+    renderPlaylists(initialPlaylists);
+    console.log(playlists);
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 const columnDom = document.querySelector(".column");
@@ -137,6 +146,9 @@ formDom.addEventListener("submit", async (e) => {
       break;
     case "playlist":
       await handleSearchPlaylists();
+      break;
+
+    case "video":
       break;
 
     default:

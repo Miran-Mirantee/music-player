@@ -7,7 +7,7 @@ const getPlaylist = async (query: string) => {
     });
     return response.data;
   } catch (error) {
-    console.log(error);
+    throw error;
   }
 };
 

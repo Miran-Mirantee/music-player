@@ -9,7 +9,7 @@ const getMusic = async (url: string) => {
     const audio = URL.createObjectURL(response.data);
     return audio;
   } catch (error) {
-    console.log(error);
+    throw error;
   }
 };
 
