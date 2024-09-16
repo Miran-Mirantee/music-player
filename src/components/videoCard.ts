@@ -1,44 +1,38 @@
-import SongResponse from "../types/SongResponse";
+import VideoResponse from "../types/VideoResponse";
 
-const songCard = (song: SongResponse) => {
+const videoCard = (video: VideoResponse) => {
   const cardDom = document.createElement("div");
   cardDom.classList.add("card");
 
   const thumbnailDom = document.createElement("img");
   thumbnailDom.classList.add("card-thumbnail");
-  thumbnailDom.src = song.thumbnails[1].url;
+  thumbnailDom.src = video.thumbnails[1]
+    ? video.thumbnails[1].url
+    : video.thumbnails[0].url;
 
   const infoDom = document.createElement("div");
   infoDom.classList.add("card-info");
 
-  const subInfoDom1 = document.createElement("div");
-  subInfoDom1.classList.add("card-subInfo1");
-
   const songNameDom = document.createElement("div");
   songNameDom.classList.add("card-songName");
-  songNameDom.textContent = song.name;
-
-  const albumDom = document.createElement("div");
-  albumDom.classList.add("card-albumDom");
-  albumDom.textContent = song.album.name;
+  songNameDom.textContent = video.name;
 
   const subInfoDom2 = document.createElement("div");
   subInfoDom2.classList.add("card-subInfo2");
 
   const artistDom = document.createElement("div");
   artistDom.classList.add("card-artist");
-  artistDom.textContent = song.artist.name;
+  artistDom.textContent = video.artist.name;
 
   const durationDom = document.createElement("div");
   durationDom.classList.add("card-duration");
-  durationDom.textContent = song.duration.toString();
+  durationDom.textContent = video.duration ? video.duration.toString() : "0";
 
   cardDom.append(thumbnailDom, infoDom);
-  infoDom.append(subInfoDom1, subInfoDom2);
-  subInfoDom1.append(songNameDom, albumDom);
+  infoDom.append(songNameDom, subInfoDom2);
   subInfoDom2.append(artistDom, durationDom);
 
   return cardDom;
 };
 
-export default songCard;
+export default videoCard;

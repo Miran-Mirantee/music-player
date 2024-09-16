@@ -1,6 +1,7 @@
 import "./style.css";
 import songCard from "./components/songCard";
 import playlistCard from "./components/playlistCard";
+import videoCard from "./components/videoCard";
 import { AudioController } from "./class/AudioController";
 import searchPlaylists from "./utils/searchPlaylists";
 import searchSongs from "./utils/searchSongs";
@@ -8,6 +9,7 @@ import getPlaylist from "./utils/getPlaylist";
 import SongResponse from "./types/SongResponse";
 import SongObject from "./types/SongObject";
 import PlaylistResponse from "./types/PlaylistResponse";
+import VideoResponse from "./types/VideoResponse";
 
 /**
  * TODO:
@@ -31,7 +33,91 @@ import PlaylistResponse from "./types/PlaylistResponse";
  *  - If the user download the song then change to other song, the player will play the skipped song once it's fully loaded
  */
 
-let currentSearchType = "song";
+const state = {
+  currentSearchType: "song",
+};
+
+const addSong = (song: VideoResponse | SongResponse) => {
+  const newSongObj: SongObject = {
+    videoId: song.videoId,
+    artist: song.artist.name,
+    thumbnail: song.thumbnails[1]
+      ? song.thumbnails[1].url
+      : song.thumbnails[0].url,
+    duration: song.duration || 0,
+    name: song.name,
+  };
+
+  audioController.addSong(newSongObj);
+};
+
+const handleSerachSongs = async () => {
+  const songs: SongResponse[] = await searchSongs(inputDom.value);
+
+  for (const song of songs) {
+    const newCard = songCard(song);
+    resultDom.append(newCard);
+
+    newCard.addEventListener("click", async () => {
+      addSong(song);
+    });
+  }
+  console.log(songs);
+};
+
+const handleSearchPlaylists = async () => {
+  const playlists: PlaylistResponse[] = await searchPlaylists(inputDom.value);
+
+  const initialPlaylists = playlists;
+
+  const renderPlaylists = (playlists: PlaylistResponse[]) => {
+    for (const playlist of playlists) {
+      const newCard = playlistCard(playlist);
+      resultDom.append(newCard);
+
+      newCard.addEventListener("click", async () => {
+        const playlistSongs: VideoResponse[] = await getPlaylist(
+          playlist.playlistId
+        );
+
+        resultDom.textContent = "";
+        const btnPanel = document.createElement("div");
+        btnPanel.classList.add("results-btn-panel");
+
+        const backBtn = document.createElement("button");
+        backBtn.textContent = "back";
+        backBtn.addEventListener("click", () => {
+          resultDom.textContent = "";
+          renderPlaylists(initialPlaylists);
+        });
+
+        const enqueueBtn = document.createElement("button");
+        enqueueBtn.textContent = "enqueue";
+        enqueueBtn.addEventListener("click", () => {
+          audioController.clearQueue();
+          for (const video of playlistSongs) {
+            addSong(video);
+          }
+        });
+
+        btnPanel.append(backBtn, enqueueBtn);
+        resultDom.append(btnPanel);
+
+        for (const video of playlistSongs) {
+          const newCard = videoCard(video);
+          resultDom.append(newCard);
+
+          newCard.addEventListener("click", async () => {
+            addSong(video);
+          });
+        }
+      });
+    }
+  };
+
+  renderPlaylists(initialPlaylists);
+  console.log(playlists);
+};
 
 const columnDom = document.querySelector(".column");
 
@@ -45,61 +131,12 @@ formDom.addEventListener("submit", async (e) => {
   e.preventDefault();
   resultDom.textContent = "";
 
-  switch (currentSearchType) {
+  switch (state.currentSearchType) {
     case "song":
-      const songs: SongResponse[] = await searchSongs(inputDom.value);
-
-      for (const song of songs) {
-        const newCard = songCard(song);
-        resultDom.append(newCard);
-
-        newCard.addEventListener("click", async () => {
-          const newSongObj: SongObject = {
-            videoId: song.videoId,
-            artist: song.artist.name,
-            thumbnail: song.thumbnails[1].url,
-            duration: song.duration,
-            name: song.name,
-          };
-
-          console.log(newSongObj);
-          audioController.addSong(newSongObj);
-        });
-      }
-      console.log(songs);
+      await handleSerachSongs();
       break;
     case "playlist":
-      const playlists: PlaylistResponse[] = await searchPlaylists(
-        inputDom.value
-      );
-
-      for (const playlist of playlists) {
-        const newCard = playlistCard(playlist);
-        resultDom.append(newCard);
-
-        newCard.addEventListener("click", async () => {
-          const playlistSongs = await getPlaylist(playlist.playlistId);
-
-          audioController.clearQueue();
-          for (const song of playlistSongs) {
-            const newSongObj: SongObject = {
-              videoId: song.videoId,
-              artist: song.artist.name,
-              thumbnail: song.thumbnails[1]
-                ? song.thumbnails[1].url
-                : song.thumbnails[0].url,
-              duration: song.duration,
-              name: song.name,
-            };
-
-            // console.log(newSongObj);
-            audioController.addSong(newSongObj);
-          }
-
-          console.log(playlistSongs);
-        });
-      }
-      console.log(playlists);
+      await handleSearchPlaylists();
       break;
 
     default:
@@ -118,25 +155,25 @@ const songTabDom = document.createElement("div");
 songTabDom.classList.add("tab-song");
 songTabDom.textContent = "Songs";
 songTabDom.addEventListener("click", () => {
-  currentSearchType = "song";
+  state.currentSearchType = "song";
 });
 
 const playlistTabDom = document.createElement("div");
 playlistTabDom.classList.add("tab-playlist");
 playlistTabDom.textContent = "Playlists";
 playlistTabDom.addEventListener("click", () => {
-  currentSearchType = "playlist";
+  state.currentSearchType = "playlist";
 });
 
 const videoTabDom = document.createElement("div");
 videoTabDom.classList.add("tab-video");
 videoTabDom.textContent = "Videos";
 videoTabDom.addEventListener("click", () => {
-  currentSearchType = "video";
+  state.currentSearchType = "video";
 });
 
 const resultDom = document.createElement("div");
-resultDom.classList.add("songs-list");
+resultDom.classList.add("results-list");
 
 tabDom.append(songTabDom, playlistTabDom, videoTabDom);
 formDom.append(inputDom);

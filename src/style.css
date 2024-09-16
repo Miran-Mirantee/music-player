@@ -22,10 +22,15 @@ body {
   gap: 16px;
 }
 
-.songs-list {
+.results-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.results-btn-panel {
+  display: flex;
+  justify-content: space-between;
 }
 
 .card {
