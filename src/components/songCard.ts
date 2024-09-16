@@ -1,4 +1,5 @@
 import SongResponse from "../types/SongResponse";
+import formatTime from "../utils/formalTime";
 
 const songCard = (song: SongResponse) => {
   const cardDom = document.createElement("div");
@@ -31,7 +32,7 @@ const songCard = (song: SongResponse) => {
 
   const durationDom = document.createElement("div");
   durationDom.classList.add("card-duration");
-  durationDom.textContent = song.duration.toString();
+  durationDom.textContent = formatTime(song.duration);
 
   cardDom.append(thumbnailDom, infoDom);
   infoDom.append(subInfoDom1, subInfoDom2);
