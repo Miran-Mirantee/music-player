@@ -11,13 +11,14 @@ import SongResponse from "./types/SongResponse";
 import SongObject from "./types/SongObject";
 import PlaylistResponse from "./types/PlaylistResponse";
 import VideoResponse from "./types/VideoResponse";
+import MyPlaylist from "./types/MyPlaylist";
+import myPlaylistCard from "./components/myPlaylistCard";
 
 /**
  * TODO:
  *  - Implement streaming (too difficult, still don't quite understand the concept)
  *  - Get search result from youtube (search by name)
- *    - Search artist
- *    - Search videos
+ *    - Search artist??
  *  - Create a local playlist
  *  - Import a playlist from spotify
  *  - Create a better UI
@@ -32,11 +33,25 @@ import VideoResponse from "./types/VideoResponse";
  *  - Looping not working as intended
  *  - Song didn't stop when removing from queue (when the queue is more than one song and trying to remove all from the queue)
  *  - If the user download the song then change to other song, the player will play the skipped song once it's fully loaded
+ *  - Unable to load a playlist that has a hidden video, might need to consider changing npm
  */
 
 const state = {
   currentSearchType: "song",
+  myPlaylists: [] as MyPlaylist[],
 };
+
+(() => {
+  // localStorage.removeItem("myPlaylists");
+  const myPlaylistsString = localStorage.getItem("myPlaylists");
+  if (myPlaylistsString) {
+    const myPlaylistsJSON = JSON.parse(myPlaylistsString) as MyPlaylist[];
+
+    state.myPlaylists = myPlaylistsJSON;
+
+    console.log(state.myPlaylists);
+  }
+})();
 
 const addSong = (song: VideoResponse | SongResponse) => {
   const newSongObj: SongObject = {
@@ -97,6 +112,32 @@ const handleSearchPlaylists = async () => {
             renderPlaylists(initialPlaylists);
           });
 
+          const addPlaylistBtn = document.createElement("button");
+          addPlaylistBtn.textContent = "add playlist";
+          addPlaylistBtn.addEventListener("click", () => {
+            const duplicatePlaylist = state.myPlaylists.find((myPlaylist) => {
+              return myPlaylist.playlistId == playlist.playlistId;
+            });
+            if (!duplicatePlaylist) {
+              const newPlaylistObject: MyPlaylist = {
+                playlistId: playlist.playlistId,
+                name: playlist.name,
+                thumbnail: playlist.thumbnails[1].url,
+                songs: playlistSongs,
+              };
+
+              state.myPlaylists.push(newPlaylistObject);
+              localStorage.setItem(
+                "myPlaylists",
+                JSON.stringify(state.myPlaylists)
+              );
+
+              updateMyPlaylistDom();
+            } else {
+              console.log("you already added this playlist");
+            }
+          });
+
           const enqueueBtn = document.createElement("button");
           enqueueBtn.textContent = "enqueue";
           enqueueBtn.addEventListener("click", () => {
@@ -106,7 +147,7 @@ const handleSearchPlaylists = async () => {
             }
           });
 
-          btnPanel.append(backBtn, enqueueBtn);
+          btnPanel.append(backBtn, addPlaylistBtn, enqueueBtn);
           resultDom.append(btnPanel);
 
           for (const video of playlistSongs) {
@@ -135,11 +176,47 @@ const handleSearchVideos = async () => {
     for (const video of videos) {
       const newCard = videoCard(video);
       resultDom.append(newCard);
-    }
 
+      newCard.addEventListener("click", () => {
+        addSong(video);
+      });
+    }
     console.log(videos);
   } catch (error) {
     console.error(error);
+  }
+};
+
+const updateMyPlaylistDom = () => {
+  myPlaylistDom.textContent = "";
+  for (const myPlaylist of state.myPlaylists) {
+    const newCard = myPlaylistCard(myPlaylist);
+
+    newCard.addEventListener("click", () => {
+      resultDom.textContent = "";
+
+      const enqueueBtn = document.createElement("button");
+      enqueueBtn.textContent = "enqueue";
+      enqueueBtn.addEventListener("click", () => {
+        audioController.clearQueue();
+        for (const video of myPlaylist.songs) {
+          addSong(video);
+        }
+      });
+
+      resultDom.append(enqueueBtn);
+
+      for (const video of myPlaylist.songs) {
+        const newCard = videoCard(video);
+        resultDom.append(newCard);
+
+        newCard.addEventListener("click", async () => {
+          addSong(video);
+        });
+      }
+    });
+
+    myPlaylistDom.append(newCard);
   }
 };
 
@@ -200,9 +277,14 @@ videoTabDom.addEventListener("click", () => {
   state.currentSearchType = "video";
 });
 
+const myPlaylistDom = document.createElement("div");
+myPlaylistDom.classList.add("my-playlist");
+
+updateMyPlaylistDom();
+
 const resultDom = document.createElement("div");
 resultDom.classList.add("results-list");
 
 tabDom.append(songTabDom, playlistTabDom, videoTabDom);
 formDom.append(inputDom);
-columnDom?.append(formDom, tabDom, resultDom);
+columnDom?.append(formDom, tabDom, myPlaylistDom, resultDom);
