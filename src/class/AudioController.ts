@@ -150,8 +150,32 @@ export class AudioController {
     const dom = document.createElement("div");
     dom.classList.add("player");
 
-    const leftPanel = document.createElement("div");
-    leftPanel.classList.add("player-left-panel");
+    const topPanel = document.createElement("div");
+    topPanel.classList.add("player-top-panel");
+
+    const timeDom = document.createElement("div");
+    timeDom.classList.add("player-time");
+
+    const bottomPanel = document.createElement("div");
+    bottomPanel.classList.add("player-bottom-panel");
+
+    const leftBottomPanel = document.createElement("div");
+    leftBottomPanel.classList.add("player-left-panel");
+
+    const thumbnail = document.createElement("img");
+    thumbnail.classList.add("player-thumbnail");
+    thumbnail.src = this.queue[this.currentOrder]
+      ? this.queue[this.currentOrder].thumbnail
+      : "hey.jpg";
+
+    const nameDom = document.createElement("span");
+    nameDom.classList.add("player-song-name");
+    nameDom.textContent = this.queue[this.currentOrder]
+      ? this.queue[this.currentOrder].name
+      : "name";
+
+    const middleBottomPanel = document.createElement("div");
+    middleBottomPanel.classList.add("player-middle-panel");
 
     const prevBtn = document.createElement("button");
     prevBtn.classList.add("player-prev-btn");
@@ -163,14 +187,8 @@ export class AudioController {
     nextBtn.textContent = "next";
     nextBtn.addEventListener("click", this.nextSong);
 
-    const middlePanel = document.createElement("div");
-    middlePanel.classList.add("player-middle-panel");
-
-    const timeDom = document.createElement("div");
-    timeDom.classList.add("player-time");
-
-    const rightPanel = document.createElement("div");
-    rightPanel.classList.add("player-right-panel");
+    const rightBottomPanel = document.createElement("div");
+    rightBottomPanel.classList.add("player-right-panel");
 
     const volumeBar = document.createElement("input");
     volumeBar.classList.add("player-volume-bar");
@@ -194,14 +212,73 @@ export class AudioController {
     shuffleBtn.textContent = "shuffle";
     shuffleBtn.addEventListener("click", this.shuffleSong);
 
-    dom.append(leftPanel, middlePanel, rightPanel);
-    leftPanel.append(prevBtn, this.playBtn, nextBtn);
-    middlePanel.append(this.seekBar, timeDom);
+    dom.append(topPanel, bottomPanel);
+    topPanel.append(this.seekBar, timeDom);
     timeDom.append(this.currenttimeDom, " / ", this.durationDom);
-    rightPanel.append(volumeBar, loopBtn, shuffleBtn);
+    bottomPanel.append(leftBottomPanel, middleBottomPanel, rightBottomPanel);
+    leftBottomPanel.append(thumbnail, nameDom);
+    middleBottomPanel.append(prevBtn, this.playBtn, nextBtn);
+    rightBottomPanel.append(volumeBar, loopBtn, shuffleBtn);
 
     return dom;
   };
+
+  // private createPlayerDom = () => {
+  //   const dom = document.createElement("div");
+  //   dom.classList.add("player");
+
+  //   const leftPanel = document.createElement("div");
+  //   leftPanel.classList.add("player-left-panel");
+
+  //   const prevBtn = document.createElement("button");
+  //   prevBtn.classList.add("player-prev-btn");
+  //   prevBtn.textContent = "prev";
+  //   prevBtn.addEventListener("click", this.prevSong);
+
+  //   const nextBtn = document.createElement("button");
+  //   nextBtn.classList.add("player-next-btn");
+  //   nextBtn.textContent = "next";
+  //   nextBtn.addEventListener("click", this.nextSong);
+
+  //   const middlePanel = document.createElement("div");
+  //   middlePanel.classList.add("player-middle-panel");
+
+  //   const timeDom = document.createElement("div");
+  //   timeDom.classList.add("player-time");
+
+  //   const rightPanel = document.createElement("div");
+  //   rightPanel.classList.add("player-right-panel");
+
+  //   const volumeBar = document.createElement("input");
+  //   volumeBar.classList.add("player-volume-bar");
+  //   volumeBar.min = "0";
+  //   volumeBar.max = "1";
+  //   volumeBar.step = "0.01";
+  //   volumeBar.value = "0.1";
+  //   volumeBar.type = "range";
+  //   volumeBar.addEventListener("input", (e: any) => {
+  //     this.audio.volume = e.target.value;
+  //   });
+  //   this.audio.volume = parseFloat(volumeBar.value);
+
+  //   const loopBtn = document.createElement("button");
+  //   loopBtn.classList.add("player-loop-btn");
+  //   loopBtn.textContent = "loop";
+  //   loopBtn.addEventListener("click", this.loopSong);
+
+  //   const shuffleBtn = document.createElement("button");
+  //   shuffleBtn.classList.add("player-shuffle-btn");
+  //   shuffleBtn.textContent = "shuffle";
+  //   shuffleBtn.addEventListener("click", this.shuffleSong);
+
+  //   dom.append(leftPanel, middlePanel, rightPanel);
+  //   leftPanel.append(prevBtn, this.playBtn, nextBtn);
+  //   middlePanel.append(this.seekBar, timeDom);
+  //   timeDom.append(this.currenttimeDom, " / ", this.durationDom);
+  //   rightPanel.append(volumeBar, loopBtn, shuffleBtn);
+
+  //   return dom;
+  // };
 
   private resetPlayerDom = () => {
     this.audio.src = "";
@@ -344,8 +421,6 @@ export class AudioController {
 
     const songInfoDom = document.createElement("div");
     songInfoDom.classList.add("queue-song-info");
-
-    songInfoDom.addEventListener("click", _handleClickQueuePlaySong);
 
     const songNameDom = document.createElement("span");
     songNameDom.classList.add("queue-song-name");

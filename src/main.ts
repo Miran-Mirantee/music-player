@@ -16,16 +16,16 @@ import myPlaylistCard from "./components/myPlaylistCard";
 
 /**
  * TODO:
- *  - Implement streaming (too difficult, still don't quite understand the concept)
+ *  - Where did we store music after we loaded? (biggest mystery)
  *  - Get search result from youtube (search by name)
  *    - Search artist??
- *  - Create a local playlist
- *  - Import a playlist from spotify
+ *  - Add cookie to prevent youtube block
  *  - Create a better UI
  *    - Using Three.js (optional)
- *  - Add pagination for search
- *  - Add cookie to prevent youtube block
- *  - Where did we store music after we loaded? (biggest mystery)
+ *  - Add pagination for search (optional)
+ *  - Create a local playlist (optional)
+ *  - Import a playlist from spotify (optional)
+ *  - Implement streaming (too difficult, still don't quite understand the concept) (optional)
  */
 
 /**
@@ -33,7 +33,7 @@ import myPlaylistCard from "./components/myPlaylistCard";
  *  - Looping not working as intended
  *  - Song didn't stop when removing from queue (when the queue is more than one song and trying to remove all from the queue)
  *  - If the user download the song then change to other song, the player will play the skipped song once it's fully loaded
- *  - Unable to load a playlist that has a hidden video, might need to consider changing npm
+ *  - Unable to load a playlist that has a hidden video, might need to consider (fixing it myself)
  */
 
 const state = {
@@ -67,7 +67,7 @@ const addSong = (song: VideoResponse | SongResponse) => {
   audioController.addSong(newSongObj);
 };
 
-const handleSerachSongs = async () => {
+const handleSearchSongs = async () => {
   try {
     const songs: SongResponse[] = await searchSongs(inputDom.value);
 
@@ -220,10 +220,16 @@ const updateMyPlaylistDom = () => {
   }
 };
 
-const columnDom = document.querySelector(".column");
+const contentDom = document.createElement("div");
+contentDom.classList.add("content");
+document.body.append(contentDom);
+
+const columnDom = document.createElement("div");
+columnDom.classList.add("column");
+contentDom.append(columnDom);
 
 const audioController = new AudioController();
-columnDom?.append(audioController.playerDom);
+document.body.append(audioController.playerDom);
 document.body.append(audioController.queueDom);
 
 const formDom = document.createElement("form");
@@ -234,16 +240,14 @@ formDom.addEventListener("submit", async (e) => {
 
   switch (state.currentSearchType) {
     case "song":
-      await handleSerachSongs();
+      await handleSearchSongs();
       break;
     case "playlist":
       await handleSearchPlaylists();
       break;
-
     case "video":
       await handleSearchVideos();
       break;
-
     default:
       break;
   }
@@ -287,4 +291,4 @@ resultDom.classList.add("results-list");
 
 tabDom.append(songTabDom, playlistTabDom, videoTabDom);
 formDom.append(inputDom);
-columnDom?.append(formDom, tabDom, myPlaylistDom, resultDom);
+columnDom.append(formDom, tabDom, myPlaylistDom, resultDom);
