@@ -319,6 +319,9 @@ export class AudioController {
         const draggingItemRect = itemDom.getBoundingClientRect();
         const queueDomRect = this.queueDom.getBoundingClientRect();
 
+        const scrollTop = this.queueDom.scrollTop;
+        const adjustedClientY = e.clientY + scrollTop;
+
         // check if draggin item is in the container
         if (
           e.clientY - queueDomRect.top > draggingItemRect.height / 2 &&
@@ -336,7 +339,7 @@ export class AudioController {
           siblings.find((sibling) => {
             if (sibling instanceof HTMLElement) {
               return (
-                e.clientY - queueDomRect.top <=
+                adjustedClientY - queueDomRect.top <=
                 sibling.offsetTop + sibling.offsetHeight / 2
               );
             }
@@ -490,7 +493,7 @@ export class AudioController {
     this.queue.push(newSong);
 
     if (this.queue.length == 1) {
-      this.playSong(this.queue[this.currentOrder]);
+      // this.playSong(this.queue[this.currentOrder]);
     }
 
     this.updateQueueDom();
