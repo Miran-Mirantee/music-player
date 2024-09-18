@@ -289,7 +289,6 @@ export class AudioController {
   };
 
   private createQueueItemDom = (song: SongObject, index: number) => {
-    let isBtnHeld = false;
     let isDragging = false;
     let initialY = 0;
     let offsetY = 0;
@@ -304,16 +303,14 @@ export class AudioController {
     const itemDom = document.createElement("div");
     itemDom.classList.add("queue-item");
     itemDom.addEventListener("mousedown", (e) => {
-      if (isBtnHeld) {
-        isDragging = true;
-        initialY = e.clientY;
-        offsetY = 0;
-        itemDom.classList.add("dragging");
-      }
+      isDragging = true;
+      initialY = e.clientY;
+      offsetY = 0;
+      itemDom.classList.add("dragging");
     });
 
     document.addEventListener("mousemove", (e) => {
-      if (isDragging && isBtnHeld) {
+      if (isDragging) {
         offsetY = e.clientY - initialY;
 
         const draggingItemRect = itemDom.getBoundingClientRect();
@@ -409,7 +406,6 @@ export class AudioController {
 
     document.addEventListener("mouseup", () => {
       if (isDragging) {
-        isBtnHeld = false;
         isDragging = false;
         itemDom.classList.remove("dragging");
         itemDom.style.transform = `translateY(0px)`;
@@ -443,12 +439,6 @@ export class AudioController {
     const buttonPanel = document.createElement("div");
     buttonPanel.classList.add("queue-button-panel");
 
-    const moveBtn = document.createElement("button");
-    moveBtn.classList.add("queue-move-btn");
-    moveBtn.textContent = "move";
-    moveBtn.addEventListener("mousedown", () => {
-      isBtnHeld = true;
-    });
     const removeBtn = document.createElement("button");
     removeBtn.classList.add("queue-remove-btn");
     removeBtn.textContent = "X";
@@ -469,7 +459,7 @@ export class AudioController {
     itemDom.append(thumbnailDom, songInfoDom, buttonPanel);
     songInfoDom.append(songNameDom, btmInfoDom);
     btmInfoDom.append(artistDom, durationDom);
-    buttonPanel.append(moveBtn, removeBtn);
+    buttonPanel.append(removeBtn);
 
     return itemDom;
   };
