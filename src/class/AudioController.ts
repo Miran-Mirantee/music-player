@@ -288,7 +288,7 @@ export class AudioController {
     this.playBtn.textContent = "play";
   };
 
-  private createQueueItemDom = (song: SongObject, index: number) => {
+  private createQueueItemDom = (song: SongObject) => {
     let isDragging = false;
     let initialY = 0;
     let offsetY = 0;
@@ -296,8 +296,8 @@ export class AudioController {
 
     const _handleClickQueuePlaySong = () => {
       this.resetPlayerDom();
-      this.playSong(this.queue[index]);
-      this.currentOrder = index;
+      this.playSong(this.queue[parseInt(itemDom.id)]);
+      this.currentOrder = parseInt(itemDom.id);
     };
 
     const itemDom = document.createElement("div");
@@ -344,6 +344,7 @@ export class AudioController {
 
         // Swapping if the last nextSibling is different
         if (prevSibling != nextSibling) {
+          console.log(this.queue);
           offsetY = 0;
           initialY = e.clientY;
           itemDom.style.transform = `translateY(${offsetY}px)`;
@@ -443,16 +444,16 @@ export class AudioController {
     removeBtn.classList.add("queue-remove-btn");
     removeBtn.textContent = "X";
     removeBtn.addEventListener("click", () => {
-      if (this.currentOrder > index) {
+      if (this.currentOrder > parseInt(itemDom.id)) {
         this.currentOrder--;
-      } else if (this.currentOrder == index) {
+      } else if (this.currentOrder == parseInt(itemDom.id)) {
         if (this.queue.length > 1) {
           this.nextSong();
         } else {
           this.resetPlayerDom();
         }
       }
-      this.queue.splice(index, 1);
+      this.queue.splice(parseInt(itemDom.id), 1);
       this.updateQueueDom();
     });
 
@@ -472,8 +473,9 @@ export class AudioController {
 
   private updateQueueDom = () => {
     this.queueDom.textContent = "";
+    console.log("testing");
     for (const [index, song] of this.queue.entries()) {
-      const newQueueItem = this.createQueueItemDom(song, index);
+      const newQueueItem = this.createQueueItemDom(song);
       newQueueItem.id = index.toString();
       this.queueDom.append(newQueueItem);
     }
@@ -483,7 +485,7 @@ export class AudioController {
     this.queue.push(newSong);
 
     if (this.queue.length == 1) {
-      // this.playSong(this.queue[this.currentOrder]);
+      this.playSong(this.queue[this.currentOrder]);
     }
 
     this.updateQueueDom();
