@@ -10,6 +10,8 @@ export class AudioController {
   private durationDom: HTMLSpanElement;
   private playBtn: HTMLButtonElement;
   private seekBar: HTMLInputElement;
+  private thumbnailDom: HTMLImageElement;
+  private nameDom: HTMLSpanElement;
 
   public playerDom: HTMLDivElement;
   public queueDom: HTMLDivElement;
@@ -48,6 +50,18 @@ export class AudioController {
       const seekTo = this.audio.duration * e.target.value;
       this.audio.currentTime = seekTo;
     });
+
+    this.thumbnailDom = document.createElement("img");
+    this.thumbnailDom.classList.add("player-thumbnail");
+    this.thumbnailDom.src = this.queue[this.currentOrder]
+      ? this.queue[this.currentOrder].thumbnail
+      : "hey.jpg";
+
+    this.nameDom = document.createElement("span");
+    this.nameDom.classList.add("player-song-name");
+    this.nameDom.textContent = this.queue[this.currentOrder]
+      ? this.queue[this.currentOrder].name
+      : "name";
 
     this.audio = new Audio();
 
@@ -113,6 +127,7 @@ export class AudioController {
         this.audio.src = source;
       }
     }
+    this.updatePlayerDom();
     this.audio.play();
   };
 
@@ -162,18 +177,6 @@ export class AudioController {
     const leftBottomPanel = document.createElement("div");
     leftBottomPanel.classList.add("player-left-panel");
 
-    const thumbnail = document.createElement("img");
-    thumbnail.classList.add("player-thumbnail");
-    thumbnail.src = this.queue[this.currentOrder]
-      ? this.queue[this.currentOrder].thumbnail
-      : "hey.jpg";
-
-    const nameDom = document.createElement("span");
-    nameDom.classList.add("player-song-name");
-    nameDom.textContent = this.queue[this.currentOrder]
-      ? this.queue[this.currentOrder].name
-      : "name";
-
     const middleBottomPanel = document.createElement("div");
     middleBottomPanel.classList.add("player-middle-panel");
 
@@ -216,69 +219,17 @@ export class AudioController {
     topPanel.append(this.seekBar, timeDom);
     timeDom.append(this.currenttimeDom, " / ", this.durationDom);
     bottomPanel.append(leftBottomPanel, middleBottomPanel, rightBottomPanel);
-    leftBottomPanel.append(thumbnail, nameDom);
+    leftBottomPanel.append(this.thumbnailDom, this.nameDom);
     middleBottomPanel.append(prevBtn, this.playBtn, nextBtn);
     rightBottomPanel.append(volumeBar, loopBtn, shuffleBtn);
 
     return dom;
   };
 
-  // private createPlayerDom = () => {
-  //   const dom = document.createElement("div");
-  //   dom.classList.add("player");
-
-  //   const leftPanel = document.createElement("div");
-  //   leftPanel.classList.add("player-left-panel");
-
-  //   const prevBtn = document.createElement("button");
-  //   prevBtn.classList.add("player-prev-btn");
-  //   prevBtn.textContent = "prev";
-  //   prevBtn.addEventListener("click", this.prevSong);
-
-  //   const nextBtn = document.createElement("button");
-  //   nextBtn.classList.add("player-next-btn");
-  //   nextBtn.textContent = "next";
-  //   nextBtn.addEventListener("click", this.nextSong);
-
-  //   const middlePanel = document.createElement("div");
-  //   middlePanel.classList.add("player-middle-panel");
-
-  //   const timeDom = document.createElement("div");
-  //   timeDom.classList.add("player-time");
-
-  //   const rightPanel = document.createElement("div");
-  //   rightPanel.classList.add("player-right-panel");
-
-  //   const volumeBar = document.createElement("input");
-  //   volumeBar.classList.add("player-volume-bar");
-  //   volumeBar.min = "0";
-  //   volumeBar.max = "1";
-  //   volumeBar.step = "0.01";
-  //   volumeBar.value = "0.1";
-  //   volumeBar.type = "range";
-  //   volumeBar.addEventListener("input", (e: any) => {
-  //     this.audio.volume = e.target.value;
-  //   });
-  //   this.audio.volume = parseFloat(volumeBar.value);
-
-  //   const loopBtn = document.createElement("button");
-  //   loopBtn.classList.add("player-loop-btn");
-  //   loopBtn.textContent = "loop";
-  //   loopBtn.addEventListener("click", this.loopSong);
-
-  //   const shuffleBtn = document.createElement("button");
-  //   shuffleBtn.classList.add("player-shuffle-btn");
-  //   shuffleBtn.textContent = "shuffle";
-  //   shuffleBtn.addEventListener("click", this.shuffleSong);
-
-  //   dom.append(leftPanel, middlePanel, rightPanel);
-  //   leftPanel.append(prevBtn, this.playBtn, nextBtn);
-  //   middlePanel.append(this.seekBar, timeDom);
-  //   timeDom.append(this.currenttimeDom, " / ", this.durationDom);
-  //   rightPanel.append(volumeBar, loopBtn, shuffleBtn);
-
-  //   return dom;
-  // };
+  private updatePlayerDom = () => {
+    this.thumbnailDom.src = this.queue[this.currentOrder].thumbnail;
+    this.nameDom.textContent = this.queue[this.currentOrder].name;
+  };
 
   private resetPlayerDom = () => {
     this.audio.src = "";
@@ -286,6 +237,8 @@ export class AudioController {
     this.currenttimeDom.textContent = "00:00";
     this.playBtn.disabled = true;
     this.playBtn.textContent = "play";
+    this.thumbnailDom.src = "hey.jpg";
+    this.nameDom.textContent = "name";
   };
 
   private createQueueItemDom = (song: SongObject) => {
@@ -344,7 +297,6 @@ export class AudioController {
 
         // Swapping if the last nextSibling is different
         if (prevSibling != nextSibling) {
-          console.log(this.queue);
           offsetY = 0;
           initialY = e.clientY;
           itemDom.style.transform = `translateY(${offsetY}px)`;
@@ -444,16 +396,28 @@ export class AudioController {
     removeBtn.classList.add("queue-remove-btn");
     removeBtn.textContent = "X";
     removeBtn.addEventListener("click", () => {
-      if (this.currentOrder > parseInt(itemDom.id)) {
+      const itemId = parseInt(itemDom.id);
+      const queueLength = this.queue.length;
+
+      if (this.currentOrder > itemId) {
         this.currentOrder--;
-      } else if (this.currentOrder == parseInt(itemDom.id)) {
-        if (this.queue.length > 1) {
+      } else if (this.currentOrder === itemId) {
+        if (queueLength > 1) {
           this.nextSong();
+
+          // Adjust currentOrder if the removed item is not the last in the queue
+          if (itemId !== queueLength - 1) {
+            this.currentOrder--;
+          }
         } else {
           this.resetPlayerDom();
         }
       }
-      this.queue.splice(parseInt(itemDom.id), 1);
+
+      // Remove the song from the queue
+      this.queue.splice(itemId, 1);
+
+      // Update the queue DOM
       this.updateQueueDom();
     });
 
@@ -473,7 +437,6 @@ export class AudioController {
 
   private updateQueueDom = () => {
     this.queueDom.textContent = "";
-    console.log("testing");
     for (const [index, song] of this.queue.entries()) {
       const newQueueItem = this.createQueueItemDom(song);
       newQueueItem.id = index.toString();
