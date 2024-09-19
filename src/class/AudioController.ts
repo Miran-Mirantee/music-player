@@ -69,6 +69,8 @@ export class AudioController {
       this.playBtn.disabled = false;
       const duration = this.audio.duration;
       this.durationDom.textContent = formatTime(duration);
+      this.thumbnailDom.src = this.queue[this.currentOrder].thumbnail;
+      this.nameDom.textContent = this.queue[this.currentOrder].name;
     });
 
     this.audio.addEventListener("timeupdate", () => {
@@ -127,7 +129,6 @@ export class AudioController {
         this.audio.src = source;
       }
     }
-    this.updatePlayerDom();
     this.audio.play();
   };
 
@@ -224,11 +225,6 @@ export class AudioController {
     rightBottomPanel.append(volumeBar, loopBtn, shuffleBtn);
 
     return dom;
-  };
-
-  private updatePlayerDom = () => {
-    this.thumbnailDom.src = this.queue[this.currentOrder].thumbnail;
-    this.nameDom.textContent = this.queue[this.currentOrder].name;
   };
 
   private resetPlayerDom = () => {
@@ -368,6 +364,7 @@ export class AudioController {
     const thumbnailDom = document.createElement("img");
     thumbnailDom.classList.add("queue-thumbnail");
     thumbnailDom.src = song.thumbnail;
+    thumbnailDom.draggable = false;
 
     thumbnailDom.addEventListener("click", _handleClickQueuePlaySong);
 
