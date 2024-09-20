@@ -15,11 +15,14 @@ body {
 .content {
   display: flex;
   justify-content: center;
+  width: 100%;
+  height: calc(100vh - var(--player-height));
+  overflow-y: auto;
 }
 
 .column {
   width: 50%;
-  min-height: 100vh;
+  height: 100%;
   background-color: rgb(253, 230, 165);
   display: flex;
   flex-direction: column;

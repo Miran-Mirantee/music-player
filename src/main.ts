@@ -6,6 +6,7 @@ import { AudioController } from "./class/AudioController";
 import searchPlaylists from "./utils/searchPlaylists";
 import searchSongs from "./utils/searchSongs";
 import getPlaylist from "./utils/getPlaylist";
+import getPlaylistVideos from "./utils/getPlaylistVideos";
 import searchVideos from "./utils/searchVideos";
 import SongResponse from "./types/SongResponse";
 import SongObject from "./types/SongObject";
@@ -97,7 +98,7 @@ const handleSearchPlaylists = async () => {
         resultDom.append(newCard);
 
         newCard.addEventListener("click", async () => {
-          const playlistSongs: VideoResponse[] = await getPlaylist(
+          const playlistSongs: VideoResponse[] = await getPlaylistVideos(
             playlist.playlistId
           );
 
@@ -132,7 +133,7 @@ const handleSearchPlaylists = async () => {
                 JSON.stringify(state.myPlaylists)
               );
 
-              updateMyPlaylistDom();
+              renderMyPlaylist();
             } else {
               console.log("you already added this playlist");
             }
@@ -187,13 +188,13 @@ const handleSearchVideos = async () => {
   }
 };
 
-const updateMyPlaylistDom = () => {
+const renderMyPlaylist = () => {
   myPlaylistDom.textContent = "";
   for (const myPlaylist of state.myPlaylists) {
     const newCard = myPlaylistCard(myPlaylist);
 
     newCard.addEventListener("click", () => {
-      resultDom.textContent = "";
+      const btnPanel = document.createElement("div");
 
       const enqueueBtn = document.createElement("button");
       enqueueBtn.textContent = "enqueue";
@@ -204,16 +205,44 @@ const updateMyPlaylistDom = () => {
         }
       });
 
-      resultDom.append(enqueueBtn);
-
-      for (const video of myPlaylist.songs) {
-        const newCard = videoCard(video);
-        resultDom.append(newCard);
-
-        newCard.addEventListener("click", async () => {
-          addSong(video);
+      const syncBtn = document.createElement("button");
+      syncBtn.textContent = "sync";
+      syncBtn.addEventListener("click", async () => {
+        const newPlaylistInfo = await getPlaylist(myPlaylist.playlistId);
+        const newPlaylistSongs = await getPlaylistVideos(myPlaylist.playlistId);
+        const index = state.myPlaylists.findIndex((playlist) => {
+          return playlist.playlistId == myPlaylist.playlistId;
         });
-      }
+
+        const newPlaylistObject: MyPlaylist = {
+          playlistId: myPlaylist.playlistId,
+          name: newPlaylistInfo.name,
+          thumbnail: newPlaylistInfo.thumbnails[1].url,
+          songs: newPlaylistSongs,
+        };
+
+        state.myPlaylists.splice(index, 1, newPlaylistObject);
+        localStorage.setItem("myPlaylists", JSON.stringify(state.myPlaylists));
+
+        renderMyPlaylist();
+        renderMyPlaylistSong(newPlaylistObject);
+      });
+
+      const renderMyPlaylistSong = (playlist: MyPlaylist) => {
+        resultDom.textContent = "";
+        btnPanel.append(enqueueBtn, syncBtn);
+        resultDom.append(btnPanel);
+
+        for (const video of playlist.songs) {
+          const newCard = videoCard(video);
+          resultDom.append(newCard);
+
+          newCard.addEventListener("click", async () => {
+            addSong(video);
+          });
+        }
+      };
+      renderMyPlaylistSong(myPlaylist);
     });
 
     myPlaylistDom.append(newCard);
@@ -284,7 +313,7 @@ videoTabDom.addEventListener("click", () => {
 const myPlaylistDom = document.createElement("div");
 myPlaylistDom.classList.add("my-playlist");
 
-updateMyPlaylistDom();
+renderMyPlaylist();
 
 const resultDom = document.createElement("div");
 resultDom.classList.add("results-list");
