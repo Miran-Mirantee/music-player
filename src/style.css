@@ -1,5 +1,6 @@
 :root {
   --player-height: 112px;
+  --queue-width: 25%;
 }
 
 html body {
@@ -148,15 +149,23 @@ body {
 
 .queue {
   position: fixed;
-  display: flex;
-  flex-direction: column;
   height: calc(100% - var(--player-height));
-  width: 25%;
+  width: var(--queue-width);
   bottom: var(--player-height);
   left: 0;
   background-color: rebeccapurple;
   overflow-x: hidden;
   overflow-y: scroll;
+}
+
+.queue-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.queue-expand-btn {
 }
 
 .queue-item {

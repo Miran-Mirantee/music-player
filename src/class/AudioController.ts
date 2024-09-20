@@ -4,6 +4,7 @@ import SongObject from "../types/SongObject";
 
 export class AudioController {
   private queue: SongObject[] = [];
+  private queueContainer: HTMLDivElement;
   private currentOrder: number = 0;
   private audio: HTMLAudioElement;
   private currenttimeDom: HTMLSpanElement;
@@ -94,7 +95,9 @@ export class AudioController {
 
     this.playerDom = this.createPlayerDom();
 
-    this.queueDom = this.createQueueDom();
+    const { dom, container } = this.createQueueDom();
+    this.queueDom = dom;
+    this.queueContainer = container;
   }
 
   private nextSong = () => {
@@ -121,12 +124,19 @@ export class AudioController {
     if (song.source) {
       this.audio.src = song.source;
     } else {
-      const source = await getMusic(
-        `https://www.youtube.com/watch?v=${song.videoId}`
-      );
-      if (source) {
-        song.source = source;
-        this.audio.src = source;
+      try {
+        const source = await getMusic(
+          `https://www.youtube.com/watch?v=${song.videoId}`
+        );
+        if (source) {
+          song.source = source;
+          this.audio.src = source;
+        }
+      } catch (error) {
+        this.queue.splice(this.currentOrder, 1);
+        this.updateQueueDom();
+        this.currentOrder--;
+        this.nextSong();
       }
     }
     this.audio.play();
@@ -278,7 +288,7 @@ export class AudioController {
         }
 
         const siblings = [
-          ...this.queueDom.querySelectorAll(".queue-item:not(.dragging)"),
+          ...this.queueContainer.querySelectorAll(".queue-item:not(.dragging)"),
         ];
 
         const nextSibling =
@@ -297,7 +307,7 @@ export class AudioController {
           initialY = e.clientY;
           itemDom.style.transform = `translateY(${offsetY}px)`;
 
-          this.queueDom.insertBefore(itemDom, nextSibling);
+          this.queueContainer.insertBefore(itemDom, nextSibling);
 
           // Swapping previous and current song in queue
           if (itemDom.previousSibling instanceof HTMLElement) {
@@ -429,15 +439,21 @@ export class AudioController {
   private createQueueDom = () => {
     const dom = document.createElement("div");
     dom.classList.add("queue");
-    return dom;
+    const container = document.createElement("div");
+    container.classList.add("queue-container");
+    const expandBtn = document.createElement("div");
+    expandBtn.classList.add("queue-expand-btn");
+
+    dom.append(container, expandBtn);
+    return { dom, container };
   };
 
   private updateQueueDom = () => {
-    this.queueDom.textContent = "";
+    this.queueContainer.textContent = "";
     for (const [index, song] of this.queue.entries()) {
       const newQueueItem = this.createQueueItemDom(song);
       newQueueItem.id = index.toString();
-      this.queueDom.append(newQueueItem);
+      this.queueContainer.append(newQueueItem);
     }
   };
 
