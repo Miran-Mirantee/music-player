@@ -443,6 +443,9 @@ export class AudioController {
     container.classList.add("queue-container");
     const expandBtn = document.createElement("div");
     expandBtn.classList.add("queue-expand-btn");
+    expandBtn.addEventListener("click", () => {
+      dom.classList.toggle("hidden");
+    });
 
     dom.append(container, expandBtn);
     return { dom, container };

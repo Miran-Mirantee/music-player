@@ -1,6 +1,6 @@
 :root {
   --player-height: 112px;
-  --queue-width: 25%;
+  --queue-width: 450px;
 }
 
 html body {
@@ -157,8 +157,12 @@ body {
   bottom: var(--player-height);
   left: 0;
   background-color: rebeccapurple;
-  overflow-x: hidden;
-  overflow-y: scroll;
+  transition: left 0.5s;
+}
+
+.queue.hidden {
+  left: calc(var(--queue-width) * -1);
+  transition: left 0.5s;
 }
 
 .queue-container {
@@ -166,9 +170,18 @@ body {
   flex-direction: column;
   height: 100%;
   width: 100%;
+  /* overflow-x: hidden; */
+  overflow-y: scroll;
 }
 
 .queue-expand-btn {
+  position: absolute;
+  top: 0;
+  right: -48px;
+  height: 36px;
+  width: 48px;
+  cursor: pointer;
+  background-color: rebeccapurple;
 }
 
 .queue-item {
