@@ -261,21 +261,28 @@ const formDom = document.createElement("form");
 formDom.classList.add("search-form");
 formDom.addEventListener("submit", async (e) => {
   e.preventDefault();
-  resultDom.textContent = "";
+  if (inputDom.value) {
+    resultDom.textContent = "";
 
-  switch (state.currentSearchType) {
-    case "song":
-      await handleSearchSongs();
-      break;
-    case "playlist":
-      await handleSearchPlaylists();
-      break;
-    case "video":
-      await handleSearchVideos();
-      break;
-    default:
-      break;
+    switch (state.currentSearchType) {
+      case "song":
+        await handleSearchSongs();
+        break;
+      case "playlist":
+        await handleSearchPlaylists();
+        break;
+      case "video":
+        await handleSearchVideos();
+        break;
+      default:
+        break;
+    }
+  } else {
+    console.log("nuh uh, you've been naughty");
   }
+});
+
+formDom.addEventListener("click", () => {
   columnDom.classList.remove("hidden");
 });
 
