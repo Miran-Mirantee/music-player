@@ -438,7 +438,7 @@ export class AudioController {
 
   private createQueueDom = () => {
     const dom = document.createElement("div");
-    dom.classList.add("queue");
+    dom.classList.add("queue", "hidden");
     const container = document.createElement("div");
     container.classList.add("queue-container");
     const expandBtn = document.createElement("div");

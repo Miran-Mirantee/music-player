@@ -268,11 +268,16 @@ body {
   cursor: pointer;
   background-color: aqua;
   padding: 12px;
+  user-select: none;
 }
 
 .tab > div:hover {
   cursor: pointer;
   background-color: aquamarine;
+}
+
+.tab .selected {
+  background-color: azure;
 }
 
 .my-playlist {

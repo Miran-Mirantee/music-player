@@ -279,8 +279,6 @@ formDom.addEventListener("submit", async (e) => {
   columnDom.classList.remove("hidden");
 });
 
-formDom.addEventListener("click", () => {});
-
 const inputDom = document.createElement("input");
 inputDom.id = "search-field";
 inputDom.placeholder = "search";
@@ -298,25 +296,42 @@ columnCloseBtn.addEventListener("click", () => {
 const tabDom = document.createElement("div");
 tabDom.classList.add("tab");
 
+const triggerSubmitEvent = (searchType: string) => {
+  if (state.currentSearchType != searchType) {
+    state.currentSearchType = searchType;
+    const event = new Event("submit", { cancelable: true });
+    formDom.dispatchEvent(event);
+  }
+};
+
+const toggleSelectedTabStyles = (dom: HTMLDivElement) => {
+  const selectedTab = document.querySelector(".selected");
+  if (selectedTab) {
+    selectedTab.classList.remove("selected");
+  }
+  dom.classList.add("selected");
+};
+
 const songTabDom = document.createElement("div");
-songTabDom.classList.add("tab-song");
 songTabDom.textContent = "Songs";
+songTabDom.classList.add("selected");
 songTabDom.addEventListener("click", () => {
-  state.currentSearchType = "song";
+  triggerSubmitEvent("song");
+  toggleSelectedTabStyles(songTabDom);
 });
 
 const playlistTabDom = document.createElement("div");
-playlistTabDom.classList.add("tab-playlist");
 playlistTabDom.textContent = "Playlists";
 playlistTabDom.addEventListener("click", () => {
-  state.currentSearchType = "playlist";
+  triggerSubmitEvent("playlist");
+  toggleSelectedTabStyles(playlistTabDom);
 });
 
 const videoTabDom = document.createElement("div");
-videoTabDom.classList.add("tab-video");
 videoTabDom.textContent = "Videos";
 videoTabDom.addEventListener("click", () => {
-  state.currentSearchType = "video";
+  triggerSubmitEvent("video");
+  toggleSelectedTabStyles(videoTabDom);
 });
 
 const myPlaylistDom = document.createElement("div");
