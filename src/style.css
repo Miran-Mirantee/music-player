@@ -14,13 +14,14 @@ body {
 
 .content {
   display: flex;
+  position: relative;
   justify-content: center;
   width: 100%;
   height: calc(100vh - var(--player-height));
-  overflow-y: auto;
 }
 
 .column {
+  position: relative;
   width: 50%;
   height: 100%;
   background-color: rgb(253, 230, 165);
@@ -28,12 +29,27 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 16px;
+  opacity: 100%;
+  transition: opacity 0.25s;
+}
+
+.column-close-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+}
+
+.column.hidden {
+  opacity: 0%;
+  transition: opacity 0.25s;
+  pointer-events: none;
 }
 
 .results-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  overflow-y: auto;
 }
 
 .results-btn-panel {
@@ -158,6 +174,7 @@ body {
   left: 0;
   background-color: rebeccapurple;
   transition: left 0.5s;
+  z-index: 2;
 }
 
 .queue.hidden {
@@ -177,7 +194,7 @@ body {
 .queue-expand-btn {
   position: absolute;
   top: 0;
-  right: -48px;
+  left: var(--queue-width);
   height: 36px;
   width: 48px;
   cursor: pointer;
@@ -244,6 +261,7 @@ body {
   display: flex;
   font-size: 1.5rem;
   gap: 4px;
+  margin-top: 48px;
 }
 
 .tab > div {
@@ -280,4 +298,10 @@ body {
   height: 120px;
   width: 120px;
   object-fit: cover;
+}
+
+.search-form {
+  position: absolute;
+  top: 4px;
+  z-index: 1;
 }

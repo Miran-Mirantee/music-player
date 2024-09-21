@@ -253,10 +253,6 @@ const contentDom = document.createElement("div");
 contentDom.classList.add("content");
 document.body.append(contentDom);
 
-const columnDom = document.createElement("div");
-columnDom.classList.add("column");
-contentDom.append(columnDom);
-
 const audioController = new AudioController();
 document.body.append(audioController.playerDom);
 document.body.append(audioController.queueDom);
@@ -280,11 +276,24 @@ formDom.addEventListener("submit", async (e) => {
     default:
       break;
   }
+  columnDom.classList.remove("hidden");
 });
+
+formDom.addEventListener("click", () => {});
 
 const inputDom = document.createElement("input");
 inputDom.id = "search-field";
 inputDom.placeholder = "search";
+
+const columnDom = document.createElement("div");
+columnDom.classList.add("column", "hidden");
+
+const columnCloseBtn = document.createElement("button");
+columnCloseBtn.classList.add("column-close-btn");
+columnCloseBtn.textContent = "X";
+columnCloseBtn.addEventListener("click", () => {
+  columnDom.classList.add("hidden");
+});
 
 const tabDom = document.createElement("div");
 tabDom.classList.add("tab");
@@ -318,6 +327,7 @@ renderMyPlaylist();
 const resultDom = document.createElement("div");
 resultDom.classList.add("results-list");
 
-tabDom.append(songTabDom, playlistTabDom, videoTabDom);
+contentDom.append(formDom, columnDom);
 formDom.append(inputDom);
-columnDom.append(formDom, tabDom, myPlaylistDom, resultDom);
+tabDom.append(songTabDom, playlistTabDom, videoTabDom);
+columnDom.append(columnCloseBtn, tabDom, myPlaylistDom, resultDom);
