@@ -71,17 +71,21 @@ const handleSearchSongs = async () => {
   try {
     const songs: SongResponse[] = await searchSongs(inputDom.value);
 
-    for (const song of songs) {
-      const newCard = songCard(song);
-      resultDom.append(newCard);
-
-      newCard.addEventListener("click", async () => {
-        addSong(song);
-      });
-    }
+    renderSongs(songs);
     console.log(songs);
   } catch (error) {
     console.error(error);
+  }
+};
+
+const renderSongs = (songs: SongResponse[]) => {
+  for (const song of songs) {
+    const newCard = songCard(song);
+    resultDom.append(newCard);
+
+    newCard.addEventListener("click", async () => {
+      addSong(song);
+    });
   }
 };
 
@@ -95,6 +99,17 @@ const handleSearchPlaylists = async () => {
     console.log(playlists);
   } catch (error) {
     console.error(error);
+  }
+};
+
+const renderPlaylists = (playlists: PlaylistResponse[]) => {
+  for (let i = 0; i < playlists.length; i++) {
+    const newCard = playlistCard(playlists[i]);
+    resultDom.append(newCard);
+
+    newCard.addEventListener("click", () => {
+      handleClickSearchPlaylist(playlists, i);
+    });
   }
 };
 
@@ -121,17 +136,6 @@ const renderPlaylistSongs = (playlistSongs: VideoResponse[]) => {
 
     newCard.addEventListener("click", async () => {
       addSong(video);
-    });
-  }
-};
-
-const renderPlaylists = (playlists: PlaylistResponse[]) => {
-  for (let i = 0; i < playlists.length; i++) {
-    const newCard = playlistCard(playlists[i]);
-    resultDom.append(newCard);
-
-    newCard.addEventListener("click", () => {
-      handleClickSearchPlaylist(playlists, i);
     });
   }
 };
@@ -166,18 +170,21 @@ const createPlaylistBtnPanel = (
 const handleSearchVideos = async () => {
   try {
     const videos: VideoResponse[] = await searchVideos(inputDom.value);
-
-    for (const video of videos) {
-      const newCard = videoCard(video);
-      resultDom.append(newCard);
-
-      newCard.addEventListener("click", () => {
-        addSong(video);
-      });
-    }
+    renderVideos(videos);
     console.log(videos);
   } catch (error) {
     console.error(error);
+  }
+};
+
+const renderVideos = (videos: VideoResponse[]) => {
+  for (const video of videos) {
+    const newCard = videoCard(video);
+    resultDom.append(newCard);
+
+    newCard.addEventListener("click", () => {
+      addSong(video);
+    });
   }
 };
 
@@ -197,7 +204,7 @@ const toggleSelectedTabStyles = (dom: HTMLDivElement) => {
   dom.classList.add("selected");
 };
 
-const createMyPlaylist = () => {
+const renderMyPlaylist = () => {
   myPlaylistDom.textContent = "";
   for (const myPlaylist of state.myPlaylists) {
     const newCard = myPlaylistCard(myPlaylist);
@@ -208,7 +215,7 @@ const createMyPlaylist = () => {
     newCard.addEventListener("click", () => {
       myPlaylistBtnPanel.textContent = "";
       myPlaylistBtnPanel.append(enqueueBtn, syncBtn);
-      createMyPlaylistSong(myPlaylist);
+      renderMyPlaylistSong(myPlaylist);
     });
   }
 };
@@ -234,7 +241,7 @@ const createAddPlaylistBtn = (
       state.myPlaylists.push(newPlaylistObject);
       localStorage.setItem("myPlaylists", JSON.stringify(state.myPlaylists));
 
-      createMyPlaylist();
+      renderMyPlaylist();
     } else {
       console.log("you already added this playlist");
     }
@@ -275,14 +282,14 @@ const createSyncBtn = (myPlaylist: MyPlaylist) => {
     state.myPlaylists.splice(index, 1, newPlaylistObject);
     localStorage.setItem("myPlaylists", JSON.stringify(state.myPlaylists));
 
-    createMyPlaylist();
-    createMyPlaylistSong(newPlaylistObject);
+    renderMyPlaylist();
+    renderMyPlaylistSong(newPlaylistObject);
   });
 
   return syncBtn;
 };
 
-const createMyPlaylistSong = (playlist: MyPlaylist) => {
+const renderMyPlaylistSong = (playlist: MyPlaylist) => {
   resultDom.textContent = "";
 
   for (const video of playlist.songs) {
@@ -390,7 +397,7 @@ myPlaylistBtn.addEventListener("click", () => {
   columnDom.classList.remove("hidden");
   formDom.classList.add("hidden");
 
-  createMyPlaylist();
+  renderMyPlaylist();
 });
 
 const myPlaylistDom = document.createElement("div");
