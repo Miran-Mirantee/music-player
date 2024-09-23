@@ -204,7 +204,7 @@ const toggleSelectedTabStyles = (dom: HTMLDivElement) => {
   dom.classList.add("selected");
 };
 
-const renderMyPlaylist = () => {
+const renderMyPlaylists = () => {
   myPlaylistDom.textContent = "";
   for (const myPlaylist of state.myPlaylists) {
     const newCard = myPlaylistCard(myPlaylist);
@@ -215,7 +215,7 @@ const renderMyPlaylist = () => {
     newCard.addEventListener("click", () => {
       myPlaylistBtnPanel.textContent = "";
       myPlaylistBtnPanel.append(enqueueBtn, syncBtn);
-      renderMyPlaylistSong(myPlaylist);
+      renderMyPlaylistSongs(myPlaylist);
     });
   }
 };
@@ -241,7 +241,7 @@ const createAddPlaylistBtn = (
       state.myPlaylists.push(newPlaylistObject);
       localStorage.setItem("myPlaylists", JSON.stringify(state.myPlaylists));
 
-      renderMyPlaylist();
+      renderMyPlaylists();
     } else {
       console.log("you already added this playlist");
     }
@@ -282,14 +282,14 @@ const createSyncBtn = (myPlaylist: MyPlaylist) => {
     state.myPlaylists.splice(index, 1, newPlaylistObject);
     localStorage.setItem("myPlaylists", JSON.stringify(state.myPlaylists));
 
-    renderMyPlaylist();
-    renderMyPlaylistSong(newPlaylistObject);
+    renderMyPlaylists();
+    renderMyPlaylistSongs(newPlaylistObject);
   });
 
   return syncBtn;
 };
 
-const renderMyPlaylistSong = (playlist: MyPlaylist) => {
+const renderMyPlaylistSongs = (playlist: MyPlaylist) => {
   resultDom.textContent = "";
 
   for (const video of playlist.songs) {
@@ -397,7 +397,7 @@ myPlaylistBtn.addEventListener("click", () => {
   columnDom.classList.remove("hidden");
   formDom.classList.add("hidden");
 
-  renderMyPlaylist();
+  renderMyPlaylists();
 });
 
 const myPlaylistDom = document.createElement("div");
