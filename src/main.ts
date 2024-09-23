@@ -20,7 +20,6 @@ import myPlaylistCard from "./components/myPlaylistCard";
  *  - Where did we store music after we loaded? (biggest mystery)
  *  - Get search result from youtube (search by name)
  *    - Search artist??
- *  - Add cookie to prevent youtube block
  *  - Create a better UI
  *    - Using Three.js (optional)
  *  - Add pagination for search (optional)
@@ -92,82 +91,76 @@ const handleSearchPlaylists = async () => {
 
     const initialPlaylists = playlists;
 
-    const renderPlaylists = (playlists: PlaylistResponse[]) => {
-      for (const playlist of playlists) {
-        const newCard = playlistCard(playlist);
-        resultDom.append(newCard);
-
-        newCard.addEventListener("click", async () => {
-          const playlistSongs: VideoResponse[] = await getPlaylistVideos(
-            playlist.playlistId
-          );
-
-          resultDom.textContent = "";
-          const btnPanel = document.createElement("div");
-          btnPanel.classList.add("results-btn-panel");
-
-          const backBtn = document.createElement("button");
-          backBtn.textContent = "back";
-          backBtn.addEventListener("click", () => {
-            resultDom.textContent = "";
-            renderPlaylists(initialPlaylists);
-          });
-
-          const addPlaylistBtn = document.createElement("button");
-          addPlaylistBtn.textContent = "add playlist";
-          addPlaylistBtn.addEventListener("click", () => {
-            const duplicatePlaylist = state.myPlaylists.find((myPlaylist) => {
-              return myPlaylist.playlistId == playlist.playlistId;
-            });
-            if (!duplicatePlaylist) {
-              const newPlaylistObject: MyPlaylist = {
-                playlistId: playlist.playlistId,
-                name: playlist.name,
-                thumbnail: playlist.thumbnails[1].url,
-                songs: playlistSongs,
-              };
-
-              state.myPlaylists.push(newPlaylistObject);
-              localStorage.setItem(
-                "myPlaylists",
-                JSON.stringify(state.myPlaylists)
-              );
-
-              renderMyPlaylist();
-            } else {
-              console.log("you already added this playlist");
-            }
-          });
-
-          const enqueueBtn = document.createElement("button");
-          enqueueBtn.textContent = "enqueue";
-          enqueueBtn.addEventListener("click", () => {
-            audioController.clearQueue();
-            for (const video of playlistSongs) {
-              addSong(video);
-            }
-          });
-
-          btnPanel.append(backBtn, addPlaylistBtn, enqueueBtn);
-          resultDom.append(btnPanel);
-
-          for (const video of playlistSongs) {
-            const newCard = videoCard(video);
-            resultDom.append(newCard);
-
-            newCard.addEventListener("click", async () => {
-              addSong(video);
-            });
-          }
-        });
-      }
-    };
-
     renderPlaylists(initialPlaylists);
     console.log(playlists);
   } catch (error) {
     console.error(error);
   }
+};
+
+const handleClickSearchPlaylist = async (
+  playlists: PlaylistResponse[],
+  index: number
+) => {
+  resultDom.textContent = "";
+
+  const playlistSongs: VideoResponse[] = await getPlaylistVideos(
+    playlists[index].playlistId
+  );
+
+  const btnPanel = createPlaylistBtnPanel(playlists, playlistSongs, index);
+  columnContentDom.insertBefore(btnPanel, resultDom);
+
+  renderPlaylistSongs(playlistSongs);
+};
+
+const renderPlaylistSongs = (playlistSongs: VideoResponse[]) => {
+  for (const video of playlistSongs) {
+    const newCard = videoCard(video);
+    resultDom.append(newCard);
+
+    newCard.addEventListener("click", async () => {
+      addSong(video);
+    });
+  }
+};
+
+const renderPlaylists = (playlists: PlaylistResponse[]) => {
+  for (let i = 0; i < playlists.length; i++) {
+    const newCard = playlistCard(playlists[i]);
+    resultDom.append(newCard);
+
+    newCard.addEventListener("click", () => {
+      handleClickSearchPlaylist(playlists, i);
+    });
+  }
+};
+
+const createPlaylistBtnPanel = (
+  playlists: PlaylistResponse[],
+  playlistSongs: VideoResponse[],
+  currentIndex: number
+) => {
+  const btnPanel = document.createElement("div");
+  btnPanel.classList.add("results-btn-panel");
+
+  const backBtn = document.createElement("button");
+  backBtn.textContent = "back";
+  backBtn.addEventListener("click", () => {
+    resultDom.textContent = "";
+    renderPlaylists(playlists);
+    btnPanel.remove();
+  });
+
+  const addPlaylistBtn = createAddPlaylistBtn(
+    playlists[currentIndex],
+    playlistSongs
+  );
+  const enqueueBtn = createEnqueueBtn(playlistSongs);
+
+  btnPanel.append(backBtn, addPlaylistBtn, enqueueBtn);
+
+  return btnPanel;
 };
 
 const handleSearchVideos = async () => {
@@ -188,74 +181,129 @@ const handleSearchVideos = async () => {
   }
 };
 
-const renderMyPlaylist = () => {
+const triggerSubmitEvent = (searchType: string) => {
+  if (state.currentSearchType != searchType) {
+    state.currentSearchType = searchType;
+    const event = new Event("submit", { cancelable: true });
+    formDom.dispatchEvent(event);
+  }
+};
+
+const toggleSelectedTabStyles = (dom: HTMLDivElement) => {
+  const selectedTab = document.querySelector(".selected");
+  if (selectedTab) {
+    selectedTab.classList.remove("selected");
+  }
+  dom.classList.add("selected");
+};
+
+const createMyPlaylist = () => {
   myPlaylistDom.textContent = "";
   for (const myPlaylist of state.myPlaylists) {
     const newCard = myPlaylistCard(myPlaylist);
-
-    newCard.addEventListener("click", () => {
-      const btnPanel = document.createElement("div");
-
-      const enqueueBtn = document.createElement("button");
-      enqueueBtn.textContent = "enqueue";
-      enqueueBtn.addEventListener("click", () => {
-        audioController.clearQueue();
-        for (const video of myPlaylist.songs) {
-          addSong(video);
-        }
-      });
-
-      const syncBtn = document.createElement("button");
-      syncBtn.textContent = "sync";
-      syncBtn.addEventListener("click", async () => {
-        const newPlaylistInfo = await getPlaylist(myPlaylist.playlistId);
-        const newPlaylistSongs = await getPlaylistVideos(myPlaylist.playlistId);
-        const index = state.myPlaylists.findIndex((playlist) => {
-          return playlist.playlistId == myPlaylist.playlistId;
-        });
-
-        const newPlaylistObject: MyPlaylist = {
-          playlistId: myPlaylist.playlistId,
-          name: newPlaylistInfo.name,
-          thumbnail: newPlaylistInfo.thumbnails[1].url,
-          songs: newPlaylistSongs,
-        };
-
-        state.myPlaylists.splice(index, 1, newPlaylistObject);
-        localStorage.setItem("myPlaylists", JSON.stringify(state.myPlaylists));
-
-        renderMyPlaylist();
-        renderMyPlaylistSong(newPlaylistObject);
-      });
-
-      const renderMyPlaylistSong = (playlist: MyPlaylist) => {
-        resultDom.textContent = "";
-        btnPanel.append(enqueueBtn, syncBtn);
-        resultDom.append(btnPanel);
-
-        for (const video of playlist.songs) {
-          const newCard = videoCard(video);
-          resultDom.append(newCard);
-
-          newCard.addEventListener("click", async () => {
-            addSong(video);
-          });
-        }
-      };
-      renderMyPlaylistSong(myPlaylist);
-    });
+    const enqueueBtn = createEnqueueBtn(myPlaylist.songs);
+    const syncBtn = createSyncBtn(myPlaylist);
 
     myPlaylistDom.append(newCard);
+    newCard.addEventListener("click", () => {
+      myPlaylistBtnPanel.textContent = "";
+      myPlaylistBtnPanel.append(enqueueBtn, syncBtn);
+      createMyPlaylistSong(myPlaylist);
+    });
+  }
+};
+
+const createAddPlaylistBtn = (
+  playlist: PlaylistResponse,
+  playlistSongs: VideoResponse[]
+) => {
+  const addPlaylistBtn = document.createElement("button");
+  addPlaylistBtn.textContent = "add playlist";
+  addPlaylistBtn.addEventListener("click", () => {
+    const duplicatePlaylist = state.myPlaylists.find((myPlaylist) => {
+      return myPlaylist.playlistId == playlist.playlistId;
+    });
+    if (!duplicatePlaylist) {
+      const newPlaylistObject: MyPlaylist = {
+        playlistId: playlist.playlistId,
+        name: playlist.name,
+        thumbnail: playlist.thumbnails[1].url,
+        songs: playlistSongs,
+      };
+
+      state.myPlaylists.push(newPlaylistObject);
+      localStorage.setItem("myPlaylists", JSON.stringify(state.myPlaylists));
+
+      createMyPlaylist();
+    } else {
+      console.log("you already added this playlist");
+    }
+  });
+
+  return addPlaylistBtn;
+};
+
+const createEnqueueBtn = (songs: VideoResponse[]) => {
+  const enqueueBtn = document.createElement("button");
+  enqueueBtn.textContent = "enqueue";
+  enqueueBtn.addEventListener("click", () => {
+    audioController.clearQueue();
+    for (const song of songs) {
+      addSong(song);
+    }
+  });
+  return enqueueBtn;
+};
+
+const createSyncBtn = (myPlaylist: MyPlaylist) => {
+  const syncBtn = document.createElement("button");
+  syncBtn.textContent = "sync";
+  syncBtn.addEventListener("click", async () => {
+    const newPlaylistInfo = await getPlaylist(myPlaylist.playlistId);
+    const newPlaylistSongs = await getPlaylistVideos(myPlaylist.playlistId);
+    const index = state.myPlaylists.findIndex((playlist) => {
+      return playlist.playlistId == myPlaylist.playlistId;
+    });
+
+    const newPlaylistObject: MyPlaylist = {
+      playlistId: myPlaylist.playlistId,
+      name: newPlaylistInfo.name,
+      thumbnail: newPlaylistInfo.thumbnails[1].url,
+      songs: newPlaylistSongs,
+    };
+
+    state.myPlaylists.splice(index, 1, newPlaylistObject);
+    localStorage.setItem("myPlaylists", JSON.stringify(state.myPlaylists));
+
+    createMyPlaylist();
+    createMyPlaylistSong(newPlaylistObject);
+  });
+
+  return syncBtn;
+};
+
+const createMyPlaylistSong = (playlist: MyPlaylist) => {
+  resultDom.textContent = "";
+
+  for (const video of playlist.songs) {
+    const newCard = videoCard(video);
+    resultDom.append(newCard);
+
+    newCard.addEventListener("click", async () => {
+      addSong(video);
+    });
   }
 };
 
 const contentDom = document.createElement("div");
 contentDom.classList.add("content");
-document.body.append(contentDom);
 
 const audioController = new AudioController();
-document.body.append(audioController.playerDom);
-document.body.append(audioController.queueDom);
+document.body.append(
+  contentDom,
+  audioController.playerDom,
+  audioController.queueDom
+);
 
 const formDom = document.createElement("form");
 formDom.classList.add("search-form");
@@ -277,13 +325,13 @@ formDom.addEventListener("submit", async (e) => {
       default:
         break;
     }
-  } else {
-    console.log("nuh uh, you've been naughty");
   }
 });
 
 formDom.addEventListener("click", () => {
   columnDom.classList.remove("hidden");
+  columnContentDom.textContent = "";
+  columnContentDom.append(tabDom, resultDom);
 });
 
 const inputDom = document.createElement("input");
@@ -298,26 +346,14 @@ columnCloseBtn.classList.add("column-close-btn");
 columnCloseBtn.textContent = "X";
 columnCloseBtn.addEventListener("click", () => {
   columnDom.classList.add("hidden");
+  formDom.classList.remove("hidden");
+  resultDom.textContent = "";
+  inputDom.value = "";
+  myPlaylistBtnPanel.textContent = "";
 });
 
 const tabDom = document.createElement("div");
 tabDom.classList.add("tab");
-
-const triggerSubmitEvent = (searchType: string) => {
-  if (state.currentSearchType != searchType) {
-    state.currentSearchType = searchType;
-    const event = new Event("submit", { cancelable: true });
-    formDom.dispatchEvent(event);
-  }
-};
-
-const toggleSelectedTabStyles = (dom: HTMLDivElement) => {
-  const selectedTab = document.querySelector(".selected");
-  if (selectedTab) {
-    selectedTab.classList.remove("selected");
-  }
-  dom.classList.add("selected");
-};
 
 const songTabDom = document.createElement("div");
 songTabDom.textContent = "Songs";
@@ -341,15 +377,33 @@ videoTabDom.addEventListener("click", () => {
   toggleSelectedTabStyles(videoTabDom);
 });
 
+const resultDom = document.createElement("div");
+resultDom.classList.add("results");
+
+const myPlaylistBtn = document.createElement("button");
+myPlaylistBtn.classList.add("my-playlist-btn");
+myPlaylistBtn.textContent = "My playlists";
+myPlaylistBtn.addEventListener("click", () => {
+  columnContentDom.textContent = "";
+  resultDom.textContent = "";
+  columnContentDom.append(myPlaylistDom, myPlaylistBtnPanel, resultDom);
+  columnDom.classList.remove("hidden");
+  formDom.classList.add("hidden");
+
+  createMyPlaylist();
+});
+
 const myPlaylistDom = document.createElement("div");
 myPlaylistDom.classList.add("my-playlist");
 
-renderMyPlaylist();
+const myPlaylistBtnPanel = document.createElement("div");
+myPlaylistBtnPanel.classList.add("my-playlist-btn-panel");
 
-const resultDom = document.createElement("div");
-resultDom.classList.add("results-list");
+const columnContentDom = document.createElement("div");
+columnContentDom.classList.add("column-content");
 
-contentDom.append(formDom, columnDom);
+contentDom.append(formDom, columnDom, myPlaylistBtn);
 formDom.append(inputDom);
 tabDom.append(songTabDom, playlistTabDom, videoTabDom);
-columnDom.append(columnCloseBtn, tabDom, myPlaylistDom, resultDom);
+columnContentDom.append(tabDom, resultDom);
+columnDom.append(columnCloseBtn, columnContentDom);
