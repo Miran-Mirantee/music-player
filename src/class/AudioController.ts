@@ -44,7 +44,7 @@ export class AudioController {
     this.seekBar.classList.add("player-seek-bar");
     this.seekBar.min = "0";
     this.seekBar.max = "1";
-    this.seekBar.step = "0.01";
+    this.seekBar.step = "0.001";
     this.seekBar.value = "0";
     this.seekBar.type = "range";
     this.seekBar.addEventListener("input", (e: any) => {
