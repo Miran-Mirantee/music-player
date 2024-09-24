@@ -13,6 +13,7 @@ export class AudioController {
   private seekBar: HTMLInputElement;
   private thumbnailDom: HTMLImageElement;
   private nameDom: HTMLSpanElement;
+  private prevVolume: number = 0.1;
 
   public playerDom: HTMLDivElement;
   public queueDom: HTMLDivElement;
@@ -27,21 +28,34 @@ export class AudioController {
     this.durationDom.textContent = "00:00";
 
     this.playBtn = document.createElement("button");
-    this.playBtn.classList.add("player-play-btn");
-    this.playBtn.textContent = "play";
+    this.playBtn.classList.add("player-special-btn");
+    this.playBtn.title = "Play";
+    this.playBtn.ariaLabel = "Play";
+    this.playBtn.ariaDisabled = "true";
     this.playBtn.disabled = true;
     this.playBtn.addEventListener("click", () => {
       if (this.audio.paused) {
         this.audio.play();
-        this.playBtn.textContent = "play";
+        this.playBtn.ariaLabel = "Play";
+        this.playBtn.title = "Play";
+        icon.classList.add("ri-play-fill");
+        icon.classList.remove("ri-pause-fill");
       } else {
         this.audio.pause();
-        this.playBtn.textContent = "pause";
+        this.playBtn.ariaLabel = "Pause";
+        this.playBtn.title = "Pause";
+        icon.classList.add("ri-pause-fill");
+        icon.classList.remove("ri-play-fill");
       }
     });
+    const icon = document.createElement("i");
+    icon.classList.add("ri-play-fill");
+    this.playBtn.append(icon);
 
     this.seekBar = document.createElement("input");
     this.seekBar.classList.add("player-seek-bar");
+    this.seekBar.ariaLabel = "Seek bar";
+    this.seekBar.title = "Seek bar";
     this.seekBar.min = "0";
     this.seekBar.max = "1";
     this.seekBar.step = "0.001";
@@ -60,14 +74,15 @@ export class AudioController {
 
     this.nameDom = document.createElement("span");
     this.nameDom.classList.add("player-song-name");
-    this.nameDom.textContent = this.queue[this.currentOrder]
-      ? this.queue[this.currentOrder].name
-      : "name";
+    // this.nameDom.textContent = this.queue[this.currentOrder]
+    //   ? this.queue[this.currentOrder].name
+    //   : "name";
 
     this.audio = new Audio();
 
     this.audio.addEventListener("loadedmetadata", () => {
       this.playBtn.disabled = false;
+      this.playBtn.ariaDisabled = "false";
       const duration = this.audio.duration;
       this.durationDom.textContent = formatTime(duration);
       this.thumbnailDom.src = this.queue[this.currentOrder].thumbnail;
@@ -191,48 +206,107 @@ export class AudioController {
     const middleBottomPanel = document.createElement("div");
     middleBottomPanel.classList.add("player-middle-panel");
 
+    const btnPanel = document.createElement("div");
+    btnPanel.classList.add("player-btn-panel");
+
     const prevBtn = document.createElement("button");
-    prevBtn.classList.add("player-prev-btn");
-    prevBtn.textContent = "prev";
+    prevBtn.classList.add("player-common-btn");
+    prevBtn.ariaLabel = "Previous";
+    prevBtn.title = "Previous";
     prevBtn.addEventListener("click", this.prevSong);
+    const prevBtnIcon = document.createElement("i");
+    prevBtnIcon.classList.add("ri-skip-back-fill");
+    prevBtn.append(prevBtnIcon);
 
     const nextBtn = document.createElement("button");
-    nextBtn.classList.add("player-next-btn");
-    nextBtn.textContent = "next";
+    nextBtn.classList.add("player-common-btn");
+    nextBtn.ariaLabel = "Next";
+    nextBtn.title = "Next";
     nextBtn.addEventListener("click", this.nextSong);
+    const nextBtnIcon = document.createElement("i");
+    nextBtnIcon.classList.add("ri-skip-forward-fill");
+    nextBtn.append(nextBtnIcon);
 
     const rightBottomPanel = document.createElement("div");
     rightBottomPanel.classList.add("player-right-panel");
 
-    const volumeBar = document.createElement("input");
-    volumeBar.classList.add("player-volume-bar");
-    volumeBar.min = "0";
-    volumeBar.max = "1";
-    volumeBar.step = "0.01";
-    volumeBar.value = "0.1";
-    volumeBar.type = "range";
-    volumeBar.addEventListener("input", (e: any) => {
-      this.audio.volume = e.target.value;
+    const volumeBtn = document.createElement("button");
+    volumeBtn.classList.add("player-common-btn");
+    volumeBtn.ariaLabel = "Mute";
+    volumeBtn.title = "Mute";
+    const volumeBtnIcon = document.createElement("i");
+    volumeBtnIcon.classList.add("ri-volume-up-fill");
+    volumeBtn.append(volumeBtnIcon);
+    volumeBtnIcon.addEventListener("click", () => {
+      if (this.audio.volume != 0) {
+        this.audio.volume = 0;
+        volumeInput.value = "0";
+        volumeBtnIcon.classList.remove("ri-volume-up-fill");
+        volumeBtnIcon.classList.add("ri-volume-mute-fill");
+      } else if (this.audio.volume == 0 && this.prevVolume == 0) {
+        this.audio.volume = 0.01;
+        this.prevVolume = 0.01;
+        volumeBtnIcon.classList.remove("ri-volume-mute-fill");
+        volumeBtnIcon.classList.add("ri-volume-up-fill");
+      } else {
+        this.audio.volume = this.prevVolume;
+        volumeInput.value = this.prevVolume.toString();
+        volumeBtnIcon.classList.remove("ri-volume-mute-fill");
+        volumeBtnIcon.classList.add("ri-volume-up-fill");
+      }
     });
-    this.audio.volume = parseFloat(volumeBar.value);
+
+    const volumeBar = document.createElement("div");
+    volumeBar.classList.add("player-volume-bar");
+    const volumeInput = document.createElement("input");
+    volumeInput.ariaLabel = "Volume";
+    volumeInput.title = "Volume";
+    volumeInput.min = "0";
+    volumeInput.max = "1";
+    volumeInput.step = "0.01";
+    volumeInput.value = "0.1";
+    volumeInput.type = "range";
+    volumeInput.addEventListener("input", (e: any) => {
+      this.audio.volume = parseFloat(e.target.value);
+      this.prevVolume = parseFloat(e.target.value);
+
+      if (parseFloat(e.target.value) == 0) {
+        volumeBtnIcon.classList.remove("ri-volume-up-fill");
+        volumeBtnIcon.classList.add("ri-volume-mute-fill");
+      } else {
+        volumeBtnIcon.classList.remove("ri-volume-mute-fill");
+        volumeBtnIcon.classList.add("ri-volume-up-fill");
+      }
+    });
+    this.audio.volume = parseFloat(volumeInput.value);
 
     const loopBtn = document.createElement("button");
-    loopBtn.classList.add("player-loop-btn");
-    loopBtn.textContent = "loop";
+    loopBtn.classList.add("player-common-btn");
+    loopBtn.ariaLabel = "Loop";
+    loopBtn.title = "Loop";
+    const loopBtnIcon = document.createElement("i");
+    loopBtnIcon.classList.add("ri-loop-right-fill");
+    loopBtn.append(loopBtnIcon);
     loopBtn.addEventListener("click", this.loopSong);
 
     const shuffleBtn = document.createElement("button");
-    shuffleBtn.classList.add("player-shuffle-btn");
-    shuffleBtn.textContent = "shuffle";
+    shuffleBtn.classList.add("player-common-btn");
+    shuffleBtn.ariaLabel = "Shuffle";
+    shuffleBtn.title = "Shuffle";
+    const shuffleBtnIcon = document.createElement("i");
+    shuffleBtnIcon.classList.add("ri-shuffle-fill");
+    shuffleBtn.append(shuffleBtnIcon);
     shuffleBtn.addEventListener("click", this.shuffleSong);
 
     dom.append(topPanel, bottomPanel);
-    topPanel.append(this.seekBar, timeDom);
+    topPanel.append(this.seekBar);
     timeDom.append(this.currenttimeDom, " / ", this.durationDom);
     bottomPanel.append(leftBottomPanel, middleBottomPanel, rightBottomPanel);
     leftBottomPanel.append(this.thumbnailDom, this.nameDom);
-    middleBottomPanel.append(prevBtn, this.playBtn, nextBtn);
-    rightBottomPanel.append(volumeBar, loopBtn, shuffleBtn);
+    btnPanel.append(prevBtn, this.playBtn, nextBtn);
+    middleBottomPanel.append(btnPanel, timeDom);
+    volumeBar.append(volumeInput);
+    rightBottomPanel.append(volumeBtn, volumeBar, loopBtn, shuffleBtn);
 
     return dom;
   };
@@ -242,9 +316,12 @@ export class AudioController {
     this.durationDom.textContent = "00:00";
     this.currenttimeDom.textContent = "00:00";
     this.playBtn.disabled = true;
-    this.playBtn.textContent = "play";
+    this.playBtn.ariaDisabled = "true";
+    const icon = this.playBtn.children[0];
+    icon.classList.remove("ri-pause-fill");
+    icon.classList.add("ri-play-fill");
     this.thumbnailDom.src = "hey.jpg";
-    this.nameDom.textContent = "name";
+    this.nameDom.textContent = "";
   };
 
   private createQueueItemDom = (song: SongObject) => {
@@ -401,6 +478,7 @@ export class AudioController {
 
     const removeBtn = document.createElement("button");
     removeBtn.classList.add("queue-remove-btn");
+    removeBtn.ariaLabel = "Remove from queue";
     removeBtn.textContent = "X";
     removeBtn.addEventListener("click", () => {
       const itemId = parseInt(itemDom.id);

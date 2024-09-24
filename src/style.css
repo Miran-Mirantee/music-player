@@ -1,11 +1,99 @@
 :root {
-  --player-height: 112px;
+  --player-height: 104px;
   --queue-width: 450px;
+  --background-color: #1a1a1a;
+  --primary-color: #ff6f61;
+  --secondary-color: #29a19c;
+  --text-color: #ffffff;
+  --button-color: #f9c846;
+}
+
+/* Base styles for the range input */
+input[type="range"] {
+  -webkit-appearance: none; /* For Safari and Chrome */
+  -moz-appearance: none; /* For Firefox */
+  margin: 0;
+  appearance: none; /* For other browsers */
+  position: relative;
+  overflow: hidden;
+  height: 100%; /* Full height for the range input */
+  cursor: pointer;
+  border-radius: 0; /* iOS */
+}
+
+/* WebKit (Chrome, Safari) track */
+::-webkit-slider-runnable-track {
+  background-color: #ddd; /* Track background */
+  height: 100%; /* Set track height to match the input */
+}
+
+/* WebKit thumb */
+::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 0px; /* Set thumb width to 0 */
+  height: 100%; /* Match track height */
+  background: #fff; /* Thumb color */
+  box-shadow: -100vw 0 0 100vw var(--primary-color); /* Shadow for thumb */
+}
+
+/* Firefox track */
+::-moz-range-track {
+  background: #ddd; /* Track background */
+  height: 100%; /* Set track height to match the input */
+}
+
+/* Firefox thumb */
+::-moz-range-thumb {
+  background: #fff; /* Thumb color */
+  height: 100%; /* Match track height */
+  width: 20px; /* Set thumb width */
+  border: 0; /* Remove border */
+  border-radius: 0; /* No rounded corners */
+  box-shadow: -100vw 0 0 100vw var(--primary-color); /* Shadow for thumb */
+}
+
+/* Internet Explorer track */
+::-ms-track {
+  background: #ddd; /* Track background */
+  height: 100%; /* Set track height to match the input */
+  border: none; /* Remove border */
+  color: transparent; /* Make ticks invisible */
+}
+
+/* Internet Explorer thumb */
+::-ms-thumb {
+  background: #fff; /* Thumb color */
+  border: none; /* Remove border */
+  height: 100%; /* Match track height */
+  width: 20px; /* Set thumb width */
+  box-shadow: -100vw 0 0 100vw var(--primary-color); /* Shadow for thumb */
+}
+
+/* IE fill lower */
+::-ms-fill-lower {
+  background: var(--primary-color); /* Color for the lower track */
+}
+
+/* IE fill upper */
+::-ms-fill-upper {
+  background: #ddd; /* Color for the upper track */
+}
+
+/* Prevent ticks from appearing */
+::-ms-ticks-after,
+::-ms-ticks-before {
+  display: none; /* Hide ticks */
+}
+
+/* Hide tooltip in Internet Explorer */
+::-ms-tooltip {
+  display: none; /* Hide tooltip */
 }
 
 html body {
   margin: 0;
   padding: 0;
+  font-size: 1rem;
 }
 
 body {
@@ -101,7 +189,8 @@ body {
 .player {
   position: fixed;
   bottom: 0;
-  background-color: gray;
+  background-color: var(--background-color);
+  color: var(--text-color);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -111,48 +200,99 @@ body {
 
 .player-top-panel {
   display: flex;
-  border: 1px solid red;
   width: 100%;
-}
-
-.player-bottom-panel {
-  display: flex;
-  padding: 12px;
+  height: 8px;
   align-items: center;
-  justify-content: space-between;
-  border: 1px solid red;
-  width: 100%;
-}
-
-.player-left-panel {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-}
-
-.player-thumbnail {
-  width: 64px;
-  height: 64px;
-}
-
-.player-prev-btn {
-}
-
-.player-play-btn {
-}
-
-.player-next-btn {
-}
-
-.player-middle-panel {
-  display: flex;
+  gap: 8px;
 }
 
 .player-seek-bar {
   flex-grow: 1;
 }
 
+.player-bottom-panel {
+  display: flex;
+  position: relative;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  width: 100%;
+}
+
+.player-left-panel {
+  width: 35%;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding-left: 16px;
+  font-size: 1.25rem;
+}
+
+.player-thumbnail {
+  width: 64px;
+  height: 64px;
+  border-radius: 4px;
+}
+
+.player-song-name {
+  white-space: nowrap; /* Prevents text from wrapping */
+  overflow: hidden; /* Hides overflow content */
+  text-overflow: ellipsis; /* Adds ellipsis when text overflows */
+}
+
+.player-middle-panel {
+  height: 75px;
+  width: 450px;
+  position: absolute;
+  left: calc(50% - 225px);
+}
+
+.player-btn-panel {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  position: absolute;
+}
+
+.player-common-btn,
+.player-special-btn {
+  box-shadow: none;
+  appearance: none; /* Removes platform-specific styling */
+  -webkit-appearance: none; /* For Safari/Chrome */
+  -moz-appearance: none; /* For Firefox */
+  padding: 0;
+  border: none;
+  cursor: pointer;
+}
+
+.player-common-btn {
+  background-color: transparent;
+  color: var(--button-color);
+  font-size: 36px;
+}
+
+.player-special-btn:hover,
+.player-common-btn:hover {
+  filter: brightness(1.4); /* Increases brightness by 20% */
+}
+
+.player-special-btn {
+  height: 64px;
+  width: 64px;
+  font-size: 48px;
+  border-radius: 64px;
+  background-color: var(--button-color);
+  color: var(--background-color);
+}
+
 .player-time {
+  font-size: 0.875rem;
+  position: absolute;
+  right: 0%;
+  top: calc(50% - 0.4375rem);
 }
 
 .player-currenttime {
@@ -163,15 +303,24 @@ body {
 
 .player-right-panel {
   display: flex;
+  gap: 8px;
+  padding-right: 16px;
+  align-items: center;
+}
+
+.player-right-panel > * {
+  font-size: 24px;
 }
 
 .player-volume-bar {
+  display: flex;
+  align-items: center;
+  height: 8px;
 }
 
-.player-loop-btn {
-}
-
-.player-shuffle-btn {
+.player-volume-bar > input {
+  border-radius: 16px;
+  width: 80px;
 }
 
 .queue {

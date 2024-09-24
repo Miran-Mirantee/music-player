@@ -1,4 +1,5 @@
 import "./style.css";
+import "remixicon/fonts/remixicon.css";
 import songCard from "./components/songCard";
 import playlistCard from "./components/playlistCard";
 import videoCard from "./components/videoCard";
@@ -38,6 +39,8 @@ import myPlaylistCard from "./components/myPlaylistCard";
  *  - Unable to load a playlist that has a hidden video, might need to consider (fixing it myself)
  *  - Fix adding duplicate songs in the queue
  *  - Fix seeking when there is no music tracks
+ *  - Fix buttons panel's shown when click my playlist button again after selecting a playlist
+ *  - Fix user able to click next and prev song button
  */
 
 const state = {
