@@ -20,6 +20,8 @@ import myPlaylistCard from "./components/myPlaylistCard";
  *  - Where did we store music after we loaded? (biggest mystery)
  *  - Get search result from youtube (search by name)
  *    - Search artist??
+ *  - Add remove my playlist button
+ *  - Adjust quality of audio according to internet speed
  *  - Create a better UI
  *    - Using Three.js (optional)
  *  - Add pagination for search (optional)
@@ -34,6 +36,8 @@ import myPlaylistCard from "./components/myPlaylistCard";
  *  - Song didn't stop when removing from queue (when the queue is more than one song and trying to remove all from the queue)
  *  - If the user download the song then change to other song, the player will play the skipped song once it's fully loaded
  *  - Unable to load a playlist that has a hidden video, might need to consider (fixing it myself)
+ *  - Fix adding duplicate songs in the queue
+ *  - Fix seeking when there is no music tracks
  */
 
 const state = {
@@ -234,7 +238,9 @@ const createAddPlaylistBtn = (
       const newPlaylistObject: MyPlaylist = {
         playlistId: playlist.playlistId,
         name: playlist.name,
-        thumbnail: playlist.thumbnails[1].url,
+        thumbnail: playlist.thumbnails[1]
+          ? playlist.thumbnails[1].url
+          : playlist.thumbnails[0].url,
         songs: playlistSongs,
       };
 
@@ -344,6 +350,7 @@ formDom.addEventListener("click", () => {
 const inputDom = document.createElement("input");
 inputDom.id = "search-field";
 inputDom.placeholder = "search";
+inputDom.autocomplete = "off";
 
 const columnDom = document.createElement("div");
 columnDom.classList.add("column", "hidden");
