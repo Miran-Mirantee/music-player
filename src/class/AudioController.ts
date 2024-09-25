@@ -5,6 +5,7 @@ import SongObject from "../types/SongObject";
 export class AudioController {
   private queue: SongObject[] = [];
   private queueContainer: HTMLDivElement;
+  private togglePlayerDomDisability: () => void;
   private currentOrder: number = 0;
   private audio: HTMLAudioElement;
   private currenttimeDom: HTMLSpanElement;
@@ -14,6 +15,7 @@ export class AudioController {
   private thumbnailDom: HTMLImageElement;
   private nameDom: HTMLSpanElement;
   private prevVolume: number = 0.1;
+  private isLoading: boolean = true;
 
   public playerDom: HTMLDivElement;
   public queueDom: HTMLDivElement;
@@ -31,8 +33,8 @@ export class AudioController {
     this.playBtn.classList.add("player-special-btn");
     this.playBtn.title = "Play";
     this.playBtn.ariaLabel = "Play";
-    this.playBtn.ariaDisabled = "true";
-    this.playBtn.disabled = true;
+    this.playBtn.disabled = this.isLoading;
+    this.playBtn.ariaDisabled = this.isLoading.toString();
     this.playBtn.addEventListener("click", () => {
       if (this.audio.paused) {
         this.audio.play();
@@ -61,6 +63,8 @@ export class AudioController {
     this.seekBar.step = "0.001";
     this.seekBar.value = "0";
     this.seekBar.type = "range";
+    this.seekBar.disabled = this.isLoading;
+    this.seekBar.ariaDisabled = this.isLoading.toString();
     this.seekBar.addEventListener("input", (e: any) => {
       const seekTo = this.audio.duration * e.target.value;
       this.audio.currentTime = seekTo;
@@ -68,25 +72,24 @@ export class AudioController {
 
     this.thumbnailDom = document.createElement("img");
     this.thumbnailDom.classList.add("player-thumbnail");
+    this.thumbnailDom.alt = "Song thumbnail";
+    this.thumbnailDom.ariaLabel = "Song thumbnail";
     this.thumbnailDom.src = this.queue[this.currentOrder]
       ? this.queue[this.currentOrder].thumbnail
       : "hey.jpg";
 
     this.nameDom = document.createElement("span");
     this.nameDom.classList.add("player-song-name");
-    // this.nameDom.textContent = this.queue[this.currentOrder]
-    //   ? this.queue[this.currentOrder].name
-    //   : "name";
 
     this.audio = new Audio();
 
     this.audio.addEventListener("loadedmetadata", () => {
-      this.playBtn.disabled = false;
-      this.playBtn.ariaDisabled = "false";
+      this.isLoading = false;
       const duration = this.audio.duration;
       this.durationDom.textContent = formatTime(duration);
       this.thumbnailDom.src = this.queue[this.currentOrder].thumbnail;
       this.nameDom.textContent = this.queue[this.currentOrder].name;
+      this.togglePlayerDomDisability();
     });
 
     this.audio.addEventListener("timeupdate", () => {
@@ -108,10 +111,12 @@ export class AudioController {
       this.seekBar.value = "0";
     });
 
-    this.playerDom = this.createPlayerDom();
+    const { newPlayerDom, togglePlayerDomDisability } = this.createPlayerDom();
+    this.togglePlayerDomDisability = togglePlayerDomDisability;
+    this.playerDom = newPlayerDom;
 
-    const { dom, container } = this.createQueueDom();
-    this.queueDom = dom;
+    const { newQueueDom, container } = this.createQueueDom();
+    this.queueDom = newQueueDom;
     this.queueContainer = container;
   }
 
@@ -188,8 +193,28 @@ export class AudioController {
   };
 
   private createPlayerDom = () => {
-    const dom = document.createElement("div");
-    dom.classList.add("player");
+    const togglePlayerDomDisability = () => {
+      prevBtn.disabled = this.isLoading;
+      prevBtn.ariaDisabled = this.isLoading.toString();
+
+      nextBtn.disabled = this.isLoading;
+      nextBtn.ariaDisabled = this.isLoading.toString();
+
+      loopBtn.disabled = this.isLoading;
+      loopBtn.ariaDisabled = this.isLoading.toString();
+
+      shuffleBtn.disabled = this.isLoading;
+      shuffleBtn.ariaDisabled = this.isLoading.toString();
+
+      this.playBtn.disabled = this.isLoading;
+      this.playBtn.ariaDisabled = this.isLoading.toString();
+
+      this.seekBar.disabled = this.isLoading;
+      this.seekBar.ariaDisabled = this.isLoading.toString();
+    };
+
+    const newPlayerDom = document.createElement("div");
+    newPlayerDom.classList.add("player");
 
     const topPanel = document.createElement("div");
     topPanel.classList.add("player-top-panel");
@@ -213,6 +238,8 @@ export class AudioController {
     prevBtn.classList.add("player-common-btn");
     prevBtn.ariaLabel = "Previous";
     prevBtn.title = "Previous";
+    prevBtn.disabled = this.isLoading;
+    prevBtn.ariaDisabled = this.isLoading.toString();
     prevBtn.addEventListener("click", this.prevSong);
     const prevBtnIcon = document.createElement("i");
     prevBtnIcon.classList.add("ri-skip-back-fill");
@@ -222,6 +249,8 @@ export class AudioController {
     nextBtn.classList.add("player-common-btn");
     nextBtn.ariaLabel = "Next";
     nextBtn.title = "Next";
+    nextBtn.disabled = this.isLoading;
+    nextBtn.ariaDisabled = this.isLoading.toString();
     nextBtn.addEventListener("click", this.nextSong);
     const nextBtnIcon = document.createElement("i");
     nextBtnIcon.classList.add("ri-skip-forward-fill");
@@ -284,6 +313,8 @@ export class AudioController {
     loopBtn.classList.add("player-common-btn");
     loopBtn.ariaLabel = "Loop";
     loopBtn.title = "Loop";
+    loopBtn.disabled = this.isLoading;
+    loopBtn.ariaDisabled = this.isLoading.toString();
     const loopBtnIcon = document.createElement("i");
     loopBtnIcon.classList.add("ri-loop-right-fill");
     loopBtn.append(loopBtnIcon);
@@ -293,12 +324,14 @@ export class AudioController {
     shuffleBtn.classList.add("player-common-btn");
     shuffleBtn.ariaLabel = "Shuffle";
     shuffleBtn.title = "Shuffle";
+    shuffleBtn.disabled = this.isLoading;
+    shuffleBtn.ariaDisabled = this.isLoading.toString();
     const shuffleBtnIcon = document.createElement("i");
     shuffleBtnIcon.classList.add("ri-shuffle-fill");
     shuffleBtn.append(shuffleBtnIcon);
     shuffleBtn.addEventListener("click", this.shuffleSong);
 
-    dom.append(topPanel, bottomPanel);
+    newPlayerDom.append(topPanel, bottomPanel);
     topPanel.append(this.seekBar);
     timeDom.append(this.currenttimeDom, " / ", this.durationDom);
     bottomPanel.append(leftBottomPanel, middleBottomPanel, rightBottomPanel);
@@ -308,20 +341,22 @@ export class AudioController {
     volumeBar.append(volumeInput);
     rightBottomPanel.append(volumeBtn, volumeBar, loopBtn, shuffleBtn);
 
-    return dom;
+    return { newPlayerDom, togglePlayerDomDisability };
   };
 
   private resetPlayerDom = () => {
-    this.audio.src = "";
-    this.durationDom.textContent = "00:00";
-    this.currenttimeDom.textContent = "00:00";
-    this.playBtn.disabled = true;
-    this.playBtn.ariaDisabled = "true";
     const icon = this.playBtn.children[0];
     icon.classList.remove("ri-pause-fill");
     icon.classList.add("ri-play-fill");
+
+    this.isLoading = true;
+    this.audio.src = "";
+    this.durationDom.textContent = "00:00";
+    this.currenttimeDom.textContent = "00:00";
     this.thumbnailDom.src = "hey.jpg";
     this.nameDom.textContent = "";
+
+    this.togglePlayerDomDisability();
   };
 
   private createQueueItemDom = (song: SongObject) => {
@@ -515,18 +550,18 @@ export class AudioController {
   };
 
   private createQueueDom = () => {
-    const dom = document.createElement("div");
-    dom.classList.add("queue", "hidden");
+    const newQueueDom = document.createElement("div");
+    newQueueDom.classList.add("queue", "hidden");
     const container = document.createElement("div");
     container.classList.add("queue-container");
     const expandBtn = document.createElement("div");
     expandBtn.classList.add("queue-expand-btn");
     expandBtn.addEventListener("click", () => {
-      dom.classList.toggle("hidden");
+      newQueueDom.classList.toggle("hidden");
     });
 
-    dom.append(container, expandBtn);
-    return { dom, container };
+    newQueueDom.append(container, expandBtn);
+    return { newQueueDom, container };
   };
 
   private updateQueueDom = () => {

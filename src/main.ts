@@ -38,9 +38,7 @@ import myPlaylistCard from "./components/myPlaylistCard";
  *  - If the user download the song then change to other song, the player will play the skipped song once it's fully loaded
  *  - Unable to load a playlist that has a hidden video, might need to consider (fixing it myself)
  *  - Fix adding duplicate songs in the queue
- *  - Fix seeking when there is no music tracks
  *  - Fix buttons panel's shown when click my playlist button again after selecting a playlist
- *  - Fix user able to click next and prev song button
  */
 
 const state = {
