@@ -13,7 +13,7 @@ export class AudioController {
   private playBtn: HTMLButtonElement;
   private seekBar: HTMLInputElement;
   private thumbnailDom: HTMLImageElement;
-  private nameDom: HTMLSpanElement;
+  private nameDom: HTMLAnchorElement;
   private prevVolume: number = 0.1;
   private isLoading: boolean = true;
 
@@ -78,8 +78,12 @@ export class AudioController {
       ? this.queue[this.currentOrder].thumbnail
       : "hey.jpg";
 
-    this.nameDom = document.createElement("span");
+    this.nameDom = document.createElement("a");
     this.nameDom.classList.add("player-song-name");
+    this.nameDom.target = "_blank";
+    this.nameDom.rel = "noopener noreferrer";
+    this.nameDom.ariaLabel = "Open on Youtube";
+    this.nameDom.title = "Open on Youtube";
 
     this.audio = new Audio();
 
@@ -89,6 +93,9 @@ export class AudioController {
       this.durationDom.textContent = formatTime(duration);
       this.thumbnailDom.src = this.queue[this.currentOrder].thumbnail;
       this.nameDom.textContent = this.queue[this.currentOrder].name;
+      this.nameDom.href = `https://www.youtube.com/watch?v=${
+        this.queue[this.currentOrder].videoId
+      }`;
       this.togglePlayerDomDisability();
     });
 

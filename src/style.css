@@ -238,6 +238,11 @@ body {
   white-space: nowrap; /* Prevents text from wrapping */
   overflow: hidden; /* Hides overflow content */
   text-overflow: ellipsis; /* Adds ellipsis when text overflows */
+  color: var(--text-color);
+}
+
+.player-song-name:visited {
+  color: var(--text-color);
 }
 
 .player-middle-panel {
