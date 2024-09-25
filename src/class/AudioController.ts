@@ -387,6 +387,16 @@ export class AudioController {
       itemDom.classList.add("dragging");
     });
 
+    itemDom.addEventListener("mouseover", () => {
+      removeBtn.classList.remove("hidden");
+      durationDom.classList.add("hidden");
+    });
+
+    itemDom.addEventListener("mouseleave", () => {
+      removeBtn.classList.add("hidden");
+      durationDom.classList.remove("hidden");
+    });
+
     document.addEventListener("mousemove", (e) => {
       if (isDragging) {
         offsetY = e.clientY - initialY;
@@ -494,6 +504,9 @@ export class AudioController {
     thumbnailDom.classList.add("queue-thumbnail");
     thumbnailDom.src = song.thumbnail;
     thumbnailDom.draggable = false;
+    thumbnailDom.alt = "Song thumbnail";
+    thumbnailDom.ariaLabel = "Play this song";
+    thumbnailDom.title = "Play this song";
 
     thumbnailDom.addEventListener("click", _handleClickQueuePlaySong);
 
@@ -519,9 +532,11 @@ export class AudioController {
     buttonPanel.classList.add("queue-button-panel");
 
     const removeBtn = document.createElement("button");
-    removeBtn.classList.add("queue-remove-btn");
+    removeBtn.classList.add("queue-remove-btn", "hidden");
     removeBtn.ariaLabel = "Remove from queue";
-    removeBtn.textContent = "X";
+    const removeBtnIcon = document.createElement("i");
+    removeBtnIcon.classList.add("ri-delete-bin-6-line");
+    removeBtn.append(removeBtnIcon);
     removeBtn.addEventListener("click", () => {
       const itemId = parseInt(itemDom.id);
       const queueLength = this.queue.length;
@@ -550,8 +565,8 @@ export class AudioController {
 
     itemDom.append(thumbnailDom, songInfoDom, buttonPanel);
     songInfoDom.append(songNameDom, btmInfoDom);
-    btmInfoDom.append(artistDom, durationDom);
-    buttonPanel.append(removeBtn);
+    btmInfoDom.append(artistDom);
+    buttonPanel.append(removeBtn, durationDom);
 
     return itemDom;
   };
