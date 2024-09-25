@@ -1,10 +1,14 @@
 :root {
   --player-height: 104px;
   --queue-width: 450px;
+  --background-lighter-color: #363636;
   --background-color: #1a1a1a;
+  --background-darker-color: #0c0c0c;
   --primary-color: #ff6f61;
   --secondary-color: #29a19c;
   --text-color: #ffffff;
+  --sub-text-color: #9b9b9b;
+  --sub2-text-color: #7e7e7e;
   --button-color: #f9c846;
 }
 
@@ -88,6 +92,31 @@ input[type="range"] {
 /* Hide tooltip in Internet Explorer */
 ::-ms-tooltip {
   display: none; /* Hide tooltip */
+}
+
+/* WebKit Scrollbar Styles (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 14px;
+}
+
+::-webkit-scrollbar-track {
+  background: #ddd;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--secondary-color);
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 2.5px #ddd;
+}
+
+/* Firefox Scrollbar */
+@supports (-moz-appearance: auto) {
+  /* Apply styles only in Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--secondary-color) #ddd;
+  }
 }
 
 html body {
@@ -275,7 +304,14 @@ body {
 
 .player-special-btn:hover,
 .player-common-btn:hover {
-  filter: brightness(1.4); /* Increases brightness by 20% */
+  filter: brightness(1.2); /* Increases brightness by 20% */
+}
+
+.player-common-btn:active,
+.player-special-btn:active {
+  transform: scale(0.9); /* Scales the button to 95% of its original size */
+  filter: brightness(2); /* Increases brightness by 100% */
+  transition: transform 0.1s ease-in-out; /* Smooth transition for the scaling effect */
 }
 
 .player-common-btn {
@@ -304,6 +340,7 @@ body {
   position: absolute;
   right: 0%;
   top: calc(50% - 0.4375rem);
+  color: var(--sub-text-color);
 }
 
 .player-currenttime {
@@ -340,7 +377,8 @@ body {
   width: var(--queue-width);
   bottom: var(--player-height);
   left: 0;
-  background-color: rebeccapurple;
+  background-color: var(--background-darker-color);
+  color: var(--text-color);
   transition: left 0.5s;
   z-index: 2;
 }
@@ -356,31 +394,42 @@ body {
   height: 100%;
   width: 100%;
   /* overflow-x: hidden; */
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .queue-expand-btn {
   position: absolute;
-  top: 0;
+  top: calc(50% - var(--player-height) / 2);
   left: var(--queue-width);
-  height: 36px;
-  width: 48px;
+  height: 64px;
+  width: 24px;
+  border-radius: 0 12px 12px 0;
   cursor: pointer;
-  background-color: rebeccapurple;
+  background: linear-gradient(
+    to right,
+    var(--background-darker-color) 5%,
+    var(--background-color) 60%
+  );
 }
 
 .queue-item {
   display: flex;
   gap: 4px;
-  background-color: violet;
+  background-color: var(--background-darker-color);
   padding: 8px;
-  margin: 8px;
+  margin: 0 8px;
   user-select: none;
   cursor: move;
+  border-bottom: var(--background-lighter-color) solid 1px;
+}
+
+.queue-item:last-child {
+  border: none;
 }
 
 .queue-item.dragging {
-  background-color: aquamarine;
+  background-color: var(--background-color);
+  border: none;
   z-index: 1;
 }
 
@@ -389,6 +438,7 @@ body {
   width: 80px;
   object-fit: cover;
   cursor: pointer;
+  border-radius: 6px;
 }
 
 .queue-song-info {
@@ -400,6 +450,8 @@ body {
 }
 
 .queue-song-name {
+  font-size: 1.125rem;
+  font-weight: bold;
 }
 
 .queue-buttom-info {
@@ -408,21 +460,47 @@ body {
 }
 
 .queue-artist {
+  color: var(--sub-text-color);
 }
 
 .queue-duration {
+  color: var(--sub-text-color);
+}
+
+.queue-duration.hidden {
+  color: var(--sub-text-color);
+  display: none;
 }
 
 .queue-button-panel {
   display: flex;
   align-items: center;
-  gap: 4px;
-}
-
-.queue-move-btn {
+  justify-content: center;
+  width: 48px;
 }
 
 .queue-remove-btn {
+  box-shadow: none;
+  appearance: none; /* Removes platform-specific styling */
+  -webkit-appearance: none; /* For Safari/Chrome */
+  -moz-appearance: none; /* For Firefox */
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  height: 40px;
+  width: 40px;
+  background-color: transparent;
+  color: var(--button-color);
+  font-size: 18px;
+  border-radius: 40px;
+}
+
+.queue-remove-btn:hover {
+  background-color: var(--background-lighter-color);
+}
+
+.queue-remove-btn.hidden {
+  display: none;
 }
 
 .tab {

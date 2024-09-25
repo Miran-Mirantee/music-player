@@ -23,6 +23,7 @@ import myPlaylistCard from "./components/myPlaylistCard";
  *    - Search artist??
  *  - Add remove my playlist button
  *  - Adjust quality of audio according to internet speed
+ *  - Add keyboard shortcut
  *  - Create a better UI
  *    - Using Three.js (optional)
  *  - Add pagination for search (optional)
