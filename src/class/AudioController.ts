@@ -394,7 +394,7 @@ export class AudioController {
         const draggingItemRect = itemDom.getBoundingClientRect();
         const queueDomRect = this.queueDom.getBoundingClientRect();
 
-        const scrollTop = this.queueDom.scrollTop;
+        const scrollTop = this.queueContainer.scrollTop;
         const adjustedClientY = e.clientY + scrollTop;
 
         // check if draggin item is in the container
