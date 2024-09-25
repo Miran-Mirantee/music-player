@@ -40,18 +40,18 @@ export class AudioController {
         this.audio.play();
         this.playBtn.ariaLabel = "Play";
         this.playBtn.title = "Play";
-        icon.classList.add("ri-play-fill");
-        icon.classList.remove("ri-pause-fill");
+        icon.classList.add("ri-pause-fill");
+        icon.classList.remove("ri-play-fill");
       } else {
         this.audio.pause();
         this.playBtn.ariaLabel = "Pause";
         this.playBtn.title = "Pause";
-        icon.classList.add("ri-pause-fill");
-        icon.classList.remove("ri-play-fill");
+        icon.classList.add("ri-play-fill");
+        icon.classList.remove("ri-pause-fill");
       }
     });
     const icon = document.createElement("i");
-    icon.classList.add("ri-play-fill");
+    icon.classList.add("ri-pause-fill");
     this.playBtn.append(icon);
 
     this.seekBar = document.createElement("input");
@@ -353,8 +353,8 @@ export class AudioController {
 
   private resetPlayerDom = () => {
     const icon = this.playBtn.children[0];
-    icon.classList.remove("ri-pause-fill");
-    icon.classList.add("ri-play-fill");
+    icon.classList.add("ri-pause-fill");
+    icon.classList.remove("ri-play-fill");
 
     this.isLoading = true;
     this.audio.src = "";
