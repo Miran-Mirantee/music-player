@@ -40,6 +40,7 @@ import myPlaylistCard from "./components/myPlaylistCard";
  *  - Unable to load a playlist that has a hidden video, might need to consider (fixing it myself)
  *  - Fix adding duplicate songs in the queue
  *  - Fix buttons panel's shown when click my playlist button again after selecting a playlist
+ *  - Fix removing all queue items too fast, music is suppose to stop play but it didn't
  */
 
 const state = {

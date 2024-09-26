@@ -169,7 +169,10 @@ export class AudioController {
     this.audio.play();
   };
 
-  private loopSong = () => {
+  private loopSong = (e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const parent = target.parentNode as HTMLElement; // Now you can safely access parentNode
+    parent.classList.toggle("enable");
     this.audio.loop = !this.audio.loop;
   };
 
@@ -206,9 +209,6 @@ export class AudioController {
 
       nextBtn.disabled = this.isLoading;
       nextBtn.ariaDisabled = this.isLoading.toString();
-
-      loopBtn.disabled = this.isLoading;
-      loopBtn.ariaDisabled = this.isLoading.toString();
 
       shuffleBtn.disabled = this.isLoading;
       shuffleBtn.ariaDisabled = this.isLoading.toString();
@@ -320,8 +320,6 @@ export class AudioController {
     loopBtn.classList.add("player-common-btn");
     loopBtn.ariaLabel = "Loop";
     loopBtn.title = "Loop";
-    loopBtn.disabled = this.isLoading;
-    loopBtn.ariaDisabled = this.isLoading.toString();
     const loopBtnIcon = document.createElement("i");
     loopBtnIcon.classList.add("ri-loop-right-fill");
     loopBtn.append(loopBtnIcon);
