@@ -34,13 +34,13 @@ import myPlaylistCard from "./components/myPlaylistCard";
 
 /**
  * BUGS:
- *  - Looping not working as intended
  *  - Song didn't stop when removing from queue (when the queue is more than one song and trying to remove all from the queue)
  *  - If the user download the song then change to other song, the player will play the skipped song once it's fully loaded
  *  - Unable to load a playlist that has a hidden video, might need to consider (fixing it myself)
  *  - Fix adding duplicate songs in the queue
  *  - Fix buttons panel's shown when click my playlist button again after selecting a playlist
  *  - Fix removing all queue items too fast, music is suppose to stop play but it didn't
+ *  - Thumbnail doesn't always load (too many requests)
  */
 
 const state = {

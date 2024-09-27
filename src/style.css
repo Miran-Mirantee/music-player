@@ -260,6 +260,7 @@ body {
 .player-thumbnail {
   width: 64px;
   height: 64px;
+  object-fit: cover;
   border-radius: 4px;
 }
 
@@ -455,16 +456,21 @@ body {
 }
 
 .queue-song-info {
+  height: 80px;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
   justify-content: center;
   padding: 4px;
+  overflow: hidden;
 }
 
 .queue-song-name {
   font-size: 1.125rem;
   font-weight: bold;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .queue-buttom-info {
@@ -489,7 +495,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
+  min-width: 48px;
   margin-left: 8px;
 }
 

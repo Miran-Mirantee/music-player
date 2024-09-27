@@ -514,6 +514,7 @@ export class AudioController {
     const songNameDom = document.createElement("span");
     songNameDom.classList.add("queue-song-name");
     songNameDom.textContent = song.name;
+    songNameDom.title = song.name;
 
     const btmInfoDom = document.createElement("div");
     btmInfoDom.classList.add("queue-buttom-info");
@@ -521,6 +522,7 @@ export class AudioController {
     const artistDom = document.createElement("span");
     artistDom.classList.add("queue-artist");
     artistDom.textContent = song.artist;
+    artistDom.title = song.artist;
 
     const durationDom = document.createElement("span");
     durationDom.classList.add("queue-duration");
