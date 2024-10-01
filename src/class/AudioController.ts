@@ -586,7 +586,7 @@ export class AudioController {
     return { newQueueDom, container };
   };
 
-  private updateQueueDom = () => {
+  public updateQueueDom = () => {
     this.queueContainer.textContent = "";
     for (const [index, song] of this.queue.entries()) {
       const newQueueItem = this.createQueueItemDom(song);
@@ -601,8 +601,6 @@ export class AudioController {
     if (this.queue.length == 1) {
       this.playSong(this.queue[this.currentOrder]);
     }
-
-    this.updateQueueDom();
   };
 
   public clearQueue = () => {

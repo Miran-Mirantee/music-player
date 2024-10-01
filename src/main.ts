@@ -92,6 +92,7 @@ const renderSongs = (songs: SongResponse[]) => {
 
     newCard.addEventListener("click", async () => {
       addSong(song);
+      audioController.updateQueueDom();
     });
   }
 };
@@ -143,6 +144,7 @@ const renderPlaylistSongs = (playlistSongs: VideoResponse[]) => {
 
     newCard.addEventListener("click", async () => {
       addSong(video);
+      audioController.updateQueueDom();
     });
   }
 };
@@ -191,6 +193,7 @@ const renderVideos = (videos: VideoResponse[]) => {
 
     newCard.addEventListener("click", () => {
       addSong(video);
+      audioController.updateQueueDom();
     });
   }
 };
@@ -267,6 +270,7 @@ const createEnqueueBtn = (songs: VideoResponse[]) => {
     for (const song of songs) {
       addSong(song);
     }
+    audioController.updateQueueDom();
   });
   return enqueueBtn;
 };
@@ -307,6 +311,7 @@ const renderMyPlaylistSongs = (playlist: MyPlaylist) => {
 
     newCard.addEventListener("click", async () => {
       addSong(video);
+      audioController.updateQueueDom();
     });
   }
 };
