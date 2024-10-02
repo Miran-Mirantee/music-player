@@ -36,7 +36,6 @@ import myPlaylistCard from "./components/myPlaylistCard";
  * BUGS:
  *  - Song didn't stop when removing from queue (when the queue is more than one song and trying to remove all from the queue)
  *  - If the user download the song then change to other song, the player will play the skipped song once it's fully loaded
- *  - Unable to load a playlist that has a hidden video, might need to consider (fixing it myself)
  *  - Fix adding duplicate songs in the queue
  *  - Fix buttons panel's shown when click my playlist button again after selecting a playlist
  *  - Fix removing all queue items too fast, music is suppose to stop play but it didn't
@@ -85,18 +84,6 @@ const handleSearchSongs = async () => {
   }
 };
 
-const renderSongs = (songs: SongResponse[]) => {
-  for (const song of songs) {
-    const newCard = songCard(song);
-    resultDom.append(newCard);
-
-    newCard.addEventListener("click", async () => {
-      addSong(song);
-      audioController.updateQueueDom();
-    });
-  }
-};
-
 const handleSearchPlaylists = async () => {
   try {
     const playlists: PlaylistResponse[] = await searchPlaylists(inputDom.value);
@@ -107,17 +94,6 @@ const handleSearchPlaylists = async () => {
     console.log(playlists);
   } catch (error) {
     console.error(error);
-  }
-};
-
-const renderPlaylists = (playlists: PlaylistResponse[]) => {
-  for (let i = 0; i < playlists.length; i++) {
-    const newCard = playlistCard(playlists[i]);
-    resultDom.append(newCard);
-
-    newCard.addEventListener("click", () => {
-      handleClickSearchPlaylist(playlists, i);
-    });
   }
 };
 
@@ -135,6 +111,75 @@ const handleClickSearchPlaylist = async (
   columnContentDom.insertBefore(btnPanel, resultDom);
 
   renderPlaylistSongs(playlistSongs);
+};
+
+const handleSearchVideos = async () => {
+  try {
+    const videos: VideoResponse[] = await searchVideos(inputDom.value);
+    renderVideos(videos);
+    console.log(videos);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const handleClickSubmitEvent = (searchType: string) => {
+  if (state.currentSearchType != searchType) {
+    state.currentSearchType = searchType;
+    const event = new Event("submit", { cancelable: true });
+    formDom.dispatchEvent(event);
+  }
+};
+
+const handleToggleSelectedTabStyles = (dom: HTMLDivElement) => {
+  const selectedTab = document.querySelector(".selected");
+  if (selectedTab) {
+    selectedTab.classList.remove("selected");
+  }
+  dom.classList.add("selected");
+};
+
+const handleCloseColumn = () => {
+  columnDom.classList.add("hidden");
+  formDom.classList.remove("hidden");
+  myPlaylistBtn.classList.remove("hidden");
+  resultDom.textContent = "";
+  inputDom.value = "";
+  myPlaylistBtnPanel.textContent = "";
+};
+
+const handleOpenMyPlaylistColumn = () => {
+  columnDom.classList.remove("hidden");
+  formDom.classList.add("hidden");
+  myPlaylistBtn.classList.add("hidden");
+  columnContentDom.textContent = "";
+  resultDom.textContent = "";
+  columnContentDom.append(myPlaylistDom, myPlaylistBtnPanel, resultDom);
+
+  renderMyPlaylists();
+};
+
+const renderSongs = (songs: SongResponse[]) => {
+  for (const song of songs) {
+    const newCard = songCard(song);
+    resultDom.append(newCard);
+
+    newCard.addEventListener("click", async () => {
+      addSong(song);
+      audioController.updateQueueDom();
+    });
+  }
+};
+
+const renderPlaylists = (playlists: PlaylistResponse[]) => {
+  for (let i = 0; i < playlists.length; i++) {
+    const newCard = playlistCard(playlists[i]);
+    resultDom.append(newCard);
+
+    newCard.addEventListener("click", () => {
+      handleClickSearchPlaylist(playlists, i);
+    });
+  }
 };
 
 const renderPlaylistSongs = (playlistSongs: VideoResponse[]) => {
@@ -176,16 +221,6 @@ const createPlaylistBtnPanel = (
   return btnPanel;
 };
 
-const handleSearchVideos = async () => {
-  try {
-    const videos: VideoResponse[] = await searchVideos(inputDom.value);
-    renderVideos(videos);
-    console.log(videos);
-  } catch (error) {
-    console.error(error);
-  }
-};
-
 const renderVideos = (videos: VideoResponse[]) => {
   for (const video of videos) {
     const newCard = videoCard(video);
@@ -196,22 +231,6 @@ const renderVideos = (videos: VideoResponse[]) => {
       audioController.updateQueueDom();
     });
   }
-};
-
-const triggerSubmitEvent = (searchType: string) => {
-  if (state.currentSearchType != searchType) {
-    state.currentSearchType = searchType;
-    const event = new Event("submit", { cancelable: true });
-    formDom.dispatchEvent(event);
-  }
-};
-
-const toggleSelectedTabStyles = (dom: HTMLDivElement) => {
-  const selectedTab = document.querySelector(".selected");
-  if (selectedTab) {
-    selectedTab.classList.remove("selected");
-  }
-  dom.classList.add("selected");
 };
 
 const renderMyPlaylists = () => {
@@ -366,13 +385,7 @@ columnDom.classList.add("column", "hidden");
 const columnCloseBtn = document.createElement("button");
 columnCloseBtn.classList.add("column-close-btn");
 columnCloseBtn.textContent = "X";
-columnCloseBtn.addEventListener("click", () => {
-  columnDom.classList.add("hidden");
-  formDom.classList.remove("hidden");
-  resultDom.textContent = "";
-  inputDom.value = "";
-  myPlaylistBtnPanel.textContent = "";
-});
+columnCloseBtn.addEventListener("click", handleCloseColumn);
 
 const tabDom = document.createElement("div");
 tabDom.classList.add("tab");
@@ -381,22 +394,22 @@ const songTabDom = document.createElement("div");
 songTabDom.textContent = "Songs";
 songTabDom.classList.add("selected");
 songTabDom.addEventListener("click", () => {
-  triggerSubmitEvent("song");
-  toggleSelectedTabStyles(songTabDom);
+  handleClickSubmitEvent("song");
+  handleToggleSelectedTabStyles(songTabDom);
 });
 
 const playlistTabDom = document.createElement("div");
 playlistTabDom.textContent = "Playlists";
 playlistTabDom.addEventListener("click", () => {
-  triggerSubmitEvent("playlist");
-  toggleSelectedTabStyles(playlistTabDom);
+  handleClickSubmitEvent("playlist");
+  handleToggleSelectedTabStyles(playlistTabDom);
 });
 
 const videoTabDom = document.createElement("div");
 videoTabDom.textContent = "Videos";
 videoTabDom.addEventListener("click", () => {
-  triggerSubmitEvent("video");
-  toggleSelectedTabStyles(videoTabDom);
+  handleClickSubmitEvent("video");
+  handleToggleSelectedTabStyles(videoTabDom);
 });
 
 const resultDom = document.createElement("div");
@@ -405,15 +418,7 @@ resultDom.classList.add("results");
 const myPlaylistBtn = document.createElement("button");
 myPlaylistBtn.classList.add("my-playlist-btn");
 myPlaylistBtn.textContent = "My playlists";
-myPlaylistBtn.addEventListener("click", () => {
-  columnContentDom.textContent = "";
-  resultDom.textContent = "";
-  columnContentDom.append(myPlaylistDom, myPlaylistBtnPanel, resultDom);
-  columnDom.classList.remove("hidden");
-  formDom.classList.add("hidden");
-
-  renderMyPlaylists();
-});
+myPlaylistBtn.addEventListener("click", handleOpenMyPlaylistColumn);
 
 const myPlaylistDom = document.createElement("div");
 myPlaylistDom.classList.add("my-playlist");

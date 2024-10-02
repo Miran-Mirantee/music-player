@@ -558,6 +558,10 @@ body {
   text-shadow: black 0 1px 2px;
 }
 
+.my-playlist-btn.hidden {
+  display: none;
+}
+
 .my-playlist-card {
   display: flex;
   flex-direction: column;
