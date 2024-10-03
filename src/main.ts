@@ -384,7 +384,9 @@ columnDom.classList.add("column", "hidden");
 
 const columnCloseBtn = document.createElement("button");
 columnCloseBtn.classList.add("column-close-btn");
-columnCloseBtn.textContent = "X";
+const columnCloseBtnIcon = document.createElement("i");
+columnCloseBtnIcon.classList.add("ri-close-line");
+columnCloseBtn.append(columnCloseBtnIcon);
 columnCloseBtn.addEventListener("click", handleCloseColumn);
 
 const tabDom = document.createElement("div");
