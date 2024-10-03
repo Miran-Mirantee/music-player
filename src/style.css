@@ -608,10 +608,12 @@ body {
 }
 
 .my-playlist-name {
-  height: 2.5rem;
+  height: 3.625rem;
   color: var(--text-color);
   padding: 0 4px;
   font-size: 1.125rem;
+  overflow: hidden; /* Hides overflow content */
+  text-overflow: ellipsis; /* Adds ellipsis when text overflows */
 }
 
 .search-form {

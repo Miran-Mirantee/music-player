@@ -239,12 +239,19 @@ const renderMyPlaylists = () => {
     const newCard = myPlaylistCard(myPlaylist);
     const enqueueBtn = createEnqueueBtn(myPlaylist.songs);
     const syncBtn = createSyncBtn(myPlaylist);
-
-    myPlaylistDom.append(newCard);
-    newCard.addEventListener("click", () => {
+    const _handleCardEvent = () => {
       myPlaylistBtnPanel.textContent = "";
       myPlaylistBtnPanel.append(enqueueBtn, syncBtn);
       renderMyPlaylistSongs(myPlaylist);
+    };
+
+    myPlaylistDom.append(newCard);
+    newCard.addEventListener("click", _handleCardEvent);
+
+    newCard.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        _handleCardEvent();
+      }
     });
   }
 };
