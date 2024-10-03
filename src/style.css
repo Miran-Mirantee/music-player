@@ -279,8 +279,9 @@ body {
 .player-thumbnail {
   width: 64px;
   height: 64px;
-  object-fit: cover;
-  border-radius: 4px;
+  object-fit: contain;
+  background-color: black;
+  border-radius: 8px;
 }
 
 .player-song-name {
