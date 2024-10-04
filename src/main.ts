@@ -42,6 +42,7 @@ import myPlaylistCard from "./components/myPlaylistCard";
  *  - Thumbnail doesn't always load (too many requests)
  *  - Fix slow when add multiple songs too fast
  *  - Optimize updateQueueDom method in audioController
+ *  - Need to do something about long video (either hide a long video or implement streaming)
  */
 
 const state = {
@@ -479,7 +480,9 @@ listDom.classList.add("list");
 
 const myPlaylistBtn = document.createElement("button");
 myPlaylistBtn.classList.add("my-playlist-btn");
-myPlaylistBtn.textContent = "My playlists";
+const myPlaylistBtnIcon = document.createElement("i");
+myPlaylistBtnIcon.classList.add("ri-play-list-fill");
+myPlaylistBtn.append(myPlaylistBtnIcon);
 myPlaylistBtn.addEventListener("click", handleOpenMyPlaylistColumn);
 
 const myPlaylistDom = document.createElement("div");
