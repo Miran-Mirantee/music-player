@@ -101,14 +101,14 @@ const handleClickSearchPlaylist = async (
   playlists: PlaylistResponse[],
   index: number
 ) => {
-  resultDom.textContent = "";
+  listDom.textContent = "";
 
   const playlistSongs: VideoResponse[] = await getPlaylistVideos(
     playlists[index].playlistId
   );
 
   const btnPanel = createPlaylistBtnPanel(playlists, playlistSongs, index);
-  columnContentDom.insertBefore(btnPanel, resultDom);
+  columnContentDom.insertBefore(btnPanel, listDom);
 
   renderPlaylistSongs(playlistSongs);
 };
@@ -143,26 +143,31 @@ const handleCloseColumn = () => {
   columnDom.classList.add("hidden");
   formDom.classList.remove("hidden");
   myPlaylistBtn.classList.remove("hidden");
-  resultDom.textContent = "";
   inputDom.value = "";
-  myPlaylistBtnPanel.textContent = "";
 };
 
 const handleOpenMyPlaylistColumn = () => {
   columnDom.classList.remove("hidden");
   formDom.classList.add("hidden");
   myPlaylistBtn.classList.add("hidden");
+  listDom.textContent = "";
   columnContentDom.textContent = "";
-  resultDom.textContent = "";
-  columnContentDom.append(myPlaylistDom, myPlaylistBtnPanel, resultDom);
+  columnContentDom.append(myPlaylistDom);
 
   renderMyPlaylists();
+};
+
+const handleOpenSearchColumn = () => {
+  columnDom.classList.remove("hidden");
+  listDom.textContent = "";
+  columnContentDom.textContent = "";
+  columnContentDom.append(tabDom, listDom);
 };
 
 const renderSongs = (songs: SongResponse[]) => {
   for (const song of songs) {
     const newCard = songCard(song);
-    resultDom.append(newCard);
+    listDom.append(newCard);
 
     newCard.addEventListener("click", async () => {
       addSong(song);
@@ -174,7 +179,7 @@ const renderSongs = (songs: SongResponse[]) => {
 const renderPlaylists = (playlists: PlaylistResponse[]) => {
   for (let i = 0; i < playlists.length; i++) {
     const newCard = playlistCard(playlists[i]);
-    resultDom.append(newCard);
+    listDom.append(newCard);
 
     newCard.addEventListener("click", () => {
       handleClickSearchPlaylist(playlists, i);
@@ -185,7 +190,7 @@ const renderPlaylists = (playlists: PlaylistResponse[]) => {
 const renderPlaylistSongs = (playlistSongs: VideoResponse[]) => {
   for (const video of playlistSongs) {
     const newCard = videoCard(video);
-    resultDom.append(newCard);
+    listDom.append(newCard);
 
     newCard.addEventListener("click", async () => {
       addSong(video);
@@ -205,11 +210,10 @@ const createPlaylistBtnPanel = (
   const backBtn = document.createElement("button");
   backBtn.textContent = "back";
   backBtn.addEventListener("click", () => {
-    resultDom.textContent = "";
+    listDom.textContent = "";
     renderPlaylists(playlists);
     btnPanel.remove();
   });
-
   const addPlaylistBtn = createAddPlaylistBtn(
     playlists[currentIndex],
     playlistSongs
@@ -224,7 +228,7 @@ const createPlaylistBtnPanel = (
 const renderVideos = (videos: VideoResponse[]) => {
   for (const video of videos) {
     const newCard = videoCard(video);
-    resultDom.append(newCard);
+    listDom.append(newCard);
 
     newCard.addEventListener("click", () => {
       addSong(video);
@@ -233,15 +237,30 @@ const renderVideos = (videos: VideoResponse[]) => {
   }
 };
 
+const createMyPlaylistBtnPanel = (myPlaylist: MyPlaylist) => {
+  const btnPanel = document.createElement("div");
+  btnPanel.classList.add("my-playlist-btn-panel");
+
+  const backBtn = createMyPlaylistsBackBtn();
+  const removePlaylistBtn = createRemovePlaylistBtn(myPlaylist.playlistId);
+  const enqueueBtn = createEnqueueBtn(myPlaylist.songs);
+  const syncBtn = createSyncBtn(myPlaylist);
+
+  btnPanel.append(backBtn, removePlaylistBtn, enqueueBtn, syncBtn);
+
+  return btnPanel;
+};
+
 const renderMyPlaylists = () => {
   myPlaylistDom.textContent = "";
   for (const myPlaylist of state.myPlaylists) {
     const newCard = myPlaylistCard(myPlaylist);
-    const enqueueBtn = createEnqueueBtn(myPlaylist.songs);
-    const syncBtn = createSyncBtn(myPlaylist);
+
     const _handleCardEvent = () => {
-      myPlaylistBtnPanel.textContent = "";
-      myPlaylistBtnPanel.append(enqueueBtn, syncBtn);
+      const myPlaylistBtnPanel = createMyPlaylistBtnPanel(myPlaylist);
+
+      columnContentDom.textContent = "";
+      columnContentDom.append(myPlaylistBtnPanel, listDom);
       renderMyPlaylistSongs(myPlaylist);
     };
 
@@ -254,6 +273,18 @@ const renderMyPlaylists = () => {
       }
     });
   }
+};
+
+const createMyPlaylistsBackBtn = () => {
+  const backBtn = document.createElement("button");
+  backBtn.textContent = "back";
+  backBtn.addEventListener("click", () => {
+    columnContentDom.textContent = "";
+    columnContentDom.append(myPlaylistDom);
+    renderMyPlaylists();
+  });
+
+  return backBtn;
 };
 
 const createAddPlaylistBtn = (
@@ -278,14 +309,32 @@ const createAddPlaylistBtn = (
 
       state.myPlaylists.push(newPlaylistObject);
       localStorage.setItem("myPlaylists", JSON.stringify(state.myPlaylists));
-
-      renderMyPlaylists();
     } else {
       console.log("you already added this playlist");
     }
   });
 
   return addPlaylistBtn;
+};
+
+const createRemovePlaylistBtn = (playlistId: string) => {
+  const removePlaylistBtn = document.createElement("button");
+  removePlaylistBtn.textContent = "remove playlist";
+
+  removePlaylistBtn.addEventListener("click", () => {
+    const index = state.myPlaylists.findIndex((myPlaylist) => {
+      return myPlaylist.playlistId == playlistId;
+    });
+
+    state.myPlaylists.splice(index, 1);
+    localStorage.setItem("myPlaylists", JSON.stringify(state.myPlaylists));
+
+    columnContentDom.textContent = "";
+    columnContentDom.append(myPlaylistDom);
+    renderMyPlaylists();
+  });
+
+  return removePlaylistBtn;
 };
 
 const createEnqueueBtn = (songs: VideoResponse[]) => {
@@ -321,7 +370,6 @@ const createSyncBtn = (myPlaylist: MyPlaylist) => {
     state.myPlaylists.splice(index, 1, newPlaylistObject);
     localStorage.setItem("myPlaylists", JSON.stringify(state.myPlaylists));
 
-    renderMyPlaylists();
     renderMyPlaylistSongs(newPlaylistObject);
   });
 
@@ -329,11 +377,11 @@ const createSyncBtn = (myPlaylist: MyPlaylist) => {
 };
 
 const renderMyPlaylistSongs = (playlist: MyPlaylist) => {
-  resultDom.textContent = "";
+  listDom.textContent = "";
 
   for (const video of playlist.songs) {
     const newCard = videoCard(video);
-    resultDom.append(newCard);
+    listDom.append(newCard);
 
     newCard.addEventListener("click", async () => {
       addSong(video);
@@ -357,7 +405,7 @@ formDom.classList.add("search-form");
 formDom.addEventListener("submit", async (e) => {
   e.preventDefault();
   if (inputDom.value) {
-    resultDom.textContent = "";
+    listDom.textContent = "";
 
     switch (state.currentSearchType) {
       case "song":
@@ -375,11 +423,7 @@ formDom.addEventListener("submit", async (e) => {
   }
 });
 
-formDom.addEventListener("click", () => {
-  columnDom.classList.remove("hidden");
-  columnContentDom.textContent = "";
-  columnContentDom.append(tabDom, resultDom);
-});
+formDom.addEventListener("click", handleOpenSearchColumn);
 
 const inputDom = document.createElement("input");
 inputDom.id = "search-field";
@@ -421,8 +465,8 @@ videoTabDom.addEventListener("click", () => {
   handleToggleSelectedTabStyles(videoTabDom);
 });
 
-const resultDom = document.createElement("div");
-resultDom.classList.add("results");
+const listDom = document.createElement("div");
+listDom.classList.add("list");
 
 const myPlaylistBtn = document.createElement("button");
 myPlaylistBtn.classList.add("my-playlist-btn");
@@ -432,14 +476,11 @@ myPlaylistBtn.addEventListener("click", handleOpenMyPlaylistColumn);
 const myPlaylistDom = document.createElement("div");
 myPlaylistDom.classList.add("my-playlist");
 
-const myPlaylistBtnPanel = document.createElement("div");
-myPlaylistBtnPanel.classList.add("my-playlist-btn-panel");
-
 const columnContentDom = document.createElement("div");
 columnContentDom.classList.add("column-content");
 
 contentDom.append(formDom, columnDom, myPlaylistBtn);
 formDom.append(inputDom);
 tabDom.append(songTabDom, playlistTabDom, videoTabDom);
-columnContentDom.append(tabDom, resultDom);
+columnContentDom.append(tabDom, listDom);
 columnDom.append(columnCloseBtn, columnContentDom);

@@ -7,7 +7,8 @@
   --primary-color: #ff6f61;
   --secondary-color: #29a19c;
   --column-background-color: rgba(12, 12, 12, 0.5);
-  --column-selected-color: rgba(0, 0, 0, 0.55);
+  --column-selected-btn-color: rgba(0, 0, 0, 0.55);
+  --column-btn-color: rgba(0, 0, 0, 0.3);
   --text-color: #ffffff;
   --sub-text-color: #9b9b9b;
   --sub2-text-color: #7e7e7e;
@@ -175,11 +176,11 @@ body {
   font-size: 26px;
   border-radius: 16px;
   color: var(--button-color);
-  background-color: transparent;
+  background-color: var(--column-btn-color);
 }
 
 .column-close-btn:hover {
-  background-color: var(--column-selected-color);
+  background-color: var(--column-selected-btn-color);
   filter: brightness(1.2);
 }
 
@@ -189,7 +190,7 @@ body {
   pointer-events: none;
 }
 
-.results {
+.list {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -596,7 +597,7 @@ body {
 }
 
 .my-playlist-card:hover {
-  background-color: var(--column-selected-color);
+  background-color: var(--column-selected-btn-color);
 }
 
 .my-playlist-thumbnail {
