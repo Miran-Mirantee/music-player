@@ -8,6 +8,7 @@ const myPlaylistCard = (playlist: MyPlaylist) => {
 
   const thumbnailDom = document.createElement("img");
   thumbnailDom.classList.add("my-playlist-thumbnail");
+  thumbnailDom.draggable = false;
   thumbnailDom.src = playlist.thumbnail;
   thumbnailDom.alt = "Playlist thumbnail";
 
