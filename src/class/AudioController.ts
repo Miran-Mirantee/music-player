@@ -72,6 +72,7 @@ export class AudioController {
 
     this.thumbnailDom = document.createElement("img");
     this.thumbnailDom.classList.add("player-thumbnail");
+    this.thumbnailDom.draggable = false;
     this.thumbnailDom.alt = "Song thumbnail";
     this.thumbnailDom.ariaLabel = "Song thumbnail";
     this.thumbnailDom.src = this.queue[this.currentOrder]

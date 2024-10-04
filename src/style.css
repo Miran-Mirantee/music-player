@@ -516,9 +516,10 @@ body {
 }
 
 .queue-thumbnail {
-  height: 80px;
   width: 80px;
-  object-fit: cover;
+  height: 80px;
+  background-color: black;
+  object-fit: contain;
   cursor: pointer;
   border-radius: 6px;
 }
