@@ -40,6 +40,8 @@ import myPlaylistCard from "./components/myPlaylistCard";
  *  - Fix buttons panel's shown when click my playlist button again after selecting a playlist
  *  - Fix removing all queue items too fast, music is suppose to stop play but it didn't
  *  - Thumbnail doesn't always load (too many requests)
+ *  - Fix slow when add multiple songs too fast
+ *  - Optimize updateQueueDom method in audioController
  */
 
 const state = {
@@ -150,7 +152,7 @@ const handleOpenMyPlaylistColumn = () => {
   columnDom.classList.remove("hidden");
   formDom.classList.add("hidden");
   myPlaylistBtn.classList.add("hidden");
-  listDom.textContent = "";
+  // listDom.textContent = "";
   columnContentDom.textContent = "";
   columnContentDom.append(myPlaylistDom);
 
@@ -386,6 +388,13 @@ const renderMyPlaylistSongs = (playlist: MyPlaylist) => {
     newCard.addEventListener("click", async () => {
       addSong(video);
       audioController.updateQueueDom();
+    });
+
+    newCard.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        addSong(video);
+        audioController.updateQueueDom();
+      }
     });
   }
 };

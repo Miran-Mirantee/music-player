@@ -20,7 +20,7 @@ const songCard = (song: SongResponse) => {
   songNameDom.textContent = song.name;
 
   const albumDom = document.createElement("div");
-  albumDom.classList.add("card-albumDom");
+  albumDom.classList.add("card-album");
   albumDom.textContent = song.album.name;
 
   const subInfoDom2 = document.createElement("div");

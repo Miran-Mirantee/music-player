@@ -7,11 +7,12 @@
   --primary-color: #ff6f61;
   --secondary-color: #29a19c;
   --column-background-color: rgba(12, 12, 12, 0.5);
-  --column-selected-btn-color: rgba(0, 0, 0, 0.55);
-  --column-btn-color: rgba(0, 0, 0, 0.3);
+  --column-selected-btn-color: rgba(0, 0, 0, 0.6);
+  --column-selected2-btn-color: rgba(255, 110, 97, 0.6);
+  --column-btn-color: rgba(0, 0, 0, 0.4);
   --text-color: #ffffff;
-  --sub-text-color: #9b9b9b;
-  --sub2-text-color: #7e7e7e;
+  --sub-text-color: #c0c0c0;
+  --sub2-text-color: #a0a0a0;
   --button-color: #f9c846;
 }
 
@@ -156,7 +157,6 @@ body {
 }
 
 .column-content {
-  position: relative;
   width: 100%;
   height: calc(100% - 48px);
   display: flex;
@@ -191,10 +191,13 @@ body {
 }
 
 .list {
+  width: 100%;
   display: flex;
+  align-items: center;
   flex-direction: column;
   gap: 12px;
   overflow-y: auto;
+  margin-bottom: 24px;
 }
 
 .results-btn-panel {
@@ -203,17 +206,30 @@ body {
 }
 
 .card {
+  width: 70%;
+  min-width: 600px;
   display: flex;
   cursor: pointer;
-  background-color: green;
+  background-color: var(--column-btn-color);
+  color: var(--text-color);
+  border-radius: 6px;
+  user-select: none;
+  transition: transform 0.025s linear;
 }
 
 .card:hover {
-  background-color: lime;
+  background-color: var(--column-selected-btn-color);
+}
+
+.card:active {
+  transition: transform 0.075s linear;
+  transform: scale(0.98);
+  background-color: var(--column-selected2-btn-color);
 }
 
 .card-info {
   flex-grow: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -221,8 +237,19 @@ body {
 }
 
 .card-thumbnail {
+  margin: 8px;
+  background-color: black;
+  color: var(--text-color);
   height: 120px;
-  width: 120px;
+  object-fit: contain;
+  aspect-ratio: 1 / 1;
+}
+
+.card-songName {
+  font-size: 1.25rem;
+  width: 90%;
+  max-height: 3.25rem;
+  overflow: hidden; /* Hides overflow content */
 }
 
 .card-subInfo1 {
@@ -233,6 +260,23 @@ body {
 .card-subInfo2 {
   display: flex;
   justify-content: space-between;
+  color: var(--sub2-text-color);
+  font-size: 0.875rem;
+}
+
+.card-artist {
+  width: 80%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-album {
+  color: var(--sub-text-color);
+}
+
+.card-duration {
+  font-size: 1rem;
 }
 
 .player {
@@ -601,8 +645,8 @@ body {
 }
 
 .my-playlist-thumbnail {
-  flex-grow: 1;
   background-color: black;
+  color: var(--text-color);
   width: 100%;
   object-fit: contain;
   aspect-ratio: 1 / 1;
