@@ -24,6 +24,7 @@ import myPlaylistCard from "./components/myPlaylistCard";
  *  - Adjust quality of audio according to internet speed
  *  - Add keyboard shortcut
  *  - Add loading indicator
+ *  - Add clear queue button
  *  - Create a better UI
  *    - Using Three.js (optional)
  *  - Add pagination for search (optional)
@@ -505,12 +506,20 @@ formDom.addEventListener("submit", async (e) => {
   }
 });
 
-formDom.addEventListener("click", handleOpenSearchColumn);
+const inputWrapper = document.createElement("div");
+inputWrapper.classList.add("input-wrapper");
+
+const searchIcon = document.createElement("i");
+searchIcon.classList.add("ri-search-line");
+
+const closeIcon = document.createElement("i");
+closeIcon.classList.add("ri-close-line");
 
 const inputDom = document.createElement("input");
 inputDom.id = "search-field";
 inputDom.placeholder = "search";
 inputDom.autocomplete = "off";
+inputDom.addEventListener("focus", handleOpenSearchColumn);
 
 const columnDom = document.createElement("div");
 columnDom.classList.add("column", "hidden");
@@ -585,7 +594,8 @@ const columnContentDom = document.createElement("div");
 columnContentDom.classList.add("column-content");
 
 contentDom.append(formDom, columnDom, myPlaylistBtn);
-formDom.append(inputDom);
+inputWrapper.append(inputDom, searchIcon, closeIcon);
+formDom.append(inputWrapper);
 tabDom.append(songTabDom, playlistTabDom, videoTabDom);
 columnContentDom.append(tabDom, listDom);
 columnDom.append(columnCloseBtn, columnContentDom);
