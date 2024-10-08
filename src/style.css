@@ -228,6 +228,7 @@ body {
   aspect-ratio: 1 / 1;
 }
 
+.card-playlistName,
 .card-songName {
   font-size: 1.25rem;
   width: 90%;
@@ -243,8 +244,6 @@ body {
 .card-subInfo2 {
   display: flex;
   justify-content: space-between;
-  color: var(--sub2-text-color);
-  font-size: 0.875rem;
 }
 
 .card-artist {
@@ -252,6 +251,8 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: var(--sub2-text-color);
+  font-size: 0.875rem;
 }
 
 .card-album {
@@ -260,6 +261,7 @@ body {
 
 .card-duration {
   font-size: 1rem;
+  color: var(--sub2-text-color);
 }
 
 .player {
@@ -353,6 +355,7 @@ body {
   padding: 0;
   border: none;
   cursor: pointer;
+  user-select: none;
 }
 
 .my-playlist-btn:hover,
@@ -619,24 +622,27 @@ body {
 
 .tab {
   display: flex;
-  font-size: 1.5rem;
-  gap: 4px;
+  gap: 8px;
 }
 
 .tab > div {
   cursor: pointer;
-  background-color: aqua;
-  padding: 12px;
+  background-color: var(--primary-color);
+  color: var(--text-color);
+  font-size: 1.25rem;
+  padding: 6px 12px;
+  border-radius: 18px;
   user-select: none;
 }
 
 .tab > div:hover {
   cursor: pointer;
-  background-color: aquamarine;
+  filter: brightness(1.2);
 }
 
 .tab .selected {
-  background-color: azure;
+  background-color: var(--text-color);
+  color: var(--primary-color);
 }
 
 .my-playlist {

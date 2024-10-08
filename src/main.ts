@@ -21,7 +21,6 @@ import myPlaylistCard from "./components/myPlaylistCard";
  *  - Where did we store music after we loaded? (biggest mystery)
  *  - Get search result from youtube (search by name)
  *    - Search artist??
- *  - Add remove my playlist button
  *  - Adjust quality of audio according to internet speed
  *  - Add keyboard shortcut
  *  - Create a better UI
@@ -172,9 +171,16 @@ const renderSongs = (songs: SongResponse[]) => {
     const newCard = songCard(song);
     listDom.append(newCard);
 
-    newCard.addEventListener("click", async () => {
+    newCard.addEventListener("click", () => {
       addSong(song);
       audioController.updateQueueDom();
+    });
+
+    newCard.addEventListener("keydown", (event) => {
+      if (event.key == "Enter") {
+        addSong(song);
+        audioController.updateQueueDom();
+      }
     });
   }
 };
@@ -187,6 +193,12 @@ const renderPlaylists = (playlists: PlaylistResponse[]) => {
     newCard.addEventListener("click", () => {
       handleClickSearchPlaylist(playlists, i);
     });
+
+    newCard.addEventListener("keydown", (event) => {
+      if (event.key == "Enter") {
+        handleClickSearchPlaylist(playlists, i);
+      }
+    });
   }
 };
 
@@ -195,9 +207,16 @@ const renderPlaylistSongs = (playlistSongs: VideoResponse[]) => {
     const newCard = videoCard(video);
     listDom.append(newCard);
 
-    newCard.addEventListener("click", async () => {
+    newCard.addEventListener("click", () => {
       addSong(video);
       audioController.updateQueueDom();
+    });
+
+    newCard.addEventListener("keydown", (event) => {
+      if (event.key == "Enter") {
+        addSong(video);
+        audioController.updateQueueDom();
+      }
     });
   }
 };
@@ -236,6 +255,12 @@ const renderVideos = (videos: VideoResponse[]) => {
     newCard.addEventListener("click", () => {
       addSong(video);
       audioController.updateQueueDom();
+    });
+    newCard.addEventListener("keydown", (event) => {
+      if (event.key == "Enter") {
+        addSong(video);
+        audioController.updateQueueDom();
+      }
     });
   }
 };
@@ -404,7 +429,7 @@ const renderMyPlaylistSongs = (playlist: MyPlaylist) => {
     const newCard = videoCard(video);
     listDom.append(newCard);
 
-    newCard.addEventListener("click", async () => {
+    newCard.addEventListener("click", () => {
       addSong(video);
       audioController.updateQueueDom();
     });
@@ -473,24 +498,45 @@ tabDom.classList.add("tab");
 
 const songTabDom = document.createElement("div");
 songTabDom.textContent = "Songs";
+songTabDom.tabIndex = 0;
 songTabDom.classList.add("selected");
 songTabDom.addEventListener("click", () => {
   handleClickSubmitEvent("song");
   handleToggleSelectedTabStyles(songTabDom);
 });
+songTabDom.addEventListener("keydown", (event) => {
+  if (event.key == "Enter") {
+    handleClickSubmitEvent("song");
+    handleToggleSelectedTabStyles(songTabDom);
+  }
+});
 
 const playlistTabDom = document.createElement("div");
 playlistTabDom.textContent = "Playlists";
+playlistTabDom.tabIndex = 0;
 playlistTabDom.addEventListener("click", () => {
   handleClickSubmitEvent("playlist");
   handleToggleSelectedTabStyles(playlistTabDom);
 });
+playlistTabDom.addEventListener("keydown", (event) => {
+  if (event.key == "Enter") {
+    handleClickSubmitEvent("playlist");
+    handleToggleSelectedTabStyles(playlistTabDom);
+  }
+});
 
 const videoTabDom = document.createElement("div");
 videoTabDom.textContent = "Videos";
+videoTabDom.tabIndex = 0;
 videoTabDom.addEventListener("click", () => {
   handleClickSubmitEvent("video");
   handleToggleSelectedTabStyles(videoTabDom);
+});
+videoTabDom.addEventListener("keydown", (event) => {
+  if (event.key == "Enter") {
+    handleClickSubmitEvent("video");
+    handleToggleSelectedTabStyles(videoTabDom);
+  }
 });
 
 const listDom = document.createElement("div");
