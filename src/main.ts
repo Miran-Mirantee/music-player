@@ -43,6 +43,7 @@ import myPlaylistCard from "./components/myPlaylistCard";
  *  - Fix slow when add multiple songs too fast
  *  - Optimize updateQueueDom method in audioController
  *  - Need to do something about long video (either hide a long video or implement streaming)
+ *  - When click search form it remove all of the search results (it was suppose to remove once when beginning to search)
  */
 
 const state = {
@@ -163,6 +164,7 @@ const handleOpenMyPlaylistColumn = () => {
 
 const handleOpenSearchColumn = () => {
   columnDom.classList.remove("hidden");
+  tabDom.classList.remove("hidden");
   listDom.textContent = "";
   columnContentDom.textContent = "";
   columnContentDom.append(tabDom, listDom);
