@@ -1,4 +1,5 @@
 :root {
+  --scrollbar-width: 16px;
   --player-height: 104px;
   --queue-width: 450px;
   --background-lighter-color: #363636;
@@ -100,7 +101,7 @@ input[type="range"] {
 
 /* WebKit Scrollbar Styles (Chrome, Safari, Edge) */
 ::-webkit-scrollbar {
-  width: 14px;
+  width: var(--scrollbar-width);
 }
 
 ::-webkit-scrollbar-track {
@@ -118,7 +119,7 @@ input[type="range"] {
 @supports (-moz-appearance: auto) {
   /* Apply styles only in Firefox */
   * {
-    scrollbar-width: thin;
+    scrollbar-width: auto;
     scrollbar-color: var(--secondary-color) #ddd;
   }
 }
@@ -164,24 +165,6 @@ body {
   align-items: center;
   gap: 16px;
   margin-top: 48px;
-}
-
-.column-close-btn {
-  z-index: 1;
-  position: absolute;
-  top: 8px;
-  right: 16px;
-  height: 32px;
-  width: 32px;
-  font-size: 26px;
-  border-radius: 16px;
-  color: var(--button-color);
-  background-color: var(--column-btn-color);
-}
-
-.column-close-btn:hover {
-  background-color: var(--column-selected-btn-color);
-  filter: brightness(1.2);
 }
 
 .column.hidden {
@@ -360,7 +343,8 @@ body {
 .player-common-btn,
 .player-special-btn,
 .queue-remove-btn,
-.column-close-btn,
+.column-non-icon-btn,
+.column-icon-btn,
 .my-playlist-btn {
   box-shadow: none;
   appearance: none; /* Removes platform-specific styling */
@@ -421,6 +405,48 @@ body {
   to {
     transform: rotate(360deg);
   }
+}
+
+.column-icon-btn {
+  height: 32px;
+  width: 32px;
+  font-size: 26px;
+  border-radius: 16px;
+  color: var(--button-color);
+  background-color: transparent;
+  text-shadow: rgb(46, 46, 46) 1px 2px 2px;
+  transition: transform 0.1s ease-in-out;
+}
+.column-non-icon-btn:hover,
+.column-icon-btn:hover {
+  filter: brightness(1.2);
+}
+
+.column-non-icon-btn:active,
+.column-icon-btn:active {
+  transition: transform 0.1s ease-in-out;
+  transform: scale(0.9);
+}
+
+.column-close-btn {
+  z-index: 1;
+  position: absolute;
+  top: 8px;
+  right: 16px;
+  background-color: var(--column-btn-color);
+}
+
+.column-close-btn:hover {
+  background-color: var(--column-selected-btn-color);
+}
+
+.column-non-icon-btn {
+  padding: 4px 8px;
+  border-radius: 12px;
+  /* color: var(--text-color); */
+  color: black;
+  background-color: var(--button-color);
+  font-size: 1rem;
 }
 
 .player-time {
@@ -620,6 +646,26 @@ body {
   overflow-y: auto;
   padding: 16px 8px;
   margin-bottom: 24px;
+}
+
+.my-playlist-btn-panel-wrapper {
+  display: flex;
+  justify-content: center;
+  width: calc(100% - var(--scrollbar-width));
+  padding-right: var(--scrollbar-width);
+}
+
+.my-playlist-btn-panel {
+  display: flex;
+  justify-content: space-between;
+  width: 70%;
+  min-width: 600px;
+}
+
+.my-playlist-btn-panel-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .my-playlist-btn {
