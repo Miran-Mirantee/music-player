@@ -23,6 +23,7 @@ import myPlaylistCard from "./components/myPlaylistCard";
  *    - Search artist??
  *  - Adjust quality of audio according to internet speed
  *  - Add keyboard shortcut
+ *  - Add loading indicator
  *  - Create a better UI
  *    - Using Three.js (optional)
  *  - Add pagination for search (optional)
@@ -104,6 +105,7 @@ const handleClickSearchPlaylist = async (
   index: number
 ) => {
   listDom.textContent = "";
+  tabDom.classList.add("hidden");
 
   const playlistSongs: VideoResponse[] = await getPlaylistVideos(
     playlists[index].playlistId
@@ -226,25 +228,28 @@ const createPlaylistBtnPanel = (
   playlistSongs: VideoResponse[],
   currentIndex: number
 ) => {
-  const btnPanel = document.createElement("div");
-  btnPanel.classList.add("results-btn-panel");
+  const btnPanelWrapper = document.createElement("div");
+  btnPanelWrapper.classList.add("playlist-btn-panel-wrapper");
 
-  const backBtn = document.createElement("button");
-  backBtn.textContent = "back";
-  backBtn.addEventListener("click", () => {
-    listDom.textContent = "";
-    renderPlaylists(playlists);
-    btnPanel.remove();
-  });
+  const btnPanel = document.createElement("div");
+  btnPanel.classList.add("playlist-btn-panel");
+
+  const backBtn = createPlaylistBackBtn(playlists);
+
+  const rightPanel = document.createElement("div");
+  rightPanel.classList.add("playlist-btn-panel-right");
+
   const addPlaylistBtn = createAddPlaylistBtn(
     playlists[currentIndex],
     playlistSongs
   );
   const enqueueBtn = createEnqueueBtn(playlistSongs);
 
-  btnPanel.append(backBtn, addPlaylistBtn, enqueueBtn);
+  rightPanel.append(addPlaylistBtn, enqueueBtn);
+  btnPanel.append(backBtn, rightPanel);
+  btnPanelWrapper.append(btnPanel);
 
-  return btnPanel;
+  return btnPanelWrapper;
 };
 
 const renderVideos = (videos: VideoResponse[]) => {
@@ -267,15 +272,15 @@ const renderVideos = (videos: VideoResponse[]) => {
 
 const createMyPlaylistBtnPanel = (myPlaylist: MyPlaylist) => {
   const btnPanelWrapper = document.createElement("div");
-  btnPanelWrapper.classList.add("my-playlist-btn-panel-wrapper");
+  btnPanelWrapper.classList.add("playlist-btn-panel-wrapper");
 
   const btnPanel = document.createElement("div");
-  btnPanel.classList.add("my-playlist-btn-panel");
+  btnPanel.classList.add("playlist-btn-panel");
 
-  const backBtn = createMyPlaylistsBackBtn();
+  const backBtn = createMyPlaylistBackBtn();
 
   const rightPanel = document.createElement("div");
-  rightPanel.classList.add("my-playlist-btn-panel-right");
+  rightPanel.classList.add("playlist-btn-panel-right");
 
   const removePlaylistBtn = createRemovePlaylistBtn(myPlaylist.playlistId);
   const enqueueBtn = createEnqueueBtn(myPlaylist.songs);
@@ -312,7 +317,26 @@ const renderMyPlaylists = () => {
   }
 };
 
-const createMyPlaylistsBackBtn = () => {
+const createPlaylistBackBtn = (playlists: PlaylistResponse[]) => {
+  const backBtn = document.createElement("button");
+  backBtn.classList.add("column-icon-btn");
+  const backBtnIcon = document.createElement("i");
+  backBtnIcon.classList.add("ri-arrow-go-back-fill");
+  backBtn.append(backBtnIcon);
+  backBtn.addEventListener("click", () => {
+    listDom.textContent = "";
+    tabDom.classList.remove("hidden");
+
+    columnContentDom.textContent = "";
+    columnContentDom.append(tabDom, listDom);
+
+    renderPlaylists(playlists);
+  });
+
+  return backBtn;
+};
+
+const createMyPlaylistBackBtn = () => {
   const backBtn = document.createElement("button");
   backBtn.classList.add("column-icon-btn");
   const backBtnIcon = document.createElement("i");
@@ -332,7 +356,10 @@ const createAddPlaylistBtn = (
   playlistSongs: VideoResponse[]
 ) => {
   const addPlaylistBtn = document.createElement("button");
-  addPlaylistBtn.textContent = "add playlist";
+  addPlaylistBtn.classList.add("column-icon-btn");
+  const addPlaylistBtnIcon = document.createElement("i");
+  addPlaylistBtnIcon.classList.add("ri-play-list-add-line");
+  addPlaylistBtn.append(addPlaylistBtnIcon);
   addPlaylistBtn.addEventListener("click", () => {
     const duplicatePlaylist = state.myPlaylists.find((myPlaylist) => {
       return myPlaylist.playlistId == playlist.playlistId;

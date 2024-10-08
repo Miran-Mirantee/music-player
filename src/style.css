@@ -183,11 +183,6 @@ body {
   margin-bottom: 24px;
 }
 
-.results-btn-panel {
-  display: flex;
-  justify-content: space-between;
-}
-
 .card {
   width: 70%;
   min-width: 600px;
@@ -625,6 +620,10 @@ body {
   gap: 8px;
 }
 
+.tab.hidden {
+  display: none;
+}
+
 .tab > div {
   cursor: pointer;
   background-color: var(--primary-color);
@@ -653,22 +652,21 @@ body {
   padding: 16px 8px;
   margin-bottom: 24px;
 }
-
-.my-playlist-btn-panel-wrapper {
+.playlist-btn-panel-wrapper {
   display: flex;
   justify-content: center;
   width: calc(100% - var(--scrollbar-width));
   padding-right: var(--scrollbar-width);
 }
 
-.my-playlist-btn-panel {
+.playlist-btn-panel {
   display: flex;
   justify-content: space-between;
   width: 70%;
   min-width: 600px;
 }
 
-.my-playlist-btn-panel-right {
+.playlist-btn-panel-right {
   display: flex;
   align-items: center;
   gap: 8px;
