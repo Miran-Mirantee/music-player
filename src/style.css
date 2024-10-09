@@ -738,7 +738,7 @@ body {
 .clear-search-btn,
 .input-wrapper > i {
   position: absolute;
-  color: white;
+  color: var(--primary-color);
   font-size: 1.125rem;
   top: calc(50% - 1.125rem / 1.7);
 }
@@ -764,7 +764,7 @@ body {
   padding: 10px calc(1.125rem + 36px);
   font-size: 1rem;
   border: none;
-  border-bottom: 1px solid var(--primary-color);
+  border-bottom: 2px solid var(--primary-color);
   background-color: var(--column-background-color);
   color: var(--text-color);
 }

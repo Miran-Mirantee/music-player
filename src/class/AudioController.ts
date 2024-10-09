@@ -149,6 +149,9 @@ export class AudioController {
   };
 
   private playSong = async (song: SongObject) => {
+    // to prevent error when trying to access a no longer exist song
+    if (!this.queue.length) return;
+
     if (song.source) {
       this.audio.src = song.source;
     } else {
@@ -158,6 +161,7 @@ export class AudioController {
         );
         if (source) {
           song.source = source;
+
           // to prevent from playing the recently downloaded song instead of the current one
           if (this.queue[this.currentOrder].videoId == song.videoId) {
             this.audio.src = source;
@@ -170,7 +174,14 @@ export class AudioController {
         this.nextSong();
       }
     }
-    this.audio.play();
+
+    // to prevent error when trying to access a no longer exist song
+    if (
+      this.queue.length &&
+      this.queue[this.currentOrder].videoId == song.videoId
+    ) {
+      this.audio.play();
+    }
   };
 
   private loopSong = (e: MouseEvent) => {

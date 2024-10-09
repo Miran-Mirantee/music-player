@@ -27,6 +27,7 @@ import throttle from "./utils/throttle";
  *  - Add loading indicator
  *  - Add clear queue button
  *  - Create a better UI
+ *    - New font? Helvetica font family
  *    - Using Three.js (optional)
  *  - Add pagination for search (optional)
  *  - Create a local playlist (optional)
@@ -36,8 +37,6 @@ import throttle from "./utils/throttle";
 
 /**
  * BUGS:
- *  - Song didn't stop when removing from queue (when the queue is more than one song and trying to remove all from the queue)
- *  - Fix removing all queue items too fast, music is suppose to stop play but it didn't
  *  - User should be able to change songs without having to wait for the current song to finish loading
  *  - Thumbnail doesn't always load (too many requests)
  *  - Need to do something about long video (either hide a long video or implement streaming)
@@ -162,6 +161,8 @@ const handleCloseColumn = () => {
   formDom.classList.remove("hidden");
   myPlaylistBtn.classList.remove("hidden");
   inputDom.value = "";
+  const event = new Event("input");
+  inputDom.dispatchEvent(event);
 };
 
 const handleOpenMyPlaylistColumn = () => {
