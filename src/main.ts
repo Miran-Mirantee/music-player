@@ -512,14 +512,31 @@ inputWrapper.classList.add("input-wrapper");
 const searchIcon = document.createElement("i");
 searchIcon.classList.add("ri-search-line");
 
-const closeIcon = document.createElement("i");
-closeIcon.classList.add("ri-close-line");
+const clearSearchBtn = document.createElement("button");
+clearSearchBtn.classList.add("clear-search-btn", "hidden");
+const clearSearchBtnIcon = document.createElement("i");
+clearSearchBtnIcon.classList.add("ri-close-line");
+clearSearchBtn.type = "button";
+clearSearchBtn.append(clearSearchBtnIcon);
+clearSearchBtn.addEventListener("click", () => {
+  inputDom.value = "";
+  const event = new Event("input");
+  inputDom.dispatchEvent(event);
+});
 
 const inputDom = document.createElement("input");
 inputDom.id = "search-field";
 inputDom.placeholder = "search";
 inputDom.autocomplete = "off";
 inputDom.addEventListener("focus", handleOpenSearchColumn);
+inputDom.addEventListener("input", (e) => {
+  const target = e.target as HTMLInputElement;
+  if (target.value) {
+    clearSearchBtn.classList.remove("hidden");
+  } else {
+    clearSearchBtn.classList.add("hidden");
+  }
+});
 
 const columnDom = document.createElement("div");
 columnDom.classList.add("column", "hidden");
@@ -594,7 +611,7 @@ const columnContentDom = document.createElement("div");
 columnContentDom.classList.add("column-content");
 
 contentDom.append(formDom, columnDom, myPlaylistBtn);
-inputWrapper.append(inputDom, searchIcon, closeIcon);
+inputWrapper.append(inputDom, searchIcon, clearSearchBtn);
 formDom.append(inputWrapper);
 tabDom.append(songTabDom, playlistTabDom, videoTabDom);
 columnContentDom.append(tabDom, listDom);

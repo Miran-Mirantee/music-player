@@ -337,6 +337,7 @@ body {
   position: absolute;
 }
 
+.clear-search-btn,
 .player-common-btn,
 .player-special-btn,
 .queue-remove-btn,
@@ -740,6 +741,7 @@ body {
   position: relative;
 }
 
+.clear-search-btn,
 .input-wrapper > i {
   position: absolute;
   color: white;
@@ -751,8 +753,16 @@ body {
   left: 18px;
 }
 
-.input-wrapper > .ri-close-line {
+.clear-search-btn {
+  background-color: transparent;
+  height: 20px;
+  width: 20px;
+  border-radius: 99px;
   right: 18px;
+}
+
+.clear-search-btn.hidden {
+  display: none;
 }
 
 #search-field {
