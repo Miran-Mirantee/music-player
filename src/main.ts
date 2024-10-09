@@ -38,13 +38,9 @@ import myPlaylistCard from "./components/myPlaylistCard";
  *  - Song didn't stop when removing from queue (when the queue is more than one song and trying to remove all from the queue)
  *  - If the user download the song then change to other song, the player will play the skipped song once it's fully loaded
  *  - Fix adding duplicate songs in the queue
- *  - Fix buttons panel's shown when click my playlist button again after selecting a playlist
  *  - Fix removing all queue items too fast, music is suppose to stop play but it didn't
  *  - Thumbnail doesn't always load (too many requests)
- *  - Fix slow when add multiple songs too fast
- *  - Optimize updateQueueDom method in audioController
  *  - Need to do something about long video (either hide a long video or implement streaming)
- *  - When click search form it remove all of the search results (it was suppose to remove once when beginning to search)
  */
 
 const state = {

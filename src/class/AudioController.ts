@@ -1,6 +1,7 @@
 import formatTime from "../utils/formalTime";
 import getMusic from "../utils/getMusic";
 import SongObject from "../types/SongObject";
+import throttle from "../utils/throttle";
 
 export class AudioController {
   private queue: SongObject[] = [];
@@ -83,7 +84,6 @@ export class AudioController {
     this.nameDom.classList.add("player-song-name");
     this.nameDom.target = "_blank";
     this.nameDom.rel = "noopener noreferrer";
-    this.nameDom.ariaLabel = "Open on Youtube";
     this.nameDom.title = "Open on Youtube";
 
     this.audio = new Audio();
@@ -335,7 +335,9 @@ export class AudioController {
     const shuffleBtnIcon = document.createElement("i");
     shuffleBtnIcon.classList.add("ri-shuffle-fill");
     shuffleBtn.append(shuffleBtnIcon);
-    shuffleBtn.addEventListener("click", this.shuffleSong);
+
+    const throttledClick = throttle(this.shuffleSong, 300);
+    shuffleBtn.addEventListener("click", throttledClick);
 
     newPlayerDom.append(topPanel, bottomPanel);
     topPanel.append(this.seekBar);
@@ -377,26 +379,7 @@ export class AudioController {
       this.currentOrder = parseInt(itemDom.id);
     };
 
-    const itemDom = document.createElement("div");
-    itemDom.classList.add("queue-item");
-    itemDom.addEventListener("mousedown", (e) => {
-      isDragging = true;
-      initialY = e.clientY;
-      offsetY = 0;
-      itemDom.classList.add("dragging");
-    });
-
-    itemDom.addEventListener("mouseover", () => {
-      removeBtn.classList.remove("hidden");
-      durationDom.classList.add("hidden");
-    });
-
-    itemDom.addEventListener("mouseleave", () => {
-      removeBtn.classList.add("hidden");
-      durationDom.classList.remove("hidden");
-    });
-
-    document.addEventListener("mousemove", (e) => {
+    const _mousemoveEvent = (e: MouseEvent) => {
       if (isDragging) {
         offsetY = e.clientY - initialY;
 
@@ -489,14 +472,46 @@ export class AudioController {
         }
         prevSibling = nextSibling;
       }
-    });
+    };
 
-    document.addEventListener("mouseup", () => {
+    const _mouseupEvent = () => {
       if (isDragging) {
         isDragging = false;
         itemDom.classList.remove("dragging");
         itemDom.style.transform = `translateY(0px)`;
+
+        _removeEventListenerFromDocument();
       }
+    };
+
+    const _addEventListenerToDocument = () => {
+      document.addEventListener("mousemove", _mousemoveEvent);
+      document.addEventListener("mouseup", _mouseupEvent);
+    };
+
+    const _removeEventListenerFromDocument = () => {
+      document.removeEventListener("mousemove", _mousemoveEvent);
+      document.removeEventListener("mouseup", _mouseupEvent);
+    };
+
+    const itemDom = document.createElement("div");
+    itemDom.classList.add("queue-item");
+    itemDom.addEventListener("mousedown", (e) => {
+      _addEventListenerToDocument();
+      isDragging = true;
+      initialY = e.clientY;
+      offsetY = 0;
+      itemDom.classList.add("dragging");
+    });
+
+    itemDom.addEventListener("mouseover", () => {
+      removeBtn.classList.remove("hidden");
+      durationDom.classList.add("hidden");
+    });
+
+    itemDom.addEventListener("mouseleave", () => {
+      removeBtn.classList.add("hidden");
+      durationDom.classList.remove("hidden");
     });
 
     const thumbnailDom = document.createElement("img");
@@ -589,11 +604,15 @@ export class AudioController {
 
   public updateQueueDom = () => {
     this.queueContainer.textContent = "";
+    const fragment = document.createDocumentFragment();
     for (const [index, song] of this.queue.entries()) {
       const newQueueItem = this.createQueueItemDom(song);
       newQueueItem.id = index.toString();
-      this.queueContainer.append(newQueueItem);
+      // this.queueContainer.append(newQueueItem);
+      fragment.append(newQueueItem);
     }
+
+    this.queueContainer.append(fragment);
   };
 
   public addSong = (newSong: SongObject) => {

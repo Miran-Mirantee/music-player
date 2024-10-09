@@ -456,12 +456,6 @@ body {
   color: var(--sub-text-color);
 }
 
-.player-currenttime {
-}
-
-.player-duration {
-}
-
 .player-right-panel {
   display: flex;
   gap: 8px;
