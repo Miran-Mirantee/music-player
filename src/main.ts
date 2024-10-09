@@ -37,9 +37,8 @@ import throttle from "./utils/throttle";
 /**
  * BUGS:
  *  - Song didn't stop when removing from queue (when the queue is more than one song and trying to remove all from the queue)
- *  - If the user download the song then change to other song, the player will play the skipped song once it's fully loaded
- *  - Fix adding duplicate songs in the queue
  *  - Fix removing all queue items too fast, music is suppose to stop play but it didn't
+ *  - If the user download the song then change to other song, the player will play the skipped song once it's fully loaded
  *  - Thumbnail doesn't always load (too many requests)
  *  - Need to do something about long video (either hide a long video or implement streaming)
  */
@@ -76,8 +75,19 @@ const addSong = (song: VideoResponse | SongResponse) => {
 };
 
 const throttledAddSong = throttle((song: VideoResponse | SongResponse) => {
-  addSong(song);
-  audioController.updateQueueDom();
+  const isDuplicated = (() => {
+    for (let i = audioController.queue.length - 1; i >= 0; i--) {
+      if (audioController.queue[i].videoId === song.videoId) {
+        return true;
+      }
+    }
+    return false;
+  })();
+
+  if (!isDuplicated) {
+    addSong(song);
+    audioController.updateQueueDom();
+  }
 }, 200);
 
 const handleSearchSongs = async () => {

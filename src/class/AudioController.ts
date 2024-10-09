@@ -4,7 +4,6 @@ import SongObject from "../types/SongObject";
 import throttle from "../utils/throttle";
 
 export class AudioController {
-  private queue: SongObject[] = [];
   private queueContainer: HTMLDivElement;
   private togglePlayerDomDisability: () => void;
   private currentOrder: number = 0;
@@ -18,6 +17,7 @@ export class AudioController {
   private prevVolume: number = 0.1;
   private isLoading: boolean = true;
 
+  public queue: SongObject[] = [];
   public playerDom: HTMLDivElement;
   public queueDom: HTMLDivElement;
 
