@@ -164,11 +164,13 @@ const handleOpenMyPlaylistColumn = () => {
 };
 
 const handleOpenSearchColumn = () => {
+  if (columnDom.classList.contains("hidden")) {
+    tabDom.classList.remove("hidden");
+    listDom.textContent = "";
+    columnContentDom.textContent = "";
+    columnContentDom.append(tabDom, listDom);
+  }
   columnDom.classList.remove("hidden");
-  tabDom.classList.remove("hidden");
-  listDom.textContent = "";
-  columnContentDom.textContent = "";
-  columnContentDom.append(tabDom, listDom);
 };
 
 const renderSongs = (songs: SongResponse[]) => {
