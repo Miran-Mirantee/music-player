@@ -336,8 +336,8 @@ export class AudioController {
     shuffleBtnIcon.classList.add("ri-shuffle-fill");
     shuffleBtn.append(shuffleBtnIcon);
 
-    const throttledClick = throttle(this.shuffleSong, 300);
-    shuffleBtn.addEventListener("click", throttledClick);
+    const _throttledClick = throttle(this.shuffleSong, 300);
+    shuffleBtn.addEventListener("click", _throttledClick);
 
     newPlayerDom.append(topPanel, bottomPanel);
     topPanel.append(this.seekBar);

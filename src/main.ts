@@ -15,6 +15,7 @@ import PlaylistResponse from "./types/PlaylistResponse";
 import VideoResponse from "./types/VideoResponse";
 import MyPlaylist from "./types/MyPlaylist";
 import myPlaylistCard from "./components/myPlaylistCard";
+import throttle from "./utils/throttle";
 
 /**
  * TODO:
@@ -73,6 +74,11 @@ const addSong = (song: VideoResponse | SongResponse) => {
 
   audioController.addSong(newSongObj);
 };
+
+const throttledAddSong = throttle((song: VideoResponse | SongResponse) => {
+  addSong(song);
+  audioController.updateQueueDom();
+}, 200);
 
 const handleSearchSongs = async () => {
   try {
@@ -174,15 +180,11 @@ const renderSongs = (songs: SongResponse[]) => {
     const newCard = songCard(song);
     listDom.append(newCard);
 
-    newCard.addEventListener("click", () => {
-      addSong(song);
-      audioController.updateQueueDom();
-    });
+    newCard.addEventListener("click", () => throttledAddSong(song));
 
     newCard.addEventListener("keydown", (event) => {
       if (event.key == "Enter") {
-        addSong(song);
-        audioController.updateQueueDom();
+        throttledAddSong(song);
       }
     });
   }
@@ -211,14 +213,12 @@ const renderPlaylistSongs = (playlistSongs: VideoResponse[]) => {
     listDom.append(newCard);
 
     newCard.addEventListener("click", () => {
-      addSong(video);
-      audioController.updateQueueDom();
+      throttledAddSong(video);
     });
 
     newCard.addEventListener("keydown", (event) => {
       if (event.key == "Enter") {
-        addSong(video);
-        audioController.updateQueueDom();
+        throttledAddSong(video);
       }
     });
   }
@@ -259,13 +259,11 @@ const renderVideos = (videos: VideoResponse[]) => {
     listDom.append(newCard);
 
     newCard.addEventListener("click", () => {
-      addSong(video);
-      audioController.updateQueueDom();
+      throttledAddSong(video);
     });
     newCard.addEventListener("keydown", (event) => {
       if (event.key == "Enter") {
-        addSong(video);
-        audioController.updateQueueDom();
+        throttledAddSong(video);
       }
     });
   }
@@ -458,14 +456,12 @@ const renderMyPlaylistSongs = (playlist: MyPlaylist) => {
     listDom.append(newCard);
 
     newCard.addEventListener("click", () => {
-      addSong(video);
-      audioController.updateQueueDom();
+      throttledAddSong(video);
     });
 
     newCard.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
-        addSong(video);
-        audioController.updateQueueDom();
+        throttledAddSong(video);
       }
     });
   }
