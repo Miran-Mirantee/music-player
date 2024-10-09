@@ -38,7 +38,7 @@ import throttle from "./utils/throttle";
  * BUGS:
  *  - Song didn't stop when removing from queue (when the queue is more than one song and trying to remove all from the queue)
  *  - Fix removing all queue items too fast, music is suppose to stop play but it didn't
- *  - If the user download the song then change to other song, the player will play the skipped song once it's fully loaded
+ *  - User should be able to change songs without having to wait for the current song to finish loading
  *  - Thumbnail doesn't always load (too many requests)
  *  - Need to do something about long video (either hide a long video or implement streaming)
  */

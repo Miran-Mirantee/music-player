@@ -158,7 +158,10 @@ export class AudioController {
         );
         if (source) {
           song.source = source;
-          this.audio.src = source;
+          // to prevent from playing the recently downloaded song instead of the current one
+          if (this.queue[this.currentOrder].videoId == song.videoId) {
+            this.audio.src = source;
+          }
         }
       } catch (error) {
         this.queue.splice(this.currentOrder, 1);
