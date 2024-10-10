@@ -2,7 +2,6 @@ import formatTime from "../utils/formalTime";
 import getMusic from "../utils/getMusic";
 import SongObject from "../types/SongObject";
 import throttle from "../utils/throttle";
-import { clear } from "console";
 
 export class AudioController {
   private queueContainer: HTMLDivElement;
@@ -141,6 +140,7 @@ export class AudioController {
       this.currentOrder++;
     }
     this.playSong(this.queue[this.currentOrder]);
+    this.updateCurrentPlayingSong();
   };
 
   private throttledNextSong = throttle(this.nextSong, 200);
@@ -153,6 +153,7 @@ export class AudioController {
       this.currentOrder--;
     }
     this.playSong(this.queue[this.currentOrder]);
+    this.updateCurrentPlayingSong();
   };
 
   private throttledPrevSong = throttle(this.prevSong, 200);
@@ -405,6 +406,7 @@ export class AudioController {
       this.resetPlayerDom();
       this.currentOrder = parseInt(itemDom.id);
       this.playSong(this.queue[parseInt(itemDom.id)]);
+      this.updateCurrentPlayingSong();
     };
 
     const _mousemoveEvent = (e: MouseEvent) => {
@@ -524,6 +526,7 @@ export class AudioController {
 
     const itemDom = document.createElement("div");
     itemDom.classList.add("queue-item");
+
     itemDom.addEventListener("mousedown", (e) => {
       _addEventListenerToDocument();
       isDragging = true;
@@ -633,13 +636,23 @@ export class AudioController {
     container.classList.add("queue-container");
     const expandBtn = document.createElement("div");
     expandBtn.classList.add("queue-expand-btn");
+    expandBtn.tabIndex = 0;
+    expandBtn.ariaLabel = "Expand the queue";
     expandBtn.addEventListener("click", () => {
       newQueueDom.classList.toggle("hidden");
+    });
+    expandBtn.addEventListener("keydown", (e) => {
+      if (e.key == "Enter") {
+        const clickEvent = new Event("click");
+        const target = e.target as HTMLElement;
+        target.dispatchEvent(clickEvent);
+      }
     });
     const clearQueueBtn = document.createElement("div");
     clearQueueBtn.classList.add("queue-clear-btn");
     clearQueueBtn.tabIndex = 0;
     clearQueueBtn.textContent = "Clear";
+    clearQueueBtn.ariaLabel = "Clear the queue";
     clearQueueBtn.addEventListener("click", () => {
       this.clearQueue();
       this.updateQueueDom();
@@ -648,12 +661,20 @@ export class AudioController {
     clearQueueBtn.addEventListener("keydown", (e) => {
       if (e.key == "Enter") {
         const clickEvent = new Event("click");
-        clearQueueBtn.dispatchEvent(clickEvent);
+        const target = e.target as HTMLElement;
+        target.dispatchEvent(clickEvent);
       }
     });
 
     newQueueDom.append(container, expandBtn, clearQueueBtn);
     return { newQueueDom, container };
+  };
+
+  private updateCurrentPlayingSong = () => {
+    const prevPlayingSong = document.querySelector(".playing");
+    prevPlayingSong?.classList.remove("playing");
+    const queueItem = document.getElementById(this.currentOrder.toString());
+    queueItem?.classList.add("playing");
   };
 
   public updateQueueDom = () => {
@@ -662,15 +683,16 @@ export class AudioController {
     for (const [index, song] of this.queue.entries()) {
       const newQueueItem = this.createQueueItemDom(song);
       newQueueItem.id = index.toString();
-      // this.queueContainer.append(newQueueItem);
       fragment.append(newQueueItem);
     }
 
     this.queueContainer.append(fragment);
+    this.updateCurrentPlayingSong();
   };
 
   public addSong = (newSong: SongObject) => {
     this.queue.push(newSong);
+    // console.log("erm hello!");
 
     if (this.queue.length == 1) {
       this.playSong(this.queue[this.currentOrder]);

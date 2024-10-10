@@ -23,8 +23,6 @@ import throttle from "./utils/throttle";
  *  - Adjust quality of audio according to internet speed
  *  - Add keyboard shortcut
  *  - Add loading indicator
- *  - Add clear queue button
- *  - Add style to playing song in queue
  *  - Add default fallback image
  *  - Create a better UI
  *    - New font? Helvetica font family
