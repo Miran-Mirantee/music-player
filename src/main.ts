@@ -334,6 +334,7 @@ const createPlaylistBackBtn = (playlists: PlaylistResponse[]) => {
   const backBtnIcon = document.createElement("i");
   backBtnIcon.classList.add("ri-arrow-go-back-fill");
   backBtn.append(backBtnIcon);
+  backBtn.ariaLabel = "Back to playlists";
   backBtn.addEventListener("click", () => {
     listDom.textContent = "";
     tabDom.classList.remove("hidden");
@@ -353,6 +354,7 @@ const createMyPlaylistBackBtn = () => {
   const backBtnIcon = document.createElement("i");
   backBtnIcon.classList.add("ri-arrow-go-back-fill");
   backBtn.append(backBtnIcon);
+  backBtn.ariaLabel = "Back to my playlists";
   backBtn.addEventListener("click", () => {
     columnContentDom.textContent = "";
     columnContentDom.append(myPlaylistDom);
@@ -371,6 +373,7 @@ const createAddPlaylistBtn = (
   const addPlaylistBtnIcon = document.createElement("i");
   addPlaylistBtnIcon.classList.add("ri-play-list-add-line");
   addPlaylistBtn.append(addPlaylistBtnIcon);
+  addPlaylistBtn.ariaLabel = "Add this playlist to my playlists";
   addPlaylistBtn.addEventListener("click", () => {
     const duplicatePlaylist = state.myPlaylists.find((myPlaylist) => {
       return myPlaylist.playlistId == playlist.playlistId;
@@ -400,8 +403,8 @@ const createRemovePlaylistBtn = (playlistId: string) => {
   removePlaylistBtn.classList.add("column-icon-btn");
   const removePlaylistBtnIcon = document.createElement("i");
   removePlaylistBtnIcon.classList.add("ri-delete-bin-6-line");
-
   removePlaylistBtn.append(removePlaylistBtnIcon);
+  removePlaylistBtn.ariaLabel = "Remove this playlist from my playlists";
 
   removePlaylistBtn.addEventListener("click", () => {
     const index = state.myPlaylists.findIndex((myPlaylist) => {
@@ -423,6 +426,7 @@ const createEnqueueBtn = (songs: VideoResponse[]) => {
   const enqueueBtn = document.createElement("button");
   enqueueBtn.classList.add("column-non-icon-btn");
   enqueueBtn.textContent = "enqueue";
+  enqueueBtn.ariaLabel = "Enqueue this playlist";
   enqueueBtn.addEventListener("click", () => {
     audioController.clearQueue();
     for (const song of songs) {
@@ -437,6 +441,7 @@ const createSyncBtn = (myPlaylist: MyPlaylist) => {
   const syncBtn = document.createElement("button");
   syncBtn.classList.add("column-non-icon-btn");
   syncBtn.textContent = "sync";
+  syncBtn.ariaLabel = "Sync this playlist";
   syncBtn.addEventListener("click", async () => {
     const newPlaylistInfo = await getPlaylist(myPlaylist.playlistId);
     const newPlaylistSongs = await getPlaylistVideos(myPlaylist.playlistId);
@@ -523,6 +528,7 @@ clearSearchBtn.classList.add("clear-search-btn", "hidden");
 const clearSearchBtnIcon = document.createElement("i");
 clearSearchBtnIcon.classList.add("ri-close-line");
 clearSearchBtn.type = "button";
+clearSearchBtn.ariaLabel = "Clear search input";
 clearSearchBtn.append(clearSearchBtnIcon);
 clearSearchBtn.addEventListener("click", () => {
   inputDom.value = "";
@@ -551,6 +557,7 @@ const columnCloseBtn = document.createElement("button");
 columnCloseBtn.classList.add("column-close-btn", "column-icon-btn");
 const columnCloseBtnIcon = document.createElement("i");
 columnCloseBtnIcon.classList.add("ri-close-line");
+columnCloseBtn.ariaLabel = "Close the column";
 columnCloseBtn.append(columnCloseBtnIcon);
 columnCloseBtn.addEventListener("click", handleCloseColumn);
 
@@ -607,6 +614,7 @@ const myPlaylistBtn = document.createElement("button");
 myPlaylistBtn.classList.add("my-playlist-btn");
 const myPlaylistBtnIcon = document.createElement("i");
 myPlaylistBtnIcon.classList.add("ri-play-list-fill");
+myPlaylistBtn.ariaLabel = "View my playlists";
 myPlaylistBtn.append(myPlaylistBtnIcon);
 myPlaylistBtn.addEventListener("click", handleOpenMyPlaylistColumn);
 
