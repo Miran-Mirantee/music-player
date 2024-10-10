@@ -9,7 +9,7 @@ const myPlaylistCard = (playlist: MyPlaylist) => {
   const thumbnailDom = document.createElement("img");
   thumbnailDom.classList.add("my-playlist-thumbnail");
   thumbnailDom.draggable = false;
-  thumbnailDom.src = playlist.thumbnail;
+  thumbnailDom.src = playlist.thumbnail || "fallback.jpg";
   thumbnailDom.alt = "Playlist thumbnail";
 
   const nameDom = document.createElement("div");

@@ -10,9 +10,10 @@ const playlistCard = (playlist: PlaylistResponse) => {
   thumbnailDom.draggable = false;
   thumbnailDom.classList.add("card-thumbnail");
   thumbnailDom.alt = "Thumbnail";
-  thumbnailDom.src = playlist.thumbnails[1]
-    ? playlist.thumbnails[1].url
-    : playlist.thumbnails[0].url;
+  thumbnailDom.src =
+    (playlist.thumbnails[1]
+      ? playlist.thumbnails[1].url
+      : playlist.thumbnails[0].url) || "fallback.jpg";
 
   const infoDom = document.createElement("div");
   infoDom.classList.add("card-info");

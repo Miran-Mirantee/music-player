@@ -11,9 +11,9 @@ const videoCard = (video: VideoResponse) => {
   thumbnailDom.draggable = false;
   thumbnailDom.classList.add("card-thumbnail");
   thumbnailDom.alt = "Thumbnail";
-  thumbnailDom.src = video.thumbnails[1]
-    ? video.thumbnails[1].url
-    : video.thumbnails[0].url;
+  thumbnailDom.src =
+    (video.thumbnails[1] ? video.thumbnails[1].url : video.thumbnails[0].url) ||
+    "fallback.jpg";
 
   const infoDom = document.createElement("div");
   infoDom.classList.add("card-info");

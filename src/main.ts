@@ -22,13 +22,14 @@ import throttle from "./utils/throttle";
  *  - Where did we store music after we loaded? (biggest mystery)
  *  - Adjust quality of audio according to internet speed
  *  - Add keyboard shortcut
- *  - Add loading indicator
- *  - Add default fallback image
  *  - Create a better UI
  *    - New font? Helvetica font family
- *    - Using Three.js (optional)
+ *    - Using Three.js
+ *  - Create toast to inform user the events
+ *
  *  - Get search result from youtube (search by name)
  *    - Search artist (optional)
+ *  - Display lyrics (optional, but reeeeeaally wanna do it)
  *  - Add pagination for search (optional)
  *  - Create a local playlist (optional)
  *  - Import a playlist from spotify (optional)
@@ -90,9 +91,13 @@ const throttledAddSong = throttle((song: VideoResponse | SongResponse) => {
 
 const handleSearchSongs = async () => {
   try {
+    overlayDom.classList.remove("hidden");
+
     const songs: SongResponse[] = await searchSongs(inputDom.value);
 
     renderSongs(songs);
+    overlayDom.classList.add("hidden");
+
     console.log(songs);
   } catch (error) {
     console.error(error);
@@ -101,11 +106,14 @@ const handleSearchSongs = async () => {
 
 const handleSearchPlaylists = async () => {
   try {
-    const playlists: PlaylistResponse[] = await searchPlaylists(inputDom.value);
+    overlayDom.classList.remove("hidden");
 
+    const playlists: PlaylistResponse[] = await searchPlaylists(inputDom.value);
     const initialPlaylists = playlists;
 
     renderPlaylists(initialPlaylists);
+    overlayDom.classList.add("hidden");
+
     console.log(playlists);
   } catch (error) {
     console.error(error);
@@ -116,6 +124,8 @@ const handleClickSearchPlaylist = async (
   playlists: PlaylistResponse[],
   index: number
 ) => {
+  overlayDom.classList.remove("hidden");
+
   listDom.textContent = "";
   tabDom.classList.add("hidden");
 
@@ -127,12 +137,17 @@ const handleClickSearchPlaylist = async (
   columnContentDom.insertBefore(btnPanel, listDom);
 
   renderPlaylistSongs(playlistSongs);
+  overlayDom.classList.add("hidden");
 };
 
 const handleSearchVideos = async () => {
   try {
+    overlayDom.classList.remove("hidden");
+
     const videos: VideoResponse[] = await searchVideos(inputDom.value);
     renderVideos(videos);
+
+    overlayDom.classList.add("hidden");
     console.log(videos);
   } catch (error) {
     console.error(error);
@@ -185,6 +200,18 @@ const handleOpenSearchColumn = () => {
   columnDom.classList.remove("hidden");
 };
 
+const renderSearchMessage = (
+  responses: SongResponse[] | PlaylistResponse[] | VideoResponse[]
+) => {
+  if (!responses.length) {
+    const messageDom = document.createElement("div");
+    messageDom.classList.add("message");
+    messageDom.textContent =
+      "No results found. Please try using different keywords.";
+    listDom.append(messageDom);
+  }
+};
+
 const renderSongs = (songs: SongResponse[]) => {
   for (const song of songs) {
     const newCard = songCard(song);
@@ -198,6 +225,7 @@ const renderSongs = (songs: SongResponse[]) => {
       }
     });
   }
+  renderSearchMessage(songs);
 };
 
 const renderPlaylists = (playlists: PlaylistResponse[]) => {
@@ -215,6 +243,7 @@ const renderPlaylists = (playlists: PlaylistResponse[]) => {
       }
     });
   }
+  renderSearchMessage(playlists);
 };
 
 const renderPlaylistSongs = (playlistSongs: VideoResponse[]) => {
@@ -277,6 +306,7 @@ const renderVideos = (videos: VideoResponse[]) => {
       }
     });
   }
+  renderSearchMessage(videos);
 };
 
 const createMyPlaylistBtnPanel = (myPlaylist: MyPlaylist) => {
@@ -622,7 +652,14 @@ myPlaylistDom.classList.add("my-playlist");
 const columnContentDom = document.createElement("div");
 columnContentDom.classList.add("column-content");
 
-contentDom.append(formDom, columnDom, myPlaylistBtn);
+const overlayDom = document.createElement("div");
+overlayDom.classList.add("overlay", "hidden");
+
+const loadingIcon = document.createElement("i");
+loadingIcon.classList.add("ri-loader-4-fill");
+
+overlayDom.append(loadingIcon);
+contentDom.append(formDom, columnDom, myPlaylistBtn, overlayDom);
 inputWrapper.append(inputDom, searchIcon, clearSearchBtn);
 formDom.append(inputWrapper);
 tabDom.append(songTabDom, playlistTabDom, videoTabDom);
