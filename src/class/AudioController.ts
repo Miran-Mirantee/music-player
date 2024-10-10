@@ -142,6 +142,8 @@ export class AudioController {
     this.playSong(this.queue[this.currentOrder]);
   };
 
+  private throttledNextSong = throttle(this.nextSong, 200);
+
   private prevSong = () => {
     this.resetPlayerDom();
     if (this.currentOrder == 0) {
@@ -151,6 +153,8 @@ export class AudioController {
     }
     this.playSong(this.queue[this.currentOrder]);
   };
+
+  private throttledPrevSong = throttle(this.prevSong, 200);
 
   private playSong = async (song: SongObject) => {
     // to prevent error when trying to access a no longer exist song
@@ -266,7 +270,7 @@ export class AudioController {
     prevBtn.title = "Previous";
     prevBtn.disabled = this.isLoading;
     prevBtn.ariaDisabled = this.isLoading.toString();
-    prevBtn.addEventListener("click", this.prevSong);
+    prevBtn.addEventListener("click", this.throttledPrevSong);
     const prevBtnIcon = document.createElement("i");
     prevBtnIcon.classList.add("ri-skip-back-fill");
     prevBtn.append(prevBtnIcon);
@@ -277,7 +281,7 @@ export class AudioController {
     nextBtn.title = "Next";
     nextBtn.disabled = this.isLoading;
     nextBtn.ariaDisabled = this.isLoading.toString();
-    nextBtn.addEventListener("click", this.nextSong);
+    nextBtn.addEventListener("click", this.throttledNextSong);
     const nextBtnIcon = document.createElement("i");
     nextBtnIcon.classList.add("ri-skip-forward-fill");
     nextBtn.append(nextBtnIcon);
@@ -398,8 +402,8 @@ export class AudioController {
 
     const _handleClickQueuePlaySong = () => {
       this.resetPlayerDom();
-      this.playSong(this.queue[parseInt(itemDom.id)]);
       this.currentOrder = parseInt(itemDom.id);
+      this.playSong(this.queue[parseInt(itemDom.id)]);
     };
 
     const _mousemoveEvent = (e: MouseEvent) => {
@@ -631,8 +635,10 @@ export class AudioController {
     expandBtn.addEventListener("click", () => {
       newQueueDom.classList.toggle("hidden");
     });
+    const clearQueueBtn = document.createElement("div");
+    clearQueueBtn.textContent = "yay";
 
-    newQueueDom.append(container, expandBtn);
+    newQueueDom.append(container, expandBtn, clearQueueBtn);
     return { newQueueDom, container };
   };
 
@@ -661,5 +667,6 @@ export class AudioController {
     this.resetPlayerDom();
     this.currentOrder = 0;
     this.queue = [];
+    // this.resetPlayerDom();
   };
 }
