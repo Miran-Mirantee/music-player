@@ -135,7 +135,7 @@ body {
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
-  /* background-color: rgb(25, 61, 75); */
+  overflow-y: hidden;
 }
 
 .content {
@@ -517,6 +517,32 @@ body {
     var(--background-darker-color) 5%,
     var(--background-color) 60%
   );
+}
+
+.queue-clear-btn {
+  z-index: 1;
+  position: absolute;
+  top: -24px;
+  left: calc(var(--queue-width) / 2 - 64px / 2);
+  height: 24px;
+  width: 64px;
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  padding-bottom: 12px;
+  background-color: var(--secondary-color);
+  border-radius: 0 0 12px 12px;
+  cursor: pointer;
+  font-size: 1.25rem;
+  font-weight: bold;
+  user-select: none;
+  transition: top 0.1s linear;
+}
+
+.queue-clear-btn:focus,
+.queue-clear-btn:hover {
+  top: 0px;
+  transition: top 0.1s linear;
 }
 
 .queue-item {

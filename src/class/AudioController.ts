@@ -2,6 +2,7 @@ import formatTime from "../utils/formalTime";
 import getMusic from "../utils/getMusic";
 import SongObject from "../types/SongObject";
 import throttle from "../utils/throttle";
+import { clear } from "console";
 
 export class AudioController {
   private queueContainer: HTMLDivElement;
@@ -636,7 +637,20 @@ export class AudioController {
       newQueueDom.classList.toggle("hidden");
     });
     const clearQueueBtn = document.createElement("div");
-    clearQueueBtn.textContent = "yay";
+    clearQueueBtn.classList.add("queue-clear-btn");
+    clearQueueBtn.tabIndex = 0;
+    clearQueueBtn.textContent = "Clear";
+    clearQueueBtn.addEventListener("click", () => {
+      this.clearQueue();
+      this.updateQueueDom();
+    });
+
+    clearQueueBtn.addEventListener("keydown", (e) => {
+      if (e.key == "Enter") {
+        const clickEvent = new Event("click");
+        clearQueueBtn.dispatchEvent(clickEvent);
+      }
+    });
 
     newQueueDom.append(container, expandBtn, clearQueueBtn);
     return { newQueueDom, container };
@@ -664,9 +678,8 @@ export class AudioController {
   };
 
   public clearQueue = () => {
-    this.resetPlayerDom();
     this.currentOrder = 0;
     this.queue = [];
-    // this.resetPlayerDom();
+    this.resetPlayerDom();
   };
 }
