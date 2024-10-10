@@ -88,15 +88,18 @@ export class AudioController {
 
     this.audio = new Audio();
 
-    this.audio.addEventListener("loadedmetadata", () => {
-      this.isLoading = false;
-      const duration = this.audio.duration;
-      this.durationDom.textContent = formatTime(duration);
+    this.audio.addEventListener("loadstart", () => {
       this.thumbnailDom.src = this.queue[this.currentOrder].thumbnail;
       this.nameDom.textContent = this.queue[this.currentOrder].name;
       this.nameDom.href = `https://www.youtube.com/watch?v=${
         this.queue[this.currentOrder].videoId
       }`;
+    });
+
+    this.audio.addEventListener("loadedmetadata", () => {
+      this.isLoading = false;
+      const duration = this.audio.duration;
+      this.durationDom.textContent = formatTime(duration);
       this.togglePlayerDomDisability();
     });
 
@@ -117,6 +120,7 @@ export class AudioController {
 
     this.audio.addEventListener("emptied", () => {
       this.seekBar.value = "0";
+      this.togglePlayerDomDisability();
     });
 
     const { newPlayerDom, togglePlayerDomDisability } = this.createPlayerDom();
@@ -219,13 +223,13 @@ export class AudioController {
 
   private createPlayerDom = () => {
     const togglePlayerDomDisability = () => {
-      prevBtn.disabled = this.isLoading;
+      prevBtn.disabled = this.queue.length ? false : this.isLoading;
       prevBtn.ariaDisabled = this.isLoading.toString();
 
-      nextBtn.disabled = this.isLoading;
+      nextBtn.disabled = this.queue.length ? false : this.isLoading;
       nextBtn.ariaDisabled = this.isLoading.toString();
 
-      shuffleBtn.disabled = this.isLoading;
+      shuffleBtn.disabled = this.queue.length ? false : this.isLoading;
       shuffleBtn.ariaDisabled = this.isLoading.toString();
 
       this.playBtn.disabled = this.isLoading;
@@ -375,8 +379,13 @@ export class AudioController {
     this.audio.src = "";
     this.durationDom.textContent = "00:00";
     this.currenttimeDom.textContent = "00:00";
-    this.thumbnailDom.src = "hey.jpg";
-    this.nameDom.textContent = "";
+
+    if (!this.queue.length) {
+      this.audio.removeAttribute("src"); // Removes the src attribute completely
+      this.audio.load(); // Reloads the element without a source
+      this.thumbnailDom.src = "hey.jpg";
+      this.nameDom.textContent = "";
+    }
 
     this.togglePlayerDomDisability();
   };
@@ -568,28 +577,39 @@ export class AudioController {
     removeBtnIcon.classList.add("ri-delete-bin-6-line");
     removeBtn.append(removeBtnIcon);
     removeBtn.addEventListener("click", () => {
-      const itemId = parseInt(itemDom.id);
-      const queueLength = this.queue.length;
+      const itemId = parseInt(itemDom.id); // The ID (position) of the song to be removed
+      const queueLength = this.queue.length; // The current length of the queue
 
-      if (this.currentOrder > itemId) {
-        this.currentOrder--;
-      } else if (this.currentOrder === itemId) {
-        if (queueLength > 1) {
-          this.nextSong();
+      // Special case: Removing the currently playing song when it's the last one in the queue
+      if (this.currentOrder === itemId && queueLength === 1) {
+        // Remove the last remaining song from the queue
+        this.queue.splice(itemId, 1);
 
-          // Adjust currentOrder if the removed item is not the last in the queue
+        // Reset the player (since no songs are left)
+        this.resetPlayerDom();
+      } else {
+        // Handle other cases
+
+        // Case 1: The current song playing is later in the queue than the song being removed
+        if (this.currentOrder > itemId) {
+          this.currentOrder--; // Adjust the current order because the queue shifts up
+        }
+
+        // Case 2: The current song being removed is the one that's playing, but there are more songs left
+        else if (this.currentOrder === itemId && queueLength > 1) {
+          this.nextSong(); // Move to the next song
+
+          // If the removed item is not the last in the queue, adjust the current order
           if (itemId !== queueLength - 1) {
             this.currentOrder--;
           }
-        } else {
-          this.resetPlayerDom();
         }
+
+        // Remove the song from the queue regardless of the above logic
+        this.queue.splice(itemId, 1);
       }
 
-      // Remove the song from the queue
-      this.queue.splice(itemId, 1);
-
-      // Update the queue DOM
+      // Update the queue DOM after all cases are handled
       this.updateQueueDom();
     });
 

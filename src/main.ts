@@ -20,15 +20,17 @@ import throttle from "./utils/throttle";
 /**
  * TODO:
  *  - Where did we store music after we loaded? (biggest mystery)
- *  - Get search result from youtube (search by name)
- *    - Search artist??
  *  - Adjust quality of audio according to internet speed
  *  - Add keyboard shortcut
  *  - Add loading indicator
  *  - Add clear queue button
+ *  - Add style to playing song in queue
+ *  - Add default fallback image
  *  - Create a better UI
  *    - New font? Helvetica font family
  *    - Using Three.js (optional)
+ *  - Get search result from youtube (search by name)
+ *    - Search artist (optional)
  *  - Add pagination for search (optional)
  *  - Create a local playlist (optional)
  *  - Import a playlist from spotify (optional)
@@ -37,7 +39,6 @@ import throttle from "./utils/throttle";
 
 /**
  * BUGS:
- *  - User should be able to change songs without having to wait for the current song to finish loading
  *  - Thumbnail doesn't always load (too many requests)
  *  - Need to do something about long video (either hide a long video or implement streaming)
  */
