@@ -136,6 +136,7 @@ body {
   background-position: center;
   background-size: cover;
   overflow-y: hidden;
+  overflow-x: hidden;
   font-family: "Inter", sans-serif;
   font-optical-sizing: auto;
   font-weight: 300;
@@ -377,6 +378,7 @@ body {
   position: absolute;
 }
 
+.toast-close-btn,
 .clear-search-btn,
 .player-common-btn,
 .player-special-btn,
@@ -871,4 +873,31 @@ body {
   left: calc(50% - 54px / 2);
   color: white;
   animation: rotateClockwise 1s linear infinite;
+}
+
+.toast {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  bottom: calc(var(--player-height) + 12px);
+  background-color: white;
+  padding: 12px;
+  border-radius: 12px;
+  transition: right 0.3s cubic-bezier(0.43, -0.27, 0.81, 0.79);
+}
+
+.toast.display {
+  right: 12px !important;
+  transition: right 0.3s cubic-bezier(0.22, 1.14, 0.56, 1.11);
+}
+
+.toast-message {
+  /* color: var(--text-color); */
+  color: black;
+}
+
+.toast-close-btn {
+  background-color: transparent;
+  font-size: 18px;
 }
