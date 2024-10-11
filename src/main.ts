@@ -21,16 +21,13 @@ import throttle from "./utils/throttle";
 /**
  * TODO:
  *  - Where did we store music after we loaded? (biggest mystery)
- *  - Adjust quality of audio according to internet speed
- *  - Add keyboard shortcut
  *  - Create a better UI
  *    - Using Three.js
- *  - Create toast to inform user the events
  *  - Add responsiveness
  *
+ *  - Display lyrics (optional, but reeeeeaally wanna do it)
  *  - Get search result from youtube (search by name)
  *    - Search artist (optional)
- *  - Display lyrics (optional, but reeeeeaally wanna do it)
  *  - Add pagination for search (optional)
  *  - Create a local playlist (optional)
  *  - Import a playlist from spotify (optional)
@@ -201,6 +198,14 @@ const handleOpenSearchColumn = () => {
     columnContentDom.append(tabDom, listDom);
   }
   columnDom.classList.remove("hidden");
+};
+
+const handleOpenHotkeysMenu = () => {
+  hotkeysMenuDom.classList.remove("hidden");
+};
+
+const handleCloseHotkeysMenu = () => {
+  hotkeysMenuDom.classList.add("hidden");
 };
 
 const renderSearchMessage = (
@@ -647,12 +652,40 @@ const myPlaylistBtn = document.createElement("button");
 myPlaylistBtn.classList.add("my-playlist-btn");
 const myPlaylistBtnIcon = document.createElement("i");
 myPlaylistBtnIcon.classList.add("ri-play-list-fill");
-myPlaylistBtn.ariaLabel = "View my playlists";
 myPlaylistBtn.append(myPlaylistBtnIcon);
+myPlaylistBtn.ariaLabel = "View my playlists";
 myPlaylistBtn.addEventListener("click", handleOpenMyPlaylistColumn);
 
 const myPlaylistDom = document.createElement("div");
 myPlaylistDom.classList.add("my-playlist");
+
+const hotkeysBtn = document.createElement("button");
+hotkeysBtn.classList.add("hotkeys-btn");
+const hotkeysBtnIcon = document.createElement("i");
+hotkeysBtnIcon.classList.add("ri-keyboard-box-fill");
+hotkeysBtn.append(hotkeysBtnIcon);
+hotkeysBtn.ariaLabel = "View shortcut keys";
+hotkeysBtn.addEventListener("click", handleOpenHotkeysMenu);
+
+const hotkeysMenuDom = document.createElement("div");
+hotkeysMenuDom.classList.add("hotkeys-menu", "hidden");
+hotkeysMenuDom.append(
+  "m is for mute",
+  "p is for pause",
+  "b is for prev song",
+  "n is for next song",
+  "l is for loop",
+  "s is for shuffle",
+  "q is for queue"
+);
+
+const hotkeysCloseBtn = document.createElement("button");
+hotkeysCloseBtn.classList.add("column-close-btn", "column-icon-btn");
+const hotkeysCloseBtnIcon = document.createElement("i");
+hotkeysCloseBtnIcon.classList.add("ri-close-line");
+hotkeysCloseBtn.ariaLabel = "Close the column";
+hotkeysCloseBtn.append(hotkeysCloseBtnIcon);
+hotkeysCloseBtn.addEventListener("click", handleCloseHotkeysMenu);
 
 const columnContentDom = document.createElement("div");
 columnContentDom.classList.add("column-content");
@@ -663,8 +696,42 @@ overlayDom.classList.add("overlay", "hidden");
 const loadingIcon = document.createElement("i");
 loadingIcon.classList.add("ri-loader-4-fill");
 
+document.addEventListener("keydown", (event) => {
+  if (audioController.queue.length) {
+    if (event.code == "KeyP") {
+      audioController.playPauseSong();
+    }
+    if (event.code == "KeyB") {
+      audioController.throttledPrevSong();
+    }
+    if (event.code == "KeyN") {
+      audioController.throttledNextSong();
+    }
+    if (event.code == "KeyS") {
+      audioController.throttledShuffleSong();
+    }
+  }
+  if (event.code == "KeyM") {
+    audioController.toggleMuteSong();
+  }
+  if (event.code == "KeyL") {
+    audioController.loopSong();
+  }
+  if (event.code == "KeyQ") {
+    audioController.toggleExpandQueue();
+  }
+});
+
 overlayDom.append(loadingIcon);
-contentDom.append(formDom, columnDom, myPlaylistBtn, overlayDom);
+hotkeysMenuDom.append(hotkeysCloseBtn);
+contentDom.append(
+  formDom,
+  columnDom,
+  myPlaylistBtn,
+  hotkeysBtn,
+  overlayDom,
+  hotkeysMenuDom
+);
 inputWrapper.append(inputDom, searchIcon, clearSearchBtn);
 formDom.append(inputWrapper);
 tabDom.append(songTabDom, playlistTabDom, videoTabDom);

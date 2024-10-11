@@ -37,21 +37,7 @@ export class AudioController {
     this.playBtn.ariaLabel = "Play";
     this.playBtn.disabled = this.isLoading;
     this.playBtn.ariaDisabled = this.isLoading.toString();
-    this.playBtn.addEventListener("click", () => {
-      if (this.audio.paused) {
-        this.audio.play();
-        this.playBtn.ariaLabel = "Play";
-        this.playBtn.title = "Play";
-        icon.classList.add("ri-pause-fill");
-        icon.classList.remove("ri-play-fill");
-      } else {
-        this.audio.pause();
-        this.playBtn.ariaLabel = "Pause";
-        this.playBtn.title = "Pause";
-        icon.classList.add("ri-play-fill");
-        icon.classList.remove("ri-pause-fill");
-      }
-    });
+    this.playBtn.addEventListener("click", this.playPauseSong);
     const icon = document.createElement("i");
     icon.classList.add("ri-pause-fill");
     this.playBtn.append(icon);
@@ -141,6 +127,32 @@ export class AudioController {
     this.queueContainer = container;
   }
 
+  public playPauseSong = () => {
+    if (!this.isLoading) {
+      if (this.audio.paused) {
+        const icon = document.querySelector(
+          ".player-special-btn > .ri-play-fill"
+        ) as HTMLElement;
+
+        this.audio.play();
+        this.playBtn.ariaLabel = "Play";
+        this.playBtn.title = "Play";
+        icon.classList.add("ri-pause-fill");
+        icon.classList.remove("ri-play-fill");
+      } else {
+        const icon = document.querySelector(
+          ".player-special-btn > .ri-pause-fill"
+        ) as HTMLElement;
+
+        this.audio.pause();
+        this.playBtn.ariaLabel = "Pause";
+        this.playBtn.title = "Pause";
+        icon.classList.add("ri-play-fill");
+        icon.classList.remove("ri-pause-fill");
+      }
+    }
+  };
+
   private nextSong = () => {
     this.resetPlayerDom();
     if (this.queue.length == this.currentOrder + 1) {
@@ -152,7 +164,7 @@ export class AudioController {
     this.updateCurrentPlayingSong();
   };
 
-  private throttledNextSong = throttle(this.nextSong, 200);
+  public throttledNextSong = throttle(this.nextSong, 200);
 
   private prevSong = () => {
     this.resetPlayerDom();
@@ -165,7 +177,7 @@ export class AudioController {
     this.updateCurrentPlayingSong();
   };
 
-  private throttledPrevSong = throttle(this.prevSong, 200);
+  public throttledPrevSong = throttle(this.prevSong, 200);
 
   private playSong = async (song: SongObject) => {
     // to prevent error when trying to access a no longer exist song
@@ -204,10 +216,11 @@ export class AudioController {
     }
   };
 
-  private loopSong = (e: MouseEvent) => {
-    const target = e.target as HTMLElement;
-    const parent = target.parentNode as HTMLElement; // Now you can safely access parentNode
-    parent.classList.toggle("enable");
+  public loopSong = () => {
+    const icon = document.querySelector(
+      ".player-common-btn > .ri-loop-right-fill"
+    ) as HTMLButtonElement;
+    icon.parentElement?.classList.toggle("enable");
     this.audio.loop = !this.audio.loop;
   };
 
@@ -236,6 +249,39 @@ export class AudioController {
 
     this.updateQueueDom();
     toast("Shuffled", 3000);
+  };
+
+  public throttledShuffleSong = throttle(this.shuffleSong, 300);
+
+  public toggleMuteSong = () => {
+    const volumeInput = document.querySelector(
+      ".player-volume-bar > input"
+    ) as HTMLInputElement;
+
+    const volumeBtnIcon =
+      document.querySelector(".player-common-btn > .ri-volume-up-fill") ||
+      (document.querySelector(
+        ".player-common-btn > .ri-volume-mute-fill"
+      ) as HTMLElement);
+
+    if (!volumeInput) return;
+
+    if (this.audio.volume != 0) {
+      this.audio.volume = 0;
+      volumeInput.value = "0";
+      volumeBtnIcon.classList.remove("ri-volume-up-fill");
+      volumeBtnIcon.classList.add("ri-volume-mute-fill");
+    } else if (this.audio.volume == 0 && this.prevVolume == 0) {
+      this.audio.volume = 0.01;
+      this.prevVolume = 0.01;
+      volumeBtnIcon.classList.remove("ri-volume-mute-fill");
+      volumeBtnIcon.classList.add("ri-volume-up-fill");
+    } else {
+      this.audio.volume = this.prevVolume;
+      volumeInput.value = this.prevVolume.toString();
+      volumeBtnIcon.classList.remove("ri-volume-mute-fill");
+      volumeBtnIcon.classList.add("ri-volume-up-fill");
+    }
   };
 
   private createPlayerDom = () => {
@@ -309,24 +355,7 @@ export class AudioController {
     const volumeBtnIcon = document.createElement("i");
     volumeBtnIcon.classList.add("ri-volume-up-fill");
     volumeBtn.append(volumeBtnIcon);
-    volumeBtnIcon.addEventListener("click", () => {
-      if (this.audio.volume != 0) {
-        this.audio.volume = 0;
-        volumeInput.value = "0";
-        volumeBtnIcon.classList.remove("ri-volume-up-fill");
-        volumeBtnIcon.classList.add("ri-volume-mute-fill");
-      } else if (this.audio.volume == 0 && this.prevVolume == 0) {
-        this.audio.volume = 0.01;
-        this.prevVolume = 0.01;
-        volumeBtnIcon.classList.remove("ri-volume-mute-fill");
-        volumeBtnIcon.classList.add("ri-volume-up-fill");
-      } else {
-        this.audio.volume = this.prevVolume;
-        volumeInput.value = this.prevVolume.toString();
-        volumeBtnIcon.classList.remove("ri-volume-mute-fill");
-        volumeBtnIcon.classList.add("ri-volume-up-fill");
-      }
-    });
+    volumeBtn.addEventListener("click", this.toggleMuteSong);
 
     const volumeBar = document.createElement("div");
     volumeBar.classList.add("player-volume-bar");
@@ -371,8 +400,7 @@ export class AudioController {
     shuffleBtnIcon.classList.add("ri-shuffle-fill");
     shuffleBtn.append(shuffleBtnIcon);
 
-    const _throttledClick = throttle(this.shuffleSong, 300);
-    shuffleBtn.addEventListener("click", _throttledClick);
+    shuffleBtn.addEventListener("click", this.throttledShuffleSong);
 
     const thumbnailWrapper = document.createElement("div");
     thumbnailWrapper.classList.add("player-thumbnail-wrapper");
@@ -651,6 +679,11 @@ export class AudioController {
     return itemDom;
   };
 
+  public toggleExpandQueue = () => {
+    const queueDom = document.querySelector(".queue");
+    queueDom?.classList.toggle("hidden");
+  };
+
   private createQueueDom = () => {
     const newQueueDom = document.createElement("div");
     newQueueDom.classList.add("queue", "hidden");
@@ -660,9 +693,7 @@ export class AudioController {
     expandBtn.classList.add("queue-expand-btn");
     expandBtn.tabIndex = 0;
     expandBtn.ariaLabel = "Expand the queue";
-    expandBtn.addEventListener("click", () => {
-      newQueueDom.classList.toggle("hidden");
-    });
+    expandBtn.addEventListener("click", this.toggleExpandQueue);
     expandBtn.addEventListener("keydown", (e) => {
       if (e.key == "Enter") {
         const clickEvent = new Event("click");

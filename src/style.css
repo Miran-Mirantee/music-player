@@ -378,6 +378,7 @@ body {
   position: absolute;
 }
 
+.hotkeys-btn,
 .toast-close-btn,
 .clear-search-btn,
 .player-common-btn,
@@ -396,16 +397,19 @@ body {
   user-select: none;
 }
 
+.hotkeys-btn:hover,
 .my-playlist-btn:hover,
 .player-special-btn:hover,
 .player-common-btn:hover {
   filter: brightness(1.2); /* Increases brightness by 20% */
 }
 
+.hotkeys-btn:hover,
 .my-playlist-btn:hover {
   background-color: var(--column-selected-btn-color);
 }
 
+.hotkeys-btn:active,
 .my-playlist-btn:active,
 .player-common-btn:active,
 .player-special-btn:active {
@@ -740,6 +744,7 @@ body {
   gap: 8px;
 }
 
+.hotkeys-btn,
 .my-playlist-btn {
   height: 50px;
   width: 50px;
@@ -752,6 +757,10 @@ body {
   color: var(--button-color);
   text-shadow: rgb(46, 46, 46) 1px 2px 2px;
   transition: transform 0.1s ease-in-out;
+}
+
+.hotkeys-btn {
+  right: 74px;
 }
 
 .my-playlist-btn.hidden {
@@ -900,4 +909,27 @@ body {
 .toast-close-btn {
   background-color: transparent;
   font-size: 18px;
+}
+
+.hotkeys-menu {
+  position: absolute;
+  height: 50%;
+  width: 50%;
+  top: 200px;
+  backdrop-filter: blur(10px);
+  background-color: var(--column-background-color);
+  border: 2px solid var(--primary-color);
+  border-radius: 16px;
+  transition: opacity 0.25s; /* temp animation */
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--text-color);
+}
+
+.hotkeys-menu.hidden {
+  opacity: 0%;
+  transition: opacity 0.25s; /* temp animation */
+  pointer-events: none;
 }
