@@ -80,6 +80,10 @@ export class AudioController {
       ? this.queue[this.currentOrder].thumbnail
       : "fallback.jpg";
 
+    this.thumbnailDom.onerror = () => {
+      this.thumbnailDom.src = "fallback.jpg";
+    };
+
     this.nameDom = document.createElement("a");
     this.nameDom.classList.add("player-song-name");
     this.nameDom.target = "_blank";

@@ -11,7 +11,10 @@ const songCard = (song: SongResponse) => {
   thumbnailDom.draggable = false;
   thumbnailDom.classList.add("card-thumbnail");
   thumbnailDom.alt = "Thumbnail";
-  thumbnailDom.src = song.thumbnails[1].url || "fallback.jpg";
+  thumbnailDom.src = song.thumbnails[1].url;
+  thumbnailDom.onerror = () => {
+    thumbnailDom.src = "fallback.jpg";
+  };
 
   const infoDom = document.createElement("div");
   infoDom.classList.add("card-info");
