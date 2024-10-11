@@ -57,6 +57,7 @@ export class AudioController {
       const seekTo = this.audio.duration * e.target.value;
       this.audio.currentTime = seekTo;
     });
+    this.seekBar.addEventListener("keydown", (e: any) => e.preventDefault);
 
     this.thumbnailDom = document.createElement("img");
     this.thumbnailDom.classList.add("player-thumbnail");
@@ -126,6 +127,22 @@ export class AudioController {
     this.queueDom = newQueueDom;
     this.queueContainer = container;
   }
+
+  public seekBarControl = (code: string) => {
+    const step = 0.5 / this.audio.duration;
+
+    if (!this.audio.src) return;
+
+    if (code == "ArrowRight") {
+      this.seekBar.value = `${parseFloat(this.seekBar.value) + step}`;
+    }
+    if (code == "ArrowLeft") {
+      this.seekBar.value = `${parseFloat(this.seekBar.value) - step}`;
+    }
+
+    const inputEvent = new Event("input");
+    this.seekBar.dispatchEvent(inputEvent);
+  };
 
   public playPauseSong = () => {
     if (!this.isLoading) {
@@ -253,6 +270,21 @@ export class AudioController {
 
   public throttledShuffleSong = throttle(this.shuffleSong, 300);
 
+  public volumeControl = (keycode: string) => {
+    const volumeInput = document.querySelector(
+      ".player-volume-bar > input"
+    ) as HTMLInputElement;
+    if (keycode == "ArrowUp") {
+      volumeInput.value = `${parseFloat(volumeInput.value) + 0.05}`;
+    }
+    if (keycode == "ArrowDown") {
+      volumeInput.value = `${parseFloat(volumeInput.value) - 0.05}`;
+    }
+
+    const inputEvent = new Event("input");
+    volumeInput.dispatchEvent(inputEvent);
+  };
+
   public toggleMuteSong = () => {
     const volumeInput = document.querySelector(
       ".player-volume-bar > input"
@@ -379,6 +411,7 @@ export class AudioController {
         volumeBtnIcon.classList.add("ri-volume-up-fill");
       }
     });
+    volumeInput.addEventListener("keydown", (e: any) => e.preventDefault);
     this.audio.volume = parseFloat(volumeInput.value);
 
     const loopBtn = document.createElement("button");

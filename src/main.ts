@@ -729,6 +729,18 @@ document.addEventListener("keydown", (event) => {
   if (event.code == "KeyQ") {
     audioController.toggleExpandQueue();
   }
+  if (event.code == "ArrowUp") {
+    audioController.volumeControl(event.code);
+  }
+  if (event.code == "ArrowDown") {
+    audioController.volumeControl(event.code);
+  }
+  if (event.code == "ArrowRight") {
+    audioController.seekBarControl(event.code);
+  }
+  if (event.code == "ArrowLeft") {
+    audioController.seekBarControl(event.code);
+  }
 });
 
 overlayDom.append(loadingIcon);
