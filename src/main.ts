@@ -23,9 +23,9 @@ import throttle from "./utils/throttle";
  *  - Adjust quality of audio according to internet speed
  *  - Add keyboard shortcut
  *  - Create a better UI
- *    - New font? Helvetica font family
  *    - Using Three.js
  *  - Create toast to inform user the events
+ *  - Add responsiveness
  *
  *  - Get search result from youtube (search by name)
  *    - Search artist (optional)

@@ -136,6 +136,10 @@ body {
   background-position: center;
   background-size: cover;
   overflow-y: hidden;
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
 }
 
 .content {
