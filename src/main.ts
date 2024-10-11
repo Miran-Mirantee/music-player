@@ -201,10 +201,12 @@ const handleOpenSearchColumn = () => {
 };
 
 const handleOpenHotkeysMenu = () => {
+  hotkeysBtn.classList.add("hidden");
   hotkeysMenuDom.classList.remove("hidden");
 };
 
 const handleCloseHotkeysMenu = () => {
+  hotkeysBtn.classList.remove("hidden");
   hotkeysMenuDom.classList.add("hidden");
 };
 
@@ -522,6 +524,22 @@ const renderMyPlaylistSongs = (playlist: MyPlaylist) => {
   }
 };
 
+const createHotkey = (key: string, message: string) => {
+  const dom = document.createElement("div");
+  dom.classList.add("hotkeys-item");
+
+  const keyDom = document.createElement("div");
+  keyDom.classList.add("hotkeys-key");
+  keyDom.textContent = key;
+
+  const messageDom = document.createElement("div");
+  messageDom.classList.add("hotkeys-message");
+  messageDom.textContent = message;
+
+  dom.append(keyDom, messageDom);
+  return dom;
+};
+
 const contentDom = document.createElement("div");
 contentDom.classList.add("content");
 
@@ -669,15 +687,6 @@ hotkeysBtn.addEventListener("click", handleOpenHotkeysMenu);
 
 const hotkeysMenuDom = document.createElement("div");
 hotkeysMenuDom.classList.add("hotkeys-menu", "hidden");
-hotkeysMenuDom.append(
-  "m is for mute",
-  "p is for pause",
-  "b is for prev song",
-  "n is for next song",
-  "l is for loop",
-  "s is for shuffle",
-  "q is for queue"
-);
 
 const hotkeysCloseBtn = document.createElement("button");
 hotkeysCloseBtn.classList.add("column-close-btn", "column-icon-btn");
@@ -723,7 +732,16 @@ document.addEventListener("keydown", (event) => {
 });
 
 overlayDom.append(loadingIcon);
-hotkeysMenuDom.append(hotkeysCloseBtn);
+hotkeysMenuDom.append(
+  hotkeysCloseBtn,
+  createHotkey("P", "Pause/Play song"),
+  createHotkey("B", "Previous song"),
+  createHotkey("N", "Next song"),
+  createHotkey("M", "Mute song"),
+  createHotkey("L", "Toggle loop"),
+  createHotkey("S", "Shuffle songs"),
+  createHotkey("Q", "View queue")
+);
 contentDom.append(
   formDom,
   columnDom,

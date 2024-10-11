@@ -763,6 +763,7 @@ body {
   right: 74px;
 }
 
+.hotkeys-btn.hidden,
 .my-playlist-btn.hidden {
   transition: transform 0.1s ease-in-out;
   transform: scale(0);
@@ -913,18 +914,20 @@ body {
 
 .hotkeys-menu {
   position: absolute;
-  height: 50%;
-  width: 50%;
-  top: 200px;
+  height: 400px;
+  width: 240px;
+  top: 12px;
+  right: 72px;
   backdrop-filter: blur(10px);
   background-color: var(--column-background-color);
-  border: 2px solid var(--primary-color);
   border-radius: 16px;
   transition: opacity 0.25s; /* temp animation */
 
   display: flex;
-  justify-content: center;
-  align-items: center;
+  gap: 10px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
   color: var(--text-color);
 }
 
@@ -932,4 +935,27 @@ body {
   opacity: 0%;
   transition: opacity 0.25s; /* temp animation */
   pointer-events: none;
+}
+
+.hotkeys-item {
+  padding-left: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hotkeys-item:last-child {
+  margin-bottom: 36px;
+}
+
+.hotkeys-key {
+  font-size: 1.25rem;
+  font-weight: bold;
+  width: 1.75rem;
+  text-align: center;
+  padding: 0.25rem 0;
+  color: var(--primary-color);
+  border: 1px solid white;
+  border-radius: 6px;
+  user-select: none;
 }
