@@ -2,6 +2,7 @@ import formatTime from "../utils/formalTime";
 import getMusic from "../utils/getMusic";
 import SongObject from "../types/SongObject";
 import throttle from "../utils/throttle";
+import toast from "../components/toast";
 
 export class AudioController {
   private queueContainer: HTMLDivElement;
@@ -190,6 +191,7 @@ export class AudioController {
         this.updateQueueDom();
         this.currentOrder--;
         this.nextSong();
+        toast("This song is unavailable.", 3000);
       }
     }
 
@@ -233,6 +235,7 @@ export class AudioController {
     this.currentOrder = 0;
 
     this.updateQueueDom();
+    toast("Shuffled", 3000);
   };
 
   private createPlayerDom = () => {

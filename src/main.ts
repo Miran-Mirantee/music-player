@@ -15,6 +15,7 @@ import PlaylistResponse from "./types/PlaylistResponse";
 import VideoResponse from "./types/VideoResponse";
 import MyPlaylist from "./types/MyPlaylist";
 import myPlaylistCard from "./components/myPlaylistCard";
+import toast from "./components/toast";
 import throttle from "./utils/throttle";
 
 /**
@@ -86,6 +87,8 @@ const throttledAddSong = throttle((song: VideoResponse | SongResponse) => {
   if (!isDuplicated) {
     addSong(song);
     audioController.updateQueueDom();
+  } else {
+    toast("You've already added this song.", 3000);
   }
 }, 200);
 
@@ -418,8 +421,9 @@ const createAddPlaylistBtn = (
 
       state.myPlaylists.push(newPlaylistObject);
       localStorage.setItem("myPlaylists", JSON.stringify(state.myPlaylists));
+      toast("Added this playlist to my playlists", 3000);
     } else {
-      console.log("you already added this playlist");
+      toast("You've already added this playlist.", 3000);
     }
   });
 
@@ -488,6 +492,7 @@ const createSyncBtn = (myPlaylist: MyPlaylist) => {
     localStorage.setItem("myPlaylists", JSON.stringify(state.myPlaylists));
 
     renderMyPlaylistSongs(newPlaylistObject);
+    toast("Synced", 3000);
   });
 
   return syncBtn;
