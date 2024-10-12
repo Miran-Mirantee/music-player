@@ -361,6 +361,10 @@ body {
   color: var(--text-color);
 }
 
+div.player-song-name {
+  display: none;
+}
+
 .player-middle-panel {
   height: 75px;
   width: 450px;
@@ -958,4 +962,232 @@ body {
   border: 1px solid white;
   border-radius: 6px;
   user-select: none;
+}
+
+/* Extra Small Devices (Phones) */
+@media (max-width: 480px) {
+  /* Styles for small phones */
+  :root {
+    --primary-color: red;
+    --player-height: 68px;
+    --scrollbar-width: 8px;
+    --queue-width: 100%;
+  }
+
+  html {
+    font-size: 14px;
+  }
+
+  .hotkeys-btn {
+    display: none;
+  }
+
+  .my-playlist-btn {
+    top: 12px;
+    right: 12px;
+    /* height: 36px;
+    width: 36px; */
+    font-size: 18px;
+    height: 28px;
+    width: 28px;
+  }
+
+  .my-playlist-btn.hidden.mobile {
+    display: none;
+  }
+
+  .my-playlist {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0 8px;
+  }
+
+  #search-field {
+    width: auto;
+  }
+
+  .player {
+    height: auto;
+  }
+
+  .player-top-panel {
+    height: 4px;
+    pointer-events: none;
+  }
+
+  .player-bottom-panel {
+    gap: 6px;
+    padding: 8px 0;
+  }
+
+  .player-left-panel {
+    padding-left: 12px;
+    flex-grow: 1;
+    gap: 8px;
+    font-size: 1rem;
+  }
+
+  .player-thumbnail-wrapper {
+    width: 48px;
+    height: 48px;
+  }
+
+  a.player-song-name {
+    display: none;
+  }
+
+  div.player-song-name {
+    display: block;
+  }
+
+  .player-middle-panel {
+    position: static;
+    width: auto;
+    height: auto;
+    padding-right: 12px;
+  }
+
+  .player-btn-panel {
+    position: static;
+    gap: 4px;
+  }
+
+  .player-right-panel {
+    display: none;
+  }
+
+  .player-time {
+    display: none;
+  }
+
+  .player-common-btn {
+    font-size: 24px;
+  }
+
+  .player-special-btn {
+    font-size: 28px;
+    height: 40px;
+    width: 40px;
+  }
+
+  .search-form {
+    top: 12px;
+  }
+
+  #search-field {
+    padding: 8px calc(1.125rem + 16px);
+  }
+
+  .input-wrapper > .ri-search-line {
+    left: 8px;
+  }
+
+  .clear-search-btn {
+    right: 8px;
+  }
+
+  .column {
+    flex-grow: 1;
+  }
+
+  .column-close-btn {
+    top: 12px;
+    right: 12px;
+  }
+
+  .tab > div {
+    font-size: 1rem;
+    padding: 4px 8px;
+    border-radius: 12px;
+  }
+
+  .column-content {
+    margin-top: 56px;
+    gap: 8px;
+  }
+
+  .list {
+    gap: 8px;
+  }
+
+  .card {
+    width: 90%;
+    min-width: 200px;
+    gap: 6px;
+  }
+
+  .card-thumbnail {
+    height: 56px;
+    margin: 6px 0;
+    margin-left: 6px;
+  }
+
+  .card-info {
+    padding: 0;
+    margin: 6px;
+    margin-left: 0;
+  }
+
+  .card-playlistName,
+  .card-songName {
+    width: auto;
+    font-size: 1rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .card-album {
+    font-size: 0.85rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .card-artist {
+    font-size: 0.85rem;
+  }
+
+  .card-duration {
+    font-size: 0.85rem;
+  }
+
+  .playlist-btn-panel {
+    width: 90%;
+    min-width: auto;
+  }
+
+  .column-icon-btn {
+    font-size: 24px;
+    height: 28px;
+    width: 28px;
+  }
+
+  .column-non-icon-btn {
+    font-size: 14px;
+    padding: 3px 6px;
+  }
+}
+
+/* Small Devices (Phones) */
+@media (max-width: 767px) {
+  /* Styles for medium/large phones */
+}
+
+/* Medium Devices (Tablets) */
+@media (max-width: 1024px) {
+  /* Styles for tablets */
+}
+
+/* Large Devices (Laptops) */
+@media (max-width: 1280px) {
+  /* Styles for small laptops */
+}
+
+/* Extra Large Devices (Desktops) */
+@media (max-width: 1440px) {
+  /* Styles for desktops */
+}
+
+/* Ultra-Wide Devices */
+@media (min-width: 1920px) {
+  /* Styles for ultra-wide screens */
 }

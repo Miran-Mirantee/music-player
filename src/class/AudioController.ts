@@ -14,7 +14,8 @@ export class AudioController {
   private playBtn: HTMLButtonElement;
   private seekBar: HTMLInputElement;
   private thumbnailDom: HTMLImageElement;
-  private nameDom: HTMLAnchorElement;
+  private nameAnchorDom: HTMLAnchorElement;
+  private nameDivDom: HTMLDivElement;
   private prevVolume: number = 0.1;
   private isLoading: boolean = true;
 
@@ -72,18 +73,22 @@ export class AudioController {
       this.thumbnailDom.src = "fallback.jpg";
     };
 
-    this.nameDom = document.createElement("a");
-    this.nameDom.classList.add("player-song-name");
-    this.nameDom.target = "_blank";
-    this.nameDom.rel = "noopener noreferrer";
-    this.nameDom.title = "Open on Youtube";
+    this.nameAnchorDom = document.createElement("a");
+    this.nameAnchorDom.classList.add("player-song-name");
+    this.nameAnchorDom.target = "_blank";
+    this.nameAnchorDom.rel = "noopener noreferrer";
+    this.nameAnchorDom.title = "Open on Youtube";
+
+    this.nameDivDom = document.createElement("div");
+    this.nameDivDom.classList.add("player-song-name");
 
     this.audio = new Audio();
 
     this.audio.addEventListener("loadstart", () => {
       this.thumbnailDom.src = this.queue[this.currentOrder].thumbnail;
-      this.nameDom.textContent = this.queue[this.currentOrder].name;
-      this.nameDom.href = `https://www.youtube.com/watch?v=${
+      this.nameAnchorDom.textContent = this.queue[this.currentOrder].name;
+      this.nameDivDom.textContent = this.queue[this.currentOrder].name;
+      this.nameAnchorDom.href = `https://www.youtube.com/watch?v=${
         this.queue[this.currentOrder].videoId
       }`;
       const overlay = this.thumbnailDom.nextSibling as HTMLElement;
@@ -450,7 +455,11 @@ export class AudioController {
     topPanel.append(this.seekBar);
     timeDom.append(this.currenttimeDom, " / ", this.durationDom);
     bottomPanel.append(leftBottomPanel, middleBottomPanel, rightBottomPanel);
-    leftBottomPanel.append(thumbnailWrapper, this.nameDom);
+    leftBottomPanel.append(
+      thumbnailWrapper,
+      this.nameAnchorDom,
+      this.nameDivDom
+    );
     btnPanel.append(prevBtn, this.playBtn, nextBtn);
     middleBottomPanel.append(btnPanel, timeDom);
     volumeBar.append(volumeInput);
@@ -473,7 +482,8 @@ export class AudioController {
       this.audio.removeAttribute("src"); // Removes the src attribute completely
       this.audio.load(); // Reloads the element without a source
       this.thumbnailDom.src = "fallback.jpg";
-      this.nameDom.textContent = "";
+      this.nameAnchorDom.textContent = "";
+      this.nameDivDom.textContent = "";
     }
 
     this.togglePlayerDomDisability();

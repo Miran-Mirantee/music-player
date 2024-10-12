@@ -38,6 +38,7 @@ import throttle from "./utils/throttle";
  * BUGS:
  *  - Thumbnail doesn't always load (too many requests)
  *  - Need to do something about long video (either hide a long video or implement streaming)
+ *  - Hotkeys activate when type in search field
  */
 
 const state = {
@@ -173,7 +174,7 @@ const handleToggleSelectedTabStyles = (dom: HTMLDivElement) => {
 const handleCloseColumn = () => {
   columnDom.classList.add("hidden");
   formDom.classList.remove("hidden");
-  myPlaylistBtn.classList.remove("hidden");
+  myPlaylistBtn.classList.remove("hidden", "mobile");
   inputDom.value = "";
   const event = new Event("input");
   inputDom.dispatchEvent(event);
@@ -196,6 +197,7 @@ const handleOpenSearchColumn = () => {
     listDom.textContent = "";
     columnContentDom.textContent = "";
     columnContentDom.append(tabDom, listDom);
+    myPlaylistBtn.classList.add("hidden", "mobile");
   }
   columnDom.classList.remove("hidden");
 };
