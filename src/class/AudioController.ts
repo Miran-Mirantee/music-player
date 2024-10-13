@@ -18,9 +18,11 @@ export class AudioController {
   private nameDivDom: HTMLDivElement;
   private prevVolume: number = 0.1;
   private isLoading: boolean = true;
+  private maxMobileWidth: number = 767;
 
   public queue: SongObject[] = [];
   public playerDom: HTMLDivElement;
+  public playerDomMobile: HTMLDivElement;
   public queueDom: HTMLDivElement;
 
   constructor() {
@@ -127,6 +129,8 @@ export class AudioController {
     const { newPlayerDom, togglePlayerDomDisability } = this.createPlayerDom();
     this.togglePlayerDomDisability = togglePlayerDomDisability;
     this.playerDom = newPlayerDom;
+
+    this.playerDomMobile = this.createPlayerDomMobile();
 
     const { newQueueDom, container } = this.createQueueDom();
     this.queueDom = newQueueDom;
@@ -353,6 +357,12 @@ export class AudioController {
 
     const leftBottomPanel = document.createElement("div");
     leftBottomPanel.classList.add("player-left-panel");
+    leftBottomPanel.addEventListener("click", () => {
+      const width = window.innerWidth;
+      if (width <= this.maxMobileWidth) {
+        this.playerDomMobile.classList.toggle("hidden");
+      }
+    });
 
     const middleBottomPanel = document.createElement("div");
     middleBottomPanel.classList.add("player-middle-panel");
@@ -466,6 +476,131 @@ export class AudioController {
     rightBottomPanel.append(volumeBtn, volumeBar, loopBtn, shuffleBtn);
 
     return { newPlayerDom, togglePlayerDomDisability };
+  };
+
+  private createPlayerDomMobile = () => {
+    const newPlayerDom = document.createElement("div");
+    newPlayerDom.classList.add("player-mobile", "hidden");
+
+    const backBtn = document.createElement("button");
+    backBtn.classList.add("player-mobile-back-btn", "player-mobile-common-btn");
+    const backBtnIcon = document.createElement("i");
+    backBtnIcon.classList.add("ri-arrow-down-s-line");
+    backBtn.append(backBtnIcon);
+    backBtn.addEventListener("click", () => {
+      newPlayerDom.classList.toggle("hidden");
+    });
+
+    const thumbnailWrapper = document.createElement("div");
+    thumbnailWrapper.classList.add("player-mobile-thumbnail-wrapper");
+
+    const thumbnailOverlay = document.createElement("div");
+    thumbnailOverlay.classList.add("player-mobile-thumbnail-overlay", "hidden");
+
+    const loadingIcon = document.createElement("i");
+    loadingIcon.classList.add("ri-loader-4-line");
+
+    const thumbnailDom = document.createElement("img");
+    thumbnailDom.classList.add("player-mobile-thumbnail");
+
+    const songDom = document.createElement("div");
+    songDom.classList.add("player-mobile-song-name");
+    songDom.textContent = "song";
+
+    const artistDom = document.createElement("div");
+    artistDom.classList.add("player-mobile-artist-name");
+    artistDom.textContent = "artist";
+
+    const playbackControllerDom = document.createElement("div");
+    playbackControllerDom.classList.add("player-mobile-playback-controller");
+
+    const seekBarwrapper = document.createElement("div");
+    seekBarwrapper.classList.add("player-mobile-seek-bar-wrapper");
+
+    const seekBarDom = document.createElement("input");
+    seekBarDom.classList.add("player-mobile-seek-bar");
+    seekBarDom.type = "range";
+
+    const timeWrapper = document.createElement("div");
+    timeWrapper.classList.add("player-mobile-time-wrapper");
+
+    const currentTimeDom = document.createElement("div");
+    currentTimeDom.classList.add("player-mobile-current-time");
+    currentTimeDom.textContent = "0:00";
+
+    const durationDom = document.createElement("div");
+    durationDom.classList.add("player-mobile-duration");
+    durationDom.textContent = "0:00";
+
+    const btnPanel = document.createElement("div");
+    btnPanel.classList.add("player-mobile-btn-panel");
+
+    const shuffleBtn = document.createElement("button");
+    shuffleBtn.classList.add(
+      "player-mobile-shuffle-btn",
+      "player-mobile-common-btn"
+    );
+    const shuffleBtnIcon = document.createElement("i");
+    shuffleBtnIcon.classList.add("ri-shuffle-fill");
+    shuffleBtn.append(shuffleBtnIcon);
+
+    const btnMiddlePanel = document.createElement("div");
+    btnMiddlePanel.classList.add("player-mobile-btn-middle-panel");
+
+    const prevSongBtn = document.createElement("button");
+    prevSongBtn.classList.add(
+      "player-mobile-prev-song-btn",
+      "player-mobile-common-btn"
+    );
+    const prevSongBtnIcon = document.createElement("i");
+    prevSongBtnIcon.classList.add("ri-skip-back-fill");
+    prevSongBtn.append(prevSongBtnIcon);
+
+    const playBtn = document.createElement("button");
+    playBtn.classList.add(
+      "player-mobile-play-btn",
+      "player-mobile-special-btn"
+    );
+    const playBtnIcon = document.createElement("i");
+    playBtnIcon.classList.add("ri-pause-fill");
+    playBtn.append(playBtnIcon);
+
+    const nextSongBtn = document.createElement("button");
+    nextSongBtn.classList.add(
+      "player-mobile-next-song-btn",
+      "player-mobile-common-btn"
+    );
+    const nextSongBtnIcon = document.createElement("i");
+    nextSongBtnIcon.classList.add("ri-skip-forward-fill");
+    nextSongBtn.append(nextSongBtnIcon);
+
+    const loopBtn = document.createElement("button");
+    loopBtn.classList.add("player-mobile-loop-btn", "player-mobile-common-btn");
+    const loopBtnIcon = document.createElement("i");
+    loopBtnIcon.classList.add("ri-loop-right-fill");
+    loopBtn.append(loopBtnIcon);
+
+    const queueExpandBtn = document.createElement("div");
+    queueExpandBtn.classList.add("player-mobile-queue-expand-btn");
+
+    seekBarwrapper.append(seekBarDom);
+    playbackControllerDom.append(seekBarwrapper, timeWrapper);
+    timeWrapper.append(currentTimeDom, durationDom);
+    btnPanel.append(shuffleBtn, btnMiddlePanel, loopBtn);
+    btnMiddlePanel.append(prevSongBtn, playBtn, nextSongBtn);
+    thumbnailOverlay.append(loadingIcon);
+    thumbnailWrapper.append(thumbnailDom, thumbnailOverlay);
+    newPlayerDom.append(
+      backBtn,
+      thumbnailWrapper,
+      songDom,
+      artistDom,
+      playbackControllerDom,
+      btnPanel,
+      queueExpandBtn
+    );
+
+    return newPlayerDom;
   };
 
   private resetPlayerDom = () => {

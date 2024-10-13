@@ -549,7 +549,8 @@ const audioController = new AudioController();
 document.body.append(
   contentDom,
   audioController.playerDom,
-  audioController.queueDom
+  audioController.queueDom,
+  audioController.playerDomMobile
 );
 
 const formDom = document.createElement("form");
