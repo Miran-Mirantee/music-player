@@ -10,13 +10,6 @@ export class AudioController {
   private togglePlayerDomDisabilityMobile: () => void;
   private currentOrder: number = 0;
   private audio: HTMLAudioElement;
-  private currenttimeDom: HTMLSpanElement;
-  private durationDom: HTMLSpanElement;
-  private playBtn: HTMLButtonElement;
-  private seekBar: HTMLInputElement;
-  private thumbnailDom: HTMLImageElement;
-  private nameAnchorDom: HTMLAnchorElement;
-  private nameDivDom: HTMLDivElement;
   private prevVolume: number = 0.1;
   private isLoading: boolean = true;
   private maxMobileWidth: number = 767;
@@ -27,64 +20,6 @@ export class AudioController {
   public queueDom: HTMLDivElement;
 
   constructor() {
-    this.currenttimeDom = document.createElement("span");
-    this.currenttimeDom.classList.add("player-currenttime");
-    this.currenttimeDom.textContent = "00:00";
-
-    this.durationDom = document.createElement("span");
-    this.durationDom.classList.add("player-duration");
-    this.durationDom.textContent = "00:00";
-
-    this.playBtn = document.createElement("button");
-    this.playBtn.classList.add("player-special-btn");
-    this.playBtn.title = "Play";
-    this.playBtn.ariaLabel = "Play";
-    this.playBtn.disabled = this.isLoading;
-    this.playBtn.ariaDisabled = this.isLoading.toString();
-    this.playBtn.addEventListener("click", this.playPauseSong);
-    const icon = document.createElement("i");
-    icon.classList.add("ri-pause-fill");
-    this.playBtn.append(icon);
-
-    this.seekBar = document.createElement("input");
-    this.seekBar.classList.add("player-seek-bar");
-    this.seekBar.ariaLabel = "Seek bar";
-    this.seekBar.title = "Seek bar";
-    this.seekBar.min = "0";
-    this.seekBar.max = "1";
-    this.seekBar.step = "0.001";
-    this.seekBar.value = "0";
-    this.seekBar.type = "range";
-    this.seekBar.disabled = this.isLoading;
-    this.seekBar.ariaDisabled = this.isLoading.toString();
-    this.seekBar.addEventListener("input", (e: any) => {
-      const seekTo = this.audio.duration * e.target.value;
-      this.audio.currentTime = seekTo;
-    });
-    this.seekBar.addEventListener("keydown", (e: any) => e.preventDefault);
-
-    this.thumbnailDom = document.createElement("img");
-    this.thumbnailDom.classList.add("player-thumbnail");
-    this.thumbnailDom.draggable = false;
-    this.thumbnailDom.alt = "Song thumbnail";
-    this.thumbnailDom.ariaLabel = "Song thumbnail";
-    this.thumbnailDom.src = this.queue[this.currentOrder]
-      ? this.queue[this.currentOrder].thumbnail
-      : "fallback.jpg";
-
-    this.thumbnailDom.onerror = () => {
-      this.thumbnailDom.src = "fallback.jpg";
-    };
-
-    this.nameAnchorDom = document.createElement("a");
-    this.nameAnchorDom.classList.add("player-song-name");
-    this.nameAnchorDom.target = "_blank";
-    this.nameAnchorDom.rel = "noopener noreferrer";
-    this.nameAnchorDom.title = "Open on Youtube";
-
-    this.nameDivDom = document.createElement("div");
-    this.nameDivDom.classList.add("player-song-name");
-
     this.audio = new Audio();
 
     this.audio.addEventListener("loadstart", () => {
@@ -96,14 +31,29 @@ export class AudioController {
         ".player-mobile-thumbnail"
       ) as HTMLImageElement;
       const overlayMobile = thumbnailDomMobile.nextSibling as HTMLElement;
+      const nameAnchorDom = document.querySelector(
+        "a.player-song-name"
+      ) as HTMLAnchorElement;
+      const nameDivDom = document.querySelector("div.player-song-name");
+      const thumbnailDom = document.querySelector(
+        ".player-thumbnail"
+      ) as HTMLImageElement;
 
-      this.thumbnailDom.src = this.queue[this.currentOrder].thumbnail;
-      this.nameAnchorDom.textContent = this.queue[this.currentOrder].name;
-      this.nameDivDom.textContent = this.queue[this.currentOrder].name;
-      this.nameAnchorDom.href = `https://www.youtube.com/watch?v=${
-        this.queue[this.currentOrder].videoId
-      }`;
-      const overlay = this.thumbnailDom.nextSibling as HTMLElement;
+      if (thumbnailDom) {
+        thumbnailDom.src = this.queue[this.currentOrder].thumbnail;
+      }
+
+      if (nameAnchorDom) {
+        nameAnchorDom.textContent = this.queue[this.currentOrder].name;
+        nameAnchorDom.href = `https://www.youtube.com/watch?v=${
+          this.queue[this.currentOrder].videoId
+        }`;
+      }
+      if (nameDivDom) {
+        nameDivDom.textContent = this.queue[this.currentOrder].name;
+      }
+
+      const overlay = thumbnailDom.nextSibling as HTMLElement;
       overlay.classList.remove("hidden");
 
       if (nameDomMobile) {
@@ -119,18 +69,25 @@ export class AudioController {
     });
 
     this.audio.addEventListener("loadedmetadata", () => {
-      this.isLoading = false;
-      const duration = this.audio.duration;
-      this.durationDom.textContent = formatTime(duration);
-      const overlay = this.thumbnailDom.nextSibling as HTMLElement;
-      overlay.classList.add("hidden");
-
+      const durationDom = document.querySelector(".player-duration");
+      const thumbnailDom = document.querySelector(
+        ".player-thumbnail"
+      ) as HTMLImageElement;
+      const overlay = thumbnailDom.nextSibling as HTMLElement;
       const durationDomMobile = document.querySelector(
         ".player-mobile-duration"
       );
       const overlayMobile = document.querySelector(
         ".player-mobile-thumbnail-overlay"
       );
+      const duration = this.audio.duration;
+      this.isLoading = false;
+
+      if (durationDom) {
+        durationDom.textContent = formatTime(duration);
+      }
+      overlay.classList.add("hidden");
+
       if (durationDomMobile) {
         durationDomMobile.textContent = formatTime(duration);
       }
@@ -143,13 +100,20 @@ export class AudioController {
     });
 
     this.audio.addEventListener("timeupdate", () => {
+      const currenttimeDom = document.querySelector(".player-currenttime");
+      const seekBarDom = document.querySelector(
+        ".player-seek-bar"
+      ) as HTMLInputElement;
       const currentTimeDomMobile = document.querySelector(
         ".player-mobile-current-time"
       );
-      const seekBarMobile = document.querySelector(
+      const seekBarDomMobile = document.querySelector(
         ".player-mobile-seek-bar"
       ) as HTMLInputElement;
-      this.currenttimeDom.textContent = formatTime(this.audio.currentTime);
+
+      if (currenttimeDom) {
+        currenttimeDom.textContent = formatTime(this.audio.currentTime);
+      }
       if (currentTimeDomMobile) {
         currentTimeDomMobile.textContent = formatTime(this.audio.currentTime);
       }
@@ -157,9 +121,11 @@ export class AudioController {
         const currentTime = (
           this.audio.currentTime / this.audio.duration
         ).toString();
-        this.seekBar.value = currentTime;
-        if (seekBarMobile) {
-          seekBarMobile.value = currentTime;
+        if (seekBarDom) {
+          seekBarDom.value = currentTime;
+        }
+        if (seekBarDomMobile) {
+          seekBarDomMobile.value = currentTime;
         }
       }
     });
@@ -171,7 +137,12 @@ export class AudioController {
     });
 
     this.audio.addEventListener("emptied", () => {
-      this.seekBar.value = "0";
+      const seekBarDom = document.querySelector(
+        ".player-seek-bar"
+      ) as HTMLInputElement;
+      if (seekBarDom) {
+        seekBarDom.value = "0";
+      }
       this.togglePlayerDomDisability();
       this.togglePlayerDomDisabilityMobile();
     });
@@ -191,49 +162,78 @@ export class AudioController {
   }
 
   public seekBarControl = (code: string) => {
+    const seekBarDom = document.querySelector(
+      ".player-seek-bar"
+    ) as HTMLInputElement;
+
     const step = 0.5 / this.audio.duration;
 
     if (!this.audio.src) return;
 
-    if (code == "ArrowRight") {
-      this.seekBar.value = `${parseFloat(this.seekBar.value) + step}`;
-    }
-    if (code == "ArrowLeft") {
-      this.seekBar.value = `${parseFloat(this.seekBar.value) - step}`;
-    }
+    if (seekBarDom) {
+      if (code == "ArrowRight") {
+        seekBarDom.value = `${parseFloat(seekBarDom.value) + step}`;
+      }
+      if (code == "ArrowLeft") {
+        seekBarDom.value = `${parseFloat(seekBarDom.value) - step}`;
+      }
 
-    const inputEvent = new Event("input");
-    this.seekBar.dispatchEvent(inputEvent);
+      const inputEvent = new Event("input");
+      seekBarDom.dispatchEvent(inputEvent);
+    }
   };
 
   public playPauseSong = () => {
     if (!this.isLoading) {
+      const playBtn = document.querySelector(
+        ".player-special-btn"
+      ) as HTMLButtonElement;
+
+      const playBtnMobile = document.querySelector(
+        ".player-mobile-play-btn"
+      ) as HTMLButtonElement;
+
       if (this.audio.paused) {
         const icon = document.querySelector(
           ".player-special-btn > .ri-play-fill"
         ) as HTMLElement;
+        const iconMobile = document.querySelector(
+          ".player-mobile-special-btn > .ri-play-fill"
+        ) as HTMLElement;
 
         this.audio.play();
-        this.playBtn.ariaLabel = "Play";
-        this.playBtn.title = "Play";
+        playBtn.ariaLabel = "Play";
+        playBtn.title = "Play";
+        playBtnMobile.ariaLabel = "Play";
+        playBtnMobile.title = "Play";
         icon.classList.add("ri-pause-fill");
         icon.classList.remove("ri-play-fill");
+        iconMobile.classList.add("ri-pause-fill");
+        iconMobile.classList.remove("ri-play-fill");
       } else {
         const icon = document.querySelector(
           ".player-special-btn > .ri-pause-fill"
         ) as HTMLElement;
+        const iconMobile = document.querySelector(
+          ".player-mobile-special-btn > .ri-pause-fill"
+        ) as HTMLElement;
 
         this.audio.pause();
-        this.playBtn.ariaLabel = "Pause";
-        this.playBtn.title = "Pause";
+        playBtn.ariaLabel = "Pause";
+        playBtn.title = "Pause";
+        playBtnMobile.ariaLabel = "Pause";
+        playBtnMobile.title = "Pause";
         icon.classList.add("ri-play-fill");
         icon.classList.remove("ri-pause-fill");
+        iconMobile.classList.add("ri-play-fill");
+        iconMobile.classList.remove("ri-pause-fill");
       }
     }
   };
 
   private nextSong = () => {
     this.resetPlayerDom();
+    this.resetPlayerDomMobile();
     if (this.queue.length == this.currentOrder + 1) {
       this.currentOrder = 0;
     } else {
@@ -247,6 +247,7 @@ export class AudioController {
 
   private prevSong = () => {
     this.resetPlayerDom();
+    this.resetPlayerDomMobile();
     if (this.currentOrder == 0) {
       this.currentOrder = this.queue.length - 1;
     } else {
@@ -299,7 +300,12 @@ export class AudioController {
     const icon = document.querySelector(
       ".player-common-btn > .ri-loop-right-fill"
     ) as HTMLButtonElement;
+    const iconMobile = document.querySelector(
+      ".player-mobile-common-btn > .ri-loop-right-fill"
+    ) as HTMLButtonElement;
+
     icon.parentElement?.classList.toggle("enable");
+    iconMobile.parentElement?.classList.toggle("enable");
     this.audio.loop = !this.audio.loop;
   };
 
@@ -389,11 +395,11 @@ export class AudioController {
       shuffleBtn.disabled = this.queue.length ? false : this.isLoading;
       shuffleBtn.ariaDisabled = this.isLoading.toString();
 
-      this.playBtn.disabled = this.isLoading;
-      this.playBtn.ariaDisabled = this.isLoading.toString();
+      playBtn.disabled = this.isLoading;
+      playBtn.ariaDisabled = this.isLoading.toString();
 
-      this.seekBar.disabled = this.isLoading;
-      this.seekBar.ariaDisabled = this.isLoading.toString();
+      seekBarDom.disabled = this.isLoading;
+      seekBarDom.ariaDisabled = this.isLoading.toString();
     };
 
     const newPlayerDom = document.createElement("div");
@@ -402,8 +408,33 @@ export class AudioController {
     const topPanel = document.createElement("div");
     topPanel.classList.add("player-top-panel");
 
+    const seekBarDom = document.createElement("input");
+    seekBarDom.classList.add("player-seek-bar");
+    seekBarDom.ariaLabel = "Seek bar";
+    seekBarDom.title = "Seek bar";
+    seekBarDom.min = "0";
+    seekBarDom.max = "1";
+    seekBarDom.step = "0.001";
+    seekBarDom.value = "0";
+    seekBarDom.type = "range";
+    seekBarDom.disabled = this.isLoading;
+    seekBarDom.ariaDisabled = this.isLoading.toString();
+    seekBarDom.addEventListener("input", (e: any) => {
+      const seekTo = this.audio.duration * e.target.value;
+      this.audio.currentTime = seekTo;
+    });
+    seekBarDom.addEventListener("keydown", (e: any) => e.preventDefault);
+
     const timeDom = document.createElement("div");
     timeDom.classList.add("player-time");
+
+    const currenttimeDom = document.createElement("span");
+    currenttimeDom.classList.add("player-currenttime");
+    currenttimeDom.textContent = "00:00";
+
+    const durationDom = document.createElement("span");
+    durationDom.classList.add("player-duration");
+    durationDom.textContent = "00:00";
 
     const bottomPanel = document.createElement("div");
     bottomPanel.classList.add("player-bottom-panel");
@@ -416,6 +447,15 @@ export class AudioController {
         this.playerDomMobile.classList.toggle("hidden");
       }
     });
+
+    const nameAnchorDom = document.createElement("a");
+    nameAnchorDom.classList.add("player-song-name");
+    nameAnchorDom.target = "_blank";
+    nameAnchorDom.rel = "noopener noreferrer";
+    nameAnchorDom.title = "Open on Youtube";
+
+    const nameDivDom = document.createElement("div");
+    nameDivDom.classList.add("player-song-name");
 
     const middleBottomPanel = document.createElement("div");
     middleBottomPanel.classList.add("player-middle-panel");
@@ -433,6 +473,17 @@ export class AudioController {
     const prevBtnIcon = document.createElement("i");
     prevBtnIcon.classList.add("ri-skip-back-fill");
     prevBtn.append(prevBtnIcon);
+
+    const playBtn = document.createElement("button");
+    playBtn.classList.add("player-special-btn");
+    playBtn.title = "Play";
+    playBtn.ariaLabel = "Play";
+    playBtn.disabled = this.isLoading;
+    playBtn.ariaDisabled = this.isLoading.toString();
+    playBtn.addEventListener("click", this.playPauseSong);
+    const icon = document.createElement("i");
+    icon.classList.add("ri-pause-fill");
+    playBtn.append(icon);
 
     const nextBtn = document.createElement("button");
     nextBtn.classList.add("player-common-btn");
@@ -508,21 +559,28 @@ export class AudioController {
     const thumbnailOverlay = document.createElement("div");
     thumbnailOverlay.classList.add("player-thumbnail-overlay", "hidden");
 
+    const thumbnailDom = document.createElement("img");
+    thumbnailDom.classList.add("player-thumbnail");
+    thumbnailDom.draggable = false;
+    thumbnailDom.alt = "Song thumbnail";
+    thumbnailDom.ariaLabel = "Song thumbnail";
+    thumbnailDom.src = "fallback.jpg";
+
+    thumbnailDom.onerror = () => {
+      thumbnailDom.src = "fallback.jpg";
+    };
+
     const loadingIcon = document.createElement("i");
     loadingIcon.classList.add("ri-loader-4-line");
 
     thumbnailOverlay.append(loadingIcon);
-    thumbnailWrapper.append(this.thumbnailDom, thumbnailOverlay);
+    thumbnailWrapper.append(thumbnailDom, thumbnailOverlay);
     newPlayerDom.append(topPanel, bottomPanel);
-    topPanel.append(this.seekBar);
-    timeDom.append(this.currenttimeDom, " / ", this.durationDom);
+    topPanel.append(seekBarDom);
+    timeDom.append(currenttimeDom, " / ", durationDom);
     bottomPanel.append(leftBottomPanel, middleBottomPanel, rightBottomPanel);
-    leftBottomPanel.append(
-      thumbnailWrapper,
-      this.nameAnchorDom,
-      this.nameDivDom
-    );
-    btnPanel.append(prevBtn, this.playBtn, nextBtn);
+    leftBottomPanel.append(thumbnailWrapper, nameAnchorDom, nameDivDom);
+    btnPanel.append(prevBtn, playBtn, nextBtn);
     middleBottomPanel.append(btnPanel, timeDom);
     volumeBar.append(volumeInput);
     rightBottomPanel.append(volumeBtn, volumeBar, loopBtn, shuffleBtn);
@@ -573,14 +631,20 @@ export class AudioController {
 
     const thumbnailDom = document.createElement("img");
     thumbnailDom.classList.add("player-mobile-thumbnail");
+    thumbnailDom.draggable = false;
+    thumbnailDom.alt = "Song thumbnail";
+    thumbnailDom.ariaLabel = "Song thumbnail";
+    thumbnailDom.src = "fallback.jpg";
+
+    thumbnailDom.onerror = () => {
+      thumbnailDom.src = "fallback.jpg";
+    };
 
     const songDom = document.createElement("div");
     songDom.classList.add("player-mobile-song-name");
-    songDom.textContent = "song";
 
     const artistDom = document.createElement("div");
     artistDom.classList.add("player-mobile-artist-name");
-    artistDom.textContent = "artist";
 
     const playbackControllerDom = document.createElement("div");
     playbackControllerDom.classList.add("player-mobile-playback-controller");
@@ -710,24 +774,96 @@ export class AudioController {
   };
 
   private resetPlayerDom = () => {
-    const icon = this.playBtn.children[0];
+    const durationDom = document.querySelector(".player-duration");
+    const currenttimeDom = document.querySelector(".player-currenttime");
+    const playBtn = document.querySelector(
+      ".player-special-btn"
+    ) as HTMLButtonElement;
+
+    const icon = playBtn.children[0];
     icon.classList.add("ri-pause-fill");
     icon.classList.remove("ri-play-fill");
 
     this.isLoading = true;
     this.audio.src = "";
-    this.durationDom.textContent = "00:00";
-    this.currenttimeDom.textContent = "00:00";
+
+    if (durationDom) {
+      durationDom.textContent = "00:00";
+    }
+    if (currenttimeDom) {
+      currenttimeDom.textContent = "00:00";
+    }
 
     if (!this.queue.length) {
+      const nameAnchorDom = document.querySelector(
+        "a.player-song-name"
+      ) as HTMLAnchorElement;
+      const nameDivDom = document.querySelector("div.player-song-name");
+      const thumbnailDom = document.querySelector(
+        ".player-thumbnail"
+      ) as HTMLImageElement;
+
       this.audio.removeAttribute("src"); // Removes the src attribute completely
       this.audio.load(); // Reloads the element without a source
-      this.thumbnailDom.src = "fallback.jpg";
-      this.nameAnchorDom.textContent = "";
-      this.nameDivDom.textContent = "";
+      if (thumbnailDom) {
+        thumbnailDom.src = "fallback.jpg";
+      }
+      if (nameAnchorDom) {
+        nameAnchorDom.textContent = "";
+      }
+      if (nameDivDom) {
+        nameDivDom.textContent = "";
+      }
     }
 
     this.togglePlayerDomDisability();
+  };
+
+  private resetPlayerDomMobile = () => {
+    const durationDomMobile = document.querySelector(".player-mobile-duration");
+    const currenttimeDomMobile = document.querySelector(
+      ".player-mobile-currenttime"
+    );
+    const playBtnMobile = document.querySelector(
+      ".player-mobile-special-btn"
+    ) as HTMLButtonElement;
+
+    const icon = playBtnMobile.children[0];
+    icon.classList.add("ri-pause-fill");
+    icon.classList.remove("ri-play-fill");
+
+    this.isLoading = true;
+    this.audio.src = "";
+
+    if (durationDomMobile) {
+      durationDomMobile.textContent = "00:00";
+    }
+    if (currenttimeDomMobile) {
+      currenttimeDomMobile.textContent = "00:00";
+    }
+
+    if (!this.queue.length) {
+      const nameDomMobile = document.querySelector(".player-mobile-song-name");
+      const artistDomMobile = document.querySelector(
+        ".player-mobile-artist-name"
+      );
+      const thumbnailDomMobile = document.querySelector(
+        ".player-mobile-thumbnail"
+      ) as HTMLImageElement;
+
+      this.audio.removeAttribute("src"); // Removes the src attribute completely
+      this.audio.load(); // Reloads the element without a source
+      if (thumbnailDomMobile) {
+        thumbnailDomMobile.src = "fallback.jpg";
+      }
+      if (nameDomMobile) {
+        nameDomMobile.textContent = "";
+      }
+      if (artistDomMobile) {
+        artistDomMobile.textContent = "";
+      }
+    }
+
     this.togglePlayerDomDisabilityMobile();
   };
 
@@ -739,6 +875,7 @@ export class AudioController {
 
     const _handleClickQueuePlaySong = () => {
       this.resetPlayerDom();
+      this.resetPlayerDomMobile();
       this.currentOrder = parseInt(itemDom.id);
       this.playSong(this.queue[parseInt(itemDom.id)]);
       this.updateCurrentPlayingSong();
@@ -930,6 +1067,7 @@ export class AudioController {
 
         // Reset the player (since no songs are left)
         this.resetPlayerDom();
+        this.resetPlayerDomMobile();
       } else {
         // Handle other cases
 
@@ -1041,5 +1179,6 @@ export class AudioController {
     this.currentOrder = 0;
     this.queue = [];
     this.resetPlayerDom();
+    this.resetPlayerDomMobile();
   };
 }

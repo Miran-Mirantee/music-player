@@ -296,6 +296,10 @@ body {
   flex-grow: 1;
 }
 
+.player-seek-bar:disabled {
+  cursor: not-allowed;
+}
+
 .player-bottom-panel {
   display: flex;
   position: relative;
@@ -549,6 +553,10 @@ div.player-song-name {
   height: 48px;
   margin-top: auto;
   background-color: var(--secondary-color);
+}
+
+.player-mobile-common-btn.enable:has(.ri-loop-right-fill) {
+  animation: rotateClockwise 2s linear infinite;
 }
 
 .column-icon-btn {
