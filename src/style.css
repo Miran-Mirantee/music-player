@@ -501,6 +501,10 @@ div.player-song-name {
   top: 0;
 }
 
+.player-mobile-thumbnail-overlay.hidden {
+  display: none;
+}
+
 .player-mobile-thumbnail-overlay > .ri-loader-4-line {
   font-size: 36px;
   color: white;

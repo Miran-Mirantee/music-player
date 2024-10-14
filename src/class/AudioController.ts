@@ -7,6 +7,7 @@ import toast from "../components/toast";
 export class AudioController {
   private queueContainer: HTMLDivElement;
   private togglePlayerDomDisability: () => void;
+  private togglePlayerDomDisabilityMobile: () => void;
   private currentOrder: number = 0;
   private audio: HTMLAudioElement;
   private currenttimeDom: HTMLSpanElement;
@@ -87,6 +88,15 @@ export class AudioController {
     this.audio = new Audio();
 
     this.audio.addEventListener("loadstart", () => {
+      const nameDomMobile = document.querySelector(".player-mobile-song-name");
+      const artistDomMobile = document.querySelector(
+        ".player-mobile-artist-name"
+      );
+      const thumbnailDomMobile = document.querySelector(
+        ".player-mobile-thumbnail"
+      ) as HTMLImageElement;
+      const overlayMobile = thumbnailDomMobile.nextSibling as HTMLElement;
+
       this.thumbnailDom.src = this.queue[this.currentOrder].thumbnail;
       this.nameAnchorDom.textContent = this.queue[this.currentOrder].name;
       this.nameDivDom.textContent = this.queue[this.currentOrder].name;
@@ -95,23 +105,62 @@ export class AudioController {
       }`;
       const overlay = this.thumbnailDom.nextSibling as HTMLElement;
       overlay.classList.remove("hidden");
+
+      if (nameDomMobile) {
+        nameDomMobile.textContent = this.queue[this.currentOrder].name;
+      }
+      if (artistDomMobile) {
+        artistDomMobile.textContent = this.queue[this.currentOrder].artist;
+      }
+      if (thumbnailDomMobile) {
+        thumbnailDomMobile.src = this.queue[this.currentOrder].thumbnail;
+        overlayMobile.classList.remove("hidden");
+      }
     });
 
     this.audio.addEventListener("loadedmetadata", () => {
       this.isLoading = false;
       const duration = this.audio.duration;
       this.durationDom.textContent = formatTime(duration);
-      this.togglePlayerDomDisability();
       const overlay = this.thumbnailDom.nextSibling as HTMLElement;
       overlay.classList.add("hidden");
+
+      const durationDomMobile = document.querySelector(
+        ".player-mobile-duration"
+      );
+      const overlayMobile = document.querySelector(
+        ".player-mobile-thumbnail-overlay"
+      );
+      if (durationDomMobile) {
+        durationDomMobile.textContent = formatTime(duration);
+      }
+      if (overlayMobile) {
+        overlayMobile.classList.add("hidden");
+      }
+
+      this.togglePlayerDomDisability();
+      this.togglePlayerDomDisabilityMobile();
     });
 
     this.audio.addEventListener("timeupdate", () => {
+      const currentTimeDomMobile = document.querySelector(
+        ".player-mobile-current-time"
+      );
+      const seekBarMobile = document.querySelector(
+        ".player-mobile-seek-bar"
+      ) as HTMLInputElement;
       this.currenttimeDom.textContent = formatTime(this.audio.currentTime);
+      if (currentTimeDomMobile) {
+        currentTimeDomMobile.textContent = formatTime(this.audio.currentTime);
+      }
       if (this.audio.duration) {
-        this.seekBar.value = (
+        const currentTime = (
           this.audio.currentTime / this.audio.duration
         ).toString();
+        this.seekBar.value = currentTime;
+        if (seekBarMobile) {
+          seekBarMobile.value = currentTime;
+        }
       }
     });
 
@@ -124,13 +173,17 @@ export class AudioController {
     this.audio.addEventListener("emptied", () => {
       this.seekBar.value = "0";
       this.togglePlayerDomDisability();
+      this.togglePlayerDomDisabilityMobile();
     });
 
     const { newPlayerDom, togglePlayerDomDisability } = this.createPlayerDom();
     this.togglePlayerDomDisability = togglePlayerDomDisability;
     this.playerDom = newPlayerDom;
 
-    this.playerDomMobile = this.createPlayerDomMobile();
+    const { newPlayerDomMobile, togglePlayerDomDisabilityMobile } =
+      this.createPlayerDomMobile();
+    this.togglePlayerDomDisabilityMobile = togglePlayerDomDisabilityMobile;
+    this.playerDomMobile = newPlayerDomMobile;
 
     const { newQueueDom, container } = this.createQueueDom();
     this.queueDom = newQueueDom;
@@ -447,7 +500,6 @@ export class AudioController {
     const shuffleBtnIcon = document.createElement("i");
     shuffleBtnIcon.classList.add("ri-shuffle-fill");
     shuffleBtn.append(shuffleBtnIcon);
-
     shuffleBtn.addEventListener("click", this.throttledShuffleSong);
 
     const thumbnailWrapper = document.createElement("div");
@@ -479,16 +531,35 @@ export class AudioController {
   };
 
   private createPlayerDomMobile = () => {
-    const newPlayerDom = document.createElement("div");
-    newPlayerDom.classList.add("player-mobile", "hidden");
+    const togglePlayerDomDisabilityMobile = () => {
+      prevSongBtn.disabled = this.queue.length ? false : this.isLoading;
+      prevSongBtn.ariaDisabled = this.isLoading.toString();
+
+      nextSongBtn.disabled = this.queue.length ? false : this.isLoading;
+      nextSongBtn.ariaDisabled = this.isLoading.toString();
+
+      shuffleBtn.disabled = this.queue.length ? false : this.isLoading;
+      shuffleBtn.ariaDisabled = this.isLoading.toString();
+
+      playBtn.disabled = this.isLoading;
+      playBtn.ariaDisabled = this.isLoading.toString();
+
+      seekBarDom.disabled = this.isLoading;
+      seekBarDom.ariaDisabled = this.isLoading.toString();
+    };
+
+    const newPlayerDomMobile = document.createElement("div");
+    newPlayerDomMobile.classList.add("player-mobile", "hidden");
 
     const backBtn = document.createElement("button");
     backBtn.classList.add("player-mobile-back-btn", "player-mobile-common-btn");
     const backBtnIcon = document.createElement("i");
     backBtnIcon.classList.add("ri-arrow-down-s-line");
     backBtn.append(backBtnIcon);
+    backBtn.ariaLabel = "Back";
+    backBtn.title = "Back";
     backBtn.addEventListener("click", () => {
-      newPlayerDom.classList.toggle("hidden");
+      newPlayerDomMobile.classList.toggle("hidden");
     });
 
     const thumbnailWrapper = document.createElement("div");
@@ -519,7 +590,19 @@ export class AudioController {
 
     const seekBarDom = document.createElement("input");
     seekBarDom.classList.add("player-mobile-seek-bar");
+    seekBarDom.ariaLabel = "Seek bar";
+    seekBarDom.title = "Seek bar";
+    seekBarDom.min = "0";
+    seekBarDom.max = "1";
+    seekBarDom.step = "0.001";
+    seekBarDom.value = "0";
     seekBarDom.type = "range";
+    seekBarDom.disabled = this.isLoading;
+    seekBarDom.ariaDisabled = this.isLoading.toString();
+    seekBarDom.addEventListener("input", (e: any) => {
+      const seekTo = this.audio.duration * e.target.value;
+      this.audio.currentTime = seekTo;
+    });
 
     const timeWrapper = document.createElement("div");
     timeWrapper.classList.add("player-mobile-time-wrapper");
@@ -543,6 +626,11 @@ export class AudioController {
     const shuffleBtnIcon = document.createElement("i");
     shuffleBtnIcon.classList.add("ri-shuffle-fill");
     shuffleBtn.append(shuffleBtnIcon);
+    shuffleBtn.ariaLabel = "Shuffle";
+    shuffleBtn.title = "Shuffle";
+    shuffleBtn.disabled = this.isLoading;
+    shuffleBtn.ariaDisabled = this.isLoading.toString();
+    shuffleBtn.addEventListener("click", this.throttledShuffleSong);
 
     const btnMiddlePanel = document.createElement("div");
     btnMiddlePanel.classList.add("player-mobile-btn-middle-panel");
@@ -555,6 +643,11 @@ export class AudioController {
     const prevSongBtnIcon = document.createElement("i");
     prevSongBtnIcon.classList.add("ri-skip-back-fill");
     prevSongBtn.append(prevSongBtnIcon);
+    prevSongBtn.ariaLabel = "Previous";
+    prevSongBtn.title = "Previous";
+    prevSongBtn.disabled = this.isLoading;
+    prevSongBtn.ariaDisabled = this.isLoading.toString();
+    prevSongBtn.addEventListener("click", this.throttledPrevSong);
 
     const playBtn = document.createElement("button");
     playBtn.classList.add(
@@ -564,6 +657,11 @@ export class AudioController {
     const playBtnIcon = document.createElement("i");
     playBtnIcon.classList.add("ri-pause-fill");
     playBtn.append(playBtnIcon);
+    playBtn.title = "Play";
+    playBtn.ariaLabel = "Play";
+    playBtn.disabled = this.isLoading;
+    playBtn.ariaDisabled = this.isLoading.toString();
+    playBtn.addEventListener("click", this.playPauseSong);
 
     const nextSongBtn = document.createElement("button");
     nextSongBtn.classList.add(
@@ -573,12 +671,20 @@ export class AudioController {
     const nextSongBtnIcon = document.createElement("i");
     nextSongBtnIcon.classList.add("ri-skip-forward-fill");
     nextSongBtn.append(nextSongBtnIcon);
+    nextSongBtn.ariaLabel = "Next";
+    nextSongBtn.title = "Next";
+    nextSongBtn.disabled = this.isLoading;
+    nextSongBtn.ariaDisabled = this.isLoading.toString();
+    nextSongBtn.addEventListener("click", this.throttledNextSong);
 
     const loopBtn = document.createElement("button");
     loopBtn.classList.add("player-mobile-loop-btn", "player-mobile-common-btn");
     const loopBtnIcon = document.createElement("i");
     loopBtnIcon.classList.add("ri-loop-right-fill");
     loopBtn.append(loopBtnIcon);
+    loopBtn.ariaLabel = "Loop";
+    loopBtn.title = "Loop";
+    loopBtn.addEventListener("click", this.loopSong);
 
     const queueExpandBtn = document.createElement("div");
     queueExpandBtn.classList.add("player-mobile-queue-expand-btn");
@@ -590,7 +696,7 @@ export class AudioController {
     btnMiddlePanel.append(prevSongBtn, playBtn, nextSongBtn);
     thumbnailOverlay.append(loadingIcon);
     thumbnailWrapper.append(thumbnailDom, thumbnailOverlay);
-    newPlayerDom.append(
+    newPlayerDomMobile.append(
       backBtn,
       thumbnailWrapper,
       songDom,
@@ -600,7 +706,7 @@ export class AudioController {
       queueExpandBtn
     );
 
-    return newPlayerDom;
+    return { newPlayerDomMobile, togglePlayerDomDisabilityMobile };
   };
 
   private resetPlayerDom = () => {
@@ -622,6 +728,7 @@ export class AudioController {
     }
 
     this.togglePlayerDomDisability();
+    this.togglePlayerDomDisabilityMobile();
   };
 
   private createQueueItemDom = (song: SongObject) => {
