@@ -468,7 +468,7 @@ div.player-song-name {
   background-color: rgba(0, 0, 0, 0.4);
   top: 0;
   left: 0;
-  display: flex;
+  display: none;
   flex-direction: column;
   align-items: center;
   color: var(--text-color);
@@ -553,6 +553,10 @@ div.player-song-name {
   height: 48px;
   margin-top: auto;
   background-color: var(--secondary-color);
+}
+
+.player-mobile-queue-expand-btn.hidden {
+  display: none;
 }
 
 .player-mobile-common-btn.enable:has(.ri-loop-right-fill) {
@@ -700,6 +704,7 @@ div.player-song-name {
 
 .queue-item {
   display: flex;
+  align-items: center;
   gap: 4px;
   background-color: var(--background-darker-color);
   padding: 8px;
@@ -1267,6 +1272,61 @@ div.player-song-name {
   .column-non-icon-btn {
     font-size: 14px;
     padding: 3px 6px;
+  }
+
+  .player-mobile {
+    display: flex;
+  }
+
+  .queue {
+    bottom: var(--player-height);
+    top: 0;
+    transition: top 0.5s;
+  }
+
+  .queue-song-name {
+    font-size: 1rem;
+  }
+
+  .queue.hidden {
+    left: 0;
+    top: 100%;
+    transition: top 0.5s;
+  }
+
+  .queue-thumbnail {
+    width: 48px;
+    height: 48px;
+  }
+
+  .queue-song-info {
+    height: auto;
+    max-height: 48px;
+  }
+
+  .queue-artist {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .queue-button-panel {
+    gap: 4px;
+    min-width: auto;
+  }
+
+  .queue-remove-btn {
+    height: 24px;
+    width: 24px;
+    font-size: 14px;
+  }
+
+  .queue-duration.hidden {
+    display: block;
+  }
+
+  .queue-remove-btn.hidden {
+    display: block;
   }
 }
 

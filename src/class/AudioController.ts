@@ -161,76 +161,6 @@ export class AudioController {
     this.queueContainer = container;
   }
 
-  public seekBarControl = (code: string) => {
-    const seekBarDom = document.querySelector(
-      ".player-seek-bar"
-    ) as HTMLInputElement;
-
-    const step = 0.5 / this.audio.duration;
-
-    if (!this.audio.src) return;
-
-    if (seekBarDom) {
-      if (code == "ArrowRight") {
-        seekBarDom.value = `${parseFloat(seekBarDom.value) + step}`;
-      }
-      if (code == "ArrowLeft") {
-        seekBarDom.value = `${parseFloat(seekBarDom.value) - step}`;
-      }
-
-      const inputEvent = new Event("input");
-      seekBarDom.dispatchEvent(inputEvent);
-    }
-  };
-
-  public playPauseSong = () => {
-    if (!this.isLoading) {
-      const playBtn = document.querySelector(
-        ".player-special-btn"
-      ) as HTMLButtonElement;
-
-      const playBtnMobile = document.querySelector(
-        ".player-mobile-play-btn"
-      ) as HTMLButtonElement;
-
-      if (this.audio.paused) {
-        const icon = document.querySelector(
-          ".player-special-btn > .ri-play-fill"
-        ) as HTMLElement;
-        const iconMobile = document.querySelector(
-          ".player-mobile-special-btn > .ri-play-fill"
-        ) as HTMLElement;
-
-        this.audio.play();
-        playBtn.ariaLabel = "Play";
-        playBtn.title = "Play";
-        playBtnMobile.ariaLabel = "Play";
-        playBtnMobile.title = "Play";
-        icon.classList.add("ri-pause-fill");
-        icon.classList.remove("ri-play-fill");
-        iconMobile.classList.add("ri-pause-fill");
-        iconMobile.classList.remove("ri-play-fill");
-      } else {
-        const icon = document.querySelector(
-          ".player-special-btn > .ri-pause-fill"
-        ) as HTMLElement;
-        const iconMobile = document.querySelector(
-          ".player-mobile-special-btn > .ri-pause-fill"
-        ) as HTMLElement;
-
-        this.audio.pause();
-        playBtn.ariaLabel = "Pause";
-        playBtn.title = "Pause";
-        playBtnMobile.ariaLabel = "Pause";
-        playBtnMobile.title = "Pause";
-        icon.classList.add("ri-play-fill");
-        icon.classList.remove("ri-pause-fill");
-        iconMobile.classList.add("ri-play-fill");
-        iconMobile.classList.remove("ri-pause-fill");
-      }
-    }
-  };
-
   private nextSong = () => {
     this.resetPlayerDom();
     this.resetPlayerDomMobile();
@@ -243,8 +173,6 @@ export class AudioController {
     this.updateCurrentPlayingSong();
   };
 
-  public throttledNextSong = throttle(this.nextSong, 200);
-
   private prevSong = () => {
     this.resetPlayerDom();
     this.resetPlayerDomMobile();
@@ -256,8 +184,6 @@ export class AudioController {
     this.playSong(this.queue[this.currentOrder]);
     this.updateCurrentPlayingSong();
   };
-
-  public throttledPrevSong = throttle(this.prevSong, 200);
 
   private playSong = async (song: SongObject) => {
     // to prevent error when trying to access a no longer exist song
@@ -296,19 +222,6 @@ export class AudioController {
     }
   };
 
-  public loopSong = () => {
-    const icon = document.querySelector(
-      ".player-common-btn > .ri-loop-right-fill"
-    ) as HTMLButtonElement;
-    const iconMobile = document.querySelector(
-      ".player-mobile-common-btn > .ri-loop-right-fill"
-    ) as HTMLButtonElement;
-
-    icon.parentElement?.classList.toggle("enable");
-    iconMobile.parentElement?.classList.toggle("enable");
-    this.audio.loop = !this.audio.loop;
-  };
-
   private shuffleSong = () => {
     // Step 1: Extract the current song from the array
     const currentSong = this.queue[this.currentOrder];
@@ -334,54 +247,6 @@ export class AudioController {
 
     this.updateQueueDom();
     toast("Shuffled", 3000);
-  };
-
-  public throttledShuffleSong = throttle(this.shuffleSong, 300);
-
-  public volumeControl = (keycode: string) => {
-    const volumeInput = document.querySelector(
-      ".player-volume-bar > input"
-    ) as HTMLInputElement;
-    if (keycode == "ArrowUp") {
-      volumeInput.value = `${parseFloat(volumeInput.value) + 0.05}`;
-    }
-    if (keycode == "ArrowDown") {
-      volumeInput.value = `${parseFloat(volumeInput.value) - 0.05}`;
-    }
-
-    const inputEvent = new Event("input");
-    volumeInput.dispatchEvent(inputEvent);
-  };
-
-  public toggleMuteSong = () => {
-    const volumeInput = document.querySelector(
-      ".player-volume-bar > input"
-    ) as HTMLInputElement;
-
-    const volumeBtnIcon =
-      document.querySelector(".player-common-btn > .ri-volume-up-fill") ||
-      (document.querySelector(
-        ".player-common-btn > .ri-volume-mute-fill"
-      ) as HTMLElement);
-
-    if (!volumeInput) return;
-
-    if (this.audio.volume != 0) {
-      this.audio.volume = 0;
-      volumeInput.value = "0";
-      volumeBtnIcon.classList.remove("ri-volume-up-fill");
-      volumeBtnIcon.classList.add("ri-volume-mute-fill");
-    } else if (this.audio.volume == 0 && this.prevVolume == 0) {
-      this.audio.volume = 0.01;
-      this.prevVolume = 0.01;
-      volumeBtnIcon.classList.remove("ri-volume-mute-fill");
-      volumeBtnIcon.classList.add("ri-volume-up-fill");
-    } else {
-      this.audio.volume = this.prevVolume;
-      volumeInput.value = this.prevVolume.toString();
-      volumeBtnIcon.classList.remove("ri-volume-mute-fill");
-      volumeBtnIcon.classList.add("ri-volume-up-fill");
-    }
   };
 
   private createPlayerDom = () => {
@@ -444,7 +309,13 @@ export class AudioController {
     leftBottomPanel.addEventListener("click", () => {
       const width = window.innerWidth;
       if (width <= this.maxMobileWidth) {
-        this.playerDomMobile.classList.toggle("hidden");
+        const queueDom = document.querySelector(".queue.hidden");
+
+        if (!queueDom) {
+          this.toggleExpandQueue();
+        }
+
+        this.playerDomMobile.classList.remove("hidden");
       }
     });
 
@@ -752,6 +623,10 @@ export class AudioController {
 
     const queueExpandBtn = document.createElement("div");
     queueExpandBtn.classList.add("player-mobile-queue-expand-btn");
+    queueExpandBtn.addEventListener("click", () => {
+      this.toggleExpandQueue();
+      newPlayerDomMobile.classList.add("hidden");
+    });
 
     seekBarwrapper.append(seekBarDom);
     playbackControllerDom.append(seekBarwrapper, timeWrapper);
@@ -881,20 +756,24 @@ export class AudioController {
       this.updateCurrentPlayingSong();
     };
 
-    const _mousemoveEvent = (e: MouseEvent) => {
+    const _mousemoveEvent = (e: MouseEvent | TouchEvent) => {
+      const clientY =
+        e instanceof MouseEvent
+          ? e.clientY
+          : Math.round(e.changedTouches[0].clientY);
       if (isDragging) {
-        offsetY = e.clientY - initialY;
+        offsetY = clientY - initialY;
 
         const draggingItemRect = itemDom.getBoundingClientRect();
         const queueDomRect = this.queueDom.getBoundingClientRect();
 
         const scrollTop = this.queueContainer.scrollTop;
-        const adjustedClientY = e.clientY + scrollTop;
+        const adjustedClientY = clientY + scrollTop;
 
         // check if draggin item is in the container
         if (
-          e.clientY - queueDomRect.top > draggingItemRect.height / 2 &&
-          e.clientY - queueDomRect.top <
+          clientY - queueDomRect.top > draggingItemRect.height / 2 &&
+          clientY - queueDomRect.top <
             queueDomRect.height - draggingItemRect.height / 2
         ) {
           itemDom.style.transform = `translateY(${offsetY}px)`;
@@ -917,7 +796,7 @@ export class AudioController {
         // Swapping if the last nextSibling is different
         if (prevSibling != nextSibling) {
           offsetY = 0;
-          initialY = e.clientY;
+          initialY = clientY;
           itemDom.style.transform = `translateY(${offsetY}px)`;
 
           this.queueContainer.insertBefore(itemDom, nextSibling);
@@ -987,13 +866,25 @@ export class AudioController {
     };
 
     const _addEventListenerToDocument = () => {
-      document.addEventListener("mousemove", _mousemoveEvent);
-      document.addEventListener("mouseup", _mouseupEvent);
+      const width = window.innerWidth;
+      if (width <= this.maxMobileWidth) {
+        document.addEventListener("touchmove", _mousemoveEvent);
+        document.addEventListener("touchend", _mouseupEvent);
+      } else {
+        document.addEventListener("mousemove", _mousemoveEvent);
+        document.addEventListener("mouseup", _mouseupEvent);
+      }
     };
 
     const _removeEventListenerFromDocument = () => {
-      document.removeEventListener("mousemove", _mousemoveEvent);
-      document.removeEventListener("mouseup", _mouseupEvent);
+      const width = window.innerWidth;
+      if (width <= this.maxMobileWidth) {
+        document.removeEventListener("touchmove", _mousemoveEvent);
+        document.removeEventListener("touchend", _mouseupEvent);
+      } else {
+        document.removeEventListener("mousemove", _mousemoveEvent);
+        document.removeEventListener("mouseup", _mouseupEvent);
+      }
     };
 
     const itemDom = document.createElement("div");
@@ -1003,6 +894,15 @@ export class AudioController {
       _addEventListenerToDocument();
       isDragging = true;
       initialY = e.clientY;
+      offsetY = 0;
+      itemDom.classList.add("dragging");
+    });
+
+    itemDom.addEventListener("touchstart", (e) => {
+      const clientY = Math.round(e.changedTouches[0].clientY);
+      _addEventListenerToDocument();
+      isDragging = true;
+      initialY = clientY;
       offsetY = 0;
       itemDom.classList.add("dragging");
     });
@@ -1097,14 +997,9 @@ export class AudioController {
     itemDom.append(thumbnailDom, songInfoDom, buttonPanel);
     songInfoDom.append(songNameDom, btmInfoDom);
     btmInfoDom.append(artistDom);
-    buttonPanel.append(removeBtn, durationDom);
+    buttonPanel.append(durationDom, removeBtn);
 
     return itemDom;
-  };
-
-  public toggleExpandQueue = () => {
-    const queueDom = document.querySelector(".queue");
-    queueDom?.classList.toggle("hidden");
   };
 
   private createQueueDom = () => {
@@ -1180,5 +1075,150 @@ export class AudioController {
     this.queue = [];
     this.resetPlayerDom();
     this.resetPlayerDomMobile();
+  };
+
+  public seekBarControl = (code: string) => {
+    const seekBarDom = document.querySelector(
+      ".player-seek-bar"
+    ) as HTMLInputElement;
+
+    const step = 0.5 / this.audio.duration;
+
+    if (!this.audio.src) return;
+
+    if (seekBarDom) {
+      if (code == "ArrowRight") {
+        seekBarDom.value = `${parseFloat(seekBarDom.value) + step}`;
+      }
+      if (code == "ArrowLeft") {
+        seekBarDom.value = `${parseFloat(seekBarDom.value) - step}`;
+      }
+
+      const inputEvent = new Event("input");
+      seekBarDom.dispatchEvent(inputEvent);
+    }
+  };
+
+  public playPauseSong = () => {
+    if (!this.isLoading) {
+      const playBtn = document.querySelector(
+        ".player-special-btn"
+      ) as HTMLButtonElement;
+
+      const playBtnMobile = document.querySelector(
+        ".player-mobile-play-btn"
+      ) as HTMLButtonElement;
+
+      if (this.audio.paused) {
+        const icon = document.querySelector(
+          ".player-special-btn > .ri-play-fill"
+        ) as HTMLElement;
+        const iconMobile = document.querySelector(
+          ".player-mobile-special-btn > .ri-play-fill"
+        ) as HTMLElement;
+
+        this.audio.play();
+        playBtn.ariaLabel = "Play";
+        playBtn.title = "Play";
+        playBtnMobile.ariaLabel = "Play";
+        playBtnMobile.title = "Play";
+        icon.classList.add("ri-pause-fill");
+        icon.classList.remove("ri-play-fill");
+        iconMobile.classList.add("ri-pause-fill");
+        iconMobile.classList.remove("ri-play-fill");
+      } else {
+        const icon = document.querySelector(
+          ".player-special-btn > .ri-pause-fill"
+        ) as HTMLElement;
+        const iconMobile = document.querySelector(
+          ".player-mobile-special-btn > .ri-pause-fill"
+        ) as HTMLElement;
+
+        this.audio.pause();
+        playBtn.ariaLabel = "Pause";
+        playBtn.title = "Pause";
+        playBtnMobile.ariaLabel = "Pause";
+        playBtnMobile.title = "Pause";
+        icon.classList.add("ri-play-fill");
+        icon.classList.remove("ri-pause-fill");
+        iconMobile.classList.add("ri-play-fill");
+        iconMobile.classList.remove("ri-pause-fill");
+      }
+    }
+  };
+
+  public throttledNextSong = throttle(this.nextSong, 200);
+
+  public throttledPrevSong = throttle(this.prevSong, 200);
+
+  public loopSong = () => {
+    const icon = document.querySelector(
+      ".player-common-btn > .ri-loop-right-fill"
+    ) as HTMLButtonElement;
+    const iconMobile = document.querySelector(
+      ".player-mobile-common-btn > .ri-loop-right-fill"
+    ) as HTMLButtonElement;
+
+    icon.parentElement?.classList.toggle("enable");
+    iconMobile.parentElement?.classList.toggle("enable");
+    this.audio.loop = !this.audio.loop;
+  };
+
+  public throttledShuffleSong = throttle(this.shuffleSong, 300);
+
+  public volumeControl = (keycode: string) => {
+    const volumeInput = document.querySelector(
+      ".player-volume-bar > input"
+    ) as HTMLInputElement;
+    if (keycode == "ArrowUp") {
+      volumeInput.value = `${parseFloat(volumeInput.value) + 0.05}`;
+    }
+    if (keycode == "ArrowDown") {
+      volumeInput.value = `${parseFloat(volumeInput.value) - 0.05}`;
+    }
+
+    const inputEvent = new Event("input");
+    volumeInput.dispatchEvent(inputEvent);
+  };
+
+  public toggleMuteSong = () => {
+    const volumeInput = document.querySelector(
+      ".player-volume-bar > input"
+    ) as HTMLInputElement;
+
+    const volumeBtnIcon =
+      document.querySelector(".player-common-btn > .ri-volume-up-fill") ||
+      (document.querySelector(
+        ".player-common-btn > .ri-volume-mute-fill"
+      ) as HTMLElement);
+
+    if (!volumeInput) return;
+
+    if (this.audio.volume != 0) {
+      this.audio.volume = 0;
+      volumeInput.value = "0";
+      volumeBtnIcon.classList.remove("ri-volume-up-fill");
+      volumeBtnIcon.classList.add("ri-volume-mute-fill");
+    } else if (this.audio.volume == 0 && this.prevVolume == 0) {
+      this.audio.volume = 0.01;
+      this.prevVolume = 0.01;
+      volumeBtnIcon.classList.remove("ri-volume-mute-fill");
+      volumeBtnIcon.classList.add("ri-volume-up-fill");
+    } else {
+      this.audio.volume = this.prevVolume;
+      volumeInput.value = this.prevVolume.toString();
+      volumeBtnIcon.classList.remove("ri-volume-mute-fill");
+      volumeBtnIcon.classList.add("ri-volume-up-fill");
+    }
+  };
+
+  public toggleExpandQueue = () => {
+    const queueDom = document.querySelector(".queue");
+    queueDom?.classList.toggle("hidden");
+    const queueExpandBtnMobile = document.querySelector(
+      ".player-mobile-queue-expand-btn"
+    );
+    queueExpandBtnMobile?.classList.toggle("hidden");
+    this.playerDomMobile.classList.add("hidden");
   };
 }
