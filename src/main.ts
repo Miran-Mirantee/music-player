@@ -38,12 +38,12 @@ import throttle from "./utils/throttle";
  * BUGS:
  *  - Thumbnail doesn't always load (too many requests)
  *  - Need to do something about long video (either hide a long video or implement streaming)
- *  - Hotkeys activate when type in search field
  */
 
 const state = {
   currentSearchType: "song",
   myPlaylists: [] as MyPlaylist[],
+  isTyping: false,
 };
 
 (() => {
@@ -200,6 +200,7 @@ const handleOpenSearchColumn = () => {
     myPlaylistBtn.classList.add("hidden", "mobile");
   }
   columnDom.classList.remove("hidden");
+  state.isTyping = true;
 };
 
 const handleOpenHotkeysMenu = () => {
@@ -600,6 +601,9 @@ inputDom.id = "search-field";
 inputDom.placeholder = "search";
 inputDom.autocomplete = "off";
 inputDom.addEventListener("focus", handleOpenSearchColumn);
+inputDom.addEventListener("focusout", () => {
+  state.isTyping = false;
+});
 inputDom.addEventListener("input", (e) => {
   const target = e.target as HTMLInputElement;
   if (target.value) {
@@ -709,6 +713,7 @@ const loadingIcon = document.createElement("i");
 loadingIcon.classList.add("ri-loader-4-fill");
 
 document.addEventListener("keydown", (event) => {
+  if (state.isTyping) return;
   if (audioController.queue.length) {
     if (event.code == "KeyP") {
       audioController.playPauseSong();
