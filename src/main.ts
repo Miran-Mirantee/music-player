@@ -23,7 +23,6 @@ import throttle from "./utils/throttle";
  *  - Where did we store music after we loaded? (biggest mystery)
  *  - Create a better UI
  *    - Using Three.js
- *  - Add responsiveness
  *
  *  - Display lyrics (optional, but reeeeeaally wanna do it)
  *  - Get search result from youtube (search by name)

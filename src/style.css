@@ -1123,7 +1123,7 @@ div.player-song-name {
 }
 
 .toast {
-  position: absolute;
+  position: fixed;
   display: flex;
   align-items: center;
   gap: 8px;
