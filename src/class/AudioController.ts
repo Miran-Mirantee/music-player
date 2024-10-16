@@ -8,11 +8,13 @@ export class AudioController {
   private queueContainer: HTMLDivElement;
   private togglePlayerDomDisability: () => void;
   private togglePlayerDomDisabilityMobile: () => void;
+  private toggleMiniPlayerDomDisability: () => void;
   private currentOrder: number = 0;
   private audio: HTMLAudioElement;
   private prevVolume: number = 0.1;
   private isLoading: boolean = true;
   private maxMobileWidth: number = 767;
+  private miniPlayerDom: HTMLDivElement;
 
   public queue: SongObject[] = [];
   public playerDom: HTMLDivElement;
@@ -31,6 +33,7 @@ export class AudioController {
         ".player-mobile-thumbnail"
       ) as HTMLImageElement;
       const overlayMobile = thumbnailDomMobile.nextSibling as HTMLElement;
+
       const nameAnchorDom = document.querySelector(
         "a.player-song-name"
       ) as HTMLAnchorElement;
@@ -38,9 +41,22 @@ export class AudioController {
       const thumbnailDom = document.querySelector(
         ".player-thumbnail"
       ) as HTMLImageElement;
+      const overlay = thumbnailDom.nextSibling as HTMLElement;
+
+      const miniNameDom = document.querySelector(
+        ".queue-mini-player-song-name"
+      );
+      const miniArtistDom = document.querySelector(
+        ".queue-mini-player-artist-name"
+      );
+      const miniThumbnailDom = document.querySelector(
+        ".queue-mini-player-left-panel > .player-thumbnail-wrapper > .player-thumbnail"
+      ) as HTMLImageElement;
+      const miniOverlay = miniThumbnailDom.nextSibling as HTMLElement;
 
       if (thumbnailDom) {
         thumbnailDom.src = this.queue[this.currentOrder].thumbnail;
+        overlay.classList.remove("hidden");
       }
 
       if (nameAnchorDom) {
@@ -53,9 +69,6 @@ export class AudioController {
         nameDivDom.textContent = this.queue[this.currentOrder].name;
       }
 
-      const overlay = thumbnailDom.nextSibling as HTMLElement;
-      overlay.classList.remove("hidden");
-
       if (nameDomMobile) {
         nameDomMobile.textContent = this.queue[this.currentOrder].name;
       }
@@ -66,20 +79,37 @@ export class AudioController {
         thumbnailDomMobile.src = this.queue[this.currentOrder].thumbnail;
         overlayMobile.classList.remove("hidden");
       }
+
+      if (miniNameDom) {
+        miniNameDom.textContent = this.queue[this.currentOrder].name;
+      }
+      if (miniArtistDom) {
+        miniArtistDom.textContent = this.queue[this.currentOrder].artist;
+      }
+      if (miniThumbnailDom) {
+        miniThumbnailDom.src = this.queue[this.currentOrder].thumbnail;
+        miniOverlay.classList.remove("hidden");
+      }
     });
 
     this.audio.addEventListener("loadedmetadata", () => {
       const durationDom = document.querySelector(".player-duration");
-      const thumbnailDom = document.querySelector(
-        ".player-thumbnail"
-      ) as HTMLImageElement;
-      const overlay = thumbnailDom.nextSibling as HTMLElement;
       const durationDomMobile = document.querySelector(
         ".player-mobile-duration"
       );
+      const durationSeekBarDom = document.querySelector(
+        ".player-duration-seek-bar"
+      );
+      const overlay = document.querySelector(
+        ".player-left-panel > .player-thumbnail-wrapper > .player-thumbnail-overlay"
+      ) as HTMLElement;
       const overlayMobile = document.querySelector(
         ".player-mobile-thumbnail-overlay"
-      );
+      ) as HTMLElement;
+      const miniOverlay = document.querySelector(
+        ".queue-mini-player-left-panel > .player-thumbnail-wrapper > .player-thumbnail-overlay"
+      ) as HTMLElement;
+
       const duration = this.audio.duration;
       this.isLoading = false;
 
@@ -91,12 +121,17 @@ export class AudioController {
       if (durationDomMobile) {
         durationDomMobile.textContent = formatTime(duration);
       }
-      if (overlayMobile) {
-        overlayMobile.classList.add("hidden");
+      overlayMobile.classList.add("hidden");
+
+      miniOverlay.classList.add("hidden");
+
+      if (durationSeekBarDom) {
+        durationSeekBarDom.textContent = formatTime(duration);
       }
 
       this.togglePlayerDomDisability();
       this.togglePlayerDomDisabilityMobile();
+      this.toggleMiniPlayerDomDisability();
     });
 
     this.audio.addEventListener("timeupdate", () => {
@@ -110,6 +145,9 @@ export class AudioController {
       const seekBarDomMobile = document.querySelector(
         ".player-mobile-seek-bar"
       ) as HTMLInputElement;
+      const currentTimeSeekBarDom = document.querySelector(
+        ".player-currenttime-seek-bar"
+      );
 
       if (currenttimeDom) {
         currenttimeDom.textContent = formatTime(this.audio.currentTime);
@@ -117,6 +155,10 @@ export class AudioController {
       if (currentTimeDomMobile) {
         currentTimeDomMobile.textContent = formatTime(this.audio.currentTime);
       }
+      if (currentTimeSeekBarDom) {
+        currentTimeSeekBarDom.textContent = formatTime(this.audio.currentTime);
+      }
+
       if (this.audio.duration) {
         const currentTime = (
           this.audio.currentTime / this.audio.duration
@@ -145,6 +187,7 @@ export class AudioController {
       }
       this.togglePlayerDomDisability();
       this.togglePlayerDomDisabilityMobile();
+      this.toggleMiniPlayerDomDisability();
     });
 
     const { newPlayerDom, togglePlayerDomDisability } = this.createPlayerDom();
@@ -156,14 +199,19 @@ export class AudioController {
     this.togglePlayerDomDisabilityMobile = togglePlayerDomDisabilityMobile;
     this.playerDomMobile = newPlayerDomMobile;
 
+    const { newMiniPlayerDom, toggleMiniPlayerDomDisability } =
+      this.createMiniPlayerDom();
+    this.toggleMiniPlayerDomDisability = toggleMiniPlayerDomDisability;
+    this.miniPlayerDom = newMiniPlayerDom;
+
     const { newQueueDom, container } = this.createQueueDom();
     this.queueDom = newQueueDom;
     this.queueContainer = container;
   }
 
   private nextSong = () => {
-    this.resetPlayerDom();
-    this.resetPlayerDomMobile();
+    this.resetPlayerDomByWidth();
+
     if (this.queue.length == this.currentOrder + 1) {
       this.currentOrder = 0;
     } else {
@@ -174,8 +222,8 @@ export class AudioController {
   };
 
   private prevSong = () => {
-    this.resetPlayerDom();
-    this.resetPlayerDomMobile();
+    this.resetPlayerDomByWidth();
+
     if (this.currentOrder == 0) {
       this.currentOrder = this.queue.length - 1;
     } else {
@@ -272,6 +320,14 @@ export class AudioController {
 
     const topPanel = document.createElement("div");
     topPanel.classList.add("player-top-panel");
+
+    const currenttimeSeekBarDom = document.createElement("span");
+    currenttimeSeekBarDom.classList.add("player-currenttime-seek-bar");
+    currenttimeSeekBarDom.textContent = "00:00";
+
+    const durationSeekBarDom = document.createElement("span");
+    durationSeekBarDom.classList.add("player-duration-seek-bar");
+    durationSeekBarDom.textContent = "00:00";
 
     const seekBarDom = document.createElement("input");
     seekBarDom.classList.add("player-seek-bar");
@@ -447,7 +503,7 @@ export class AudioController {
     thumbnailOverlay.append(loadingIcon);
     thumbnailWrapper.append(thumbnailDom, thumbnailOverlay);
     newPlayerDom.append(topPanel, bottomPanel);
-    topPanel.append(seekBarDom);
+    topPanel.append(currenttimeSeekBarDom, seekBarDom, durationSeekBarDom);
     timeDom.append(currenttimeDom, " / ", durationDom);
     bottomPanel.append(leftBottomPanel, middleBottomPanel, rightBottomPanel);
     leftBottomPanel.append(thumbnailWrapper, nameAnchorDom, nameDivDom);
@@ -623,10 +679,10 @@ export class AudioController {
 
     const queueExpandBtn = document.createElement("div");
     queueExpandBtn.classList.add("player-mobile-queue-expand-btn");
-    queueExpandBtn.addEventListener("click", () => {
-      this.toggleExpandQueue();
-      newPlayerDomMobile.classList.add("hidden");
-    });
+    const queueExpandBtnIcon = document.createElement("i");
+    queueExpandBtnIcon.classList.add("ri-play-list-2-fill");
+    queueExpandBtn.append(queueExpandBtnIcon);
+    queueExpandBtn.addEventListener("click", this.toggleExpandQueue);
 
     seekBarwrapper.append(seekBarDom);
     playbackControllerDom.append(seekBarwrapper, timeWrapper);
@@ -648,9 +704,113 @@ export class AudioController {
     return { newPlayerDomMobile, togglePlayerDomDisabilityMobile };
   };
 
+  private createMiniPlayerDom = () => {
+    const toggleMiniPlayerDomDisability = () => {
+      prevSongBtn.disabled = this.queue.length ? false : this.isLoading;
+      prevSongBtn.ariaDisabled = this.isLoading.toString();
+
+      nextSongBtn.disabled = this.queue.length ? false : this.isLoading;
+      nextSongBtn.ariaDisabled = this.isLoading.toString();
+
+      playBtn.disabled = this.isLoading;
+      playBtn.ariaDisabled = this.isLoading.toString();
+    };
+
+    const newMiniPlayerDom = document.createElement("div");
+    newMiniPlayerDom.classList.add("queue-mini-player");
+
+    const leftPanel = document.createElement("div");
+    leftPanel.classList.add("queue-mini-player-left-panel");
+    leftPanel.addEventListener("click", () => {
+      this.toggleExpandQueue();
+    });
+
+    const thumbnailWrapper = document.createElement("div");
+    thumbnailWrapper.classList.add("player-thumbnail-wrapper");
+
+    const thumbnailOverlay = document.createElement("div");
+    thumbnailOverlay.classList.add("player-thumbnail-overlay", "hidden");
+
+    const loadingIcon = document.createElement("i");
+    loadingIcon.classList.add("ri-loader-4-line");
+
+    const thumbnailDom = document.createElement("img");
+    thumbnailDom.classList.add("player-thumbnail");
+    thumbnailDom.draggable = false;
+    thumbnailDom.alt = "Song thumbnail";
+    thumbnailDom.ariaLabel = "Song thumbnail";
+    thumbnailDom.src = "fallback.jpg";
+
+    thumbnailDom.onerror = () => {
+      thumbnailDom.src = "fallback.jpg";
+    };
+
+    const nameDom = document.createElement("div");
+    nameDom.classList.add("queue-mini-player-song-name");
+
+    const btnPanel = document.createElement("div");
+    btnPanel.classList.add("queue-mini-player-btn-panel");
+
+    const prevSongBtn = document.createElement("button");
+    prevSongBtn.classList.add(
+      "queue-mini-player-prev-song-btn",
+      "player-mobile-common-btn"
+    );
+    const prevSongBtnIcon = document.createElement("i");
+    prevSongBtnIcon.classList.add("ri-skip-back-fill");
+    prevSongBtn.append(prevSongBtnIcon);
+    prevSongBtn.ariaLabel = "Previous";
+    prevSongBtn.title = "Previous";
+    prevSongBtn.disabled = this.isLoading;
+    prevSongBtn.ariaDisabled = this.isLoading.toString();
+    prevSongBtn.addEventListener("click", this.throttledPrevSong);
+
+    const playBtn = document.createElement("button");
+    playBtn.classList.add(
+      "queue-mini-player-play-btn",
+      "player-mobile-special-btn"
+    );
+    const playBtnIcon = document.createElement("i");
+    playBtnIcon.classList.add("ri-pause-fill");
+    playBtn.append(playBtnIcon);
+    playBtn.title = "Play";
+    playBtn.ariaLabel = "Play";
+    playBtn.disabled = this.isLoading;
+    playBtn.ariaDisabled = this.isLoading.toString();
+    playBtn.addEventListener("click", this.playPauseSong);
+
+    const nextSongBtn = document.createElement("button");
+    nextSongBtn.classList.add(
+      "queue-mini-player-next-song-btn",
+      "player-mobile-common-btn"
+    );
+    const nextSongBtnIcon = document.createElement("i");
+    nextSongBtnIcon.classList.add("ri-skip-forward-fill");
+    nextSongBtn.append(nextSongBtnIcon);
+    nextSongBtn.ariaLabel = "Next";
+    nextSongBtn.title = "Next";
+    nextSongBtn.disabled = this.isLoading;
+    nextSongBtn.ariaDisabled = this.isLoading.toString();
+    nextSongBtn.addEventListener("click", this.throttledNextSong);
+
+    thumbnailOverlay.append(loadingIcon);
+    thumbnailWrapper.append(thumbnailDom, thumbnailOverlay);
+    leftPanel.append(thumbnailWrapper, nameDom);
+    btnPanel.append(prevSongBtn, playBtn, nextSongBtn);
+    newMiniPlayerDom.append(leftPanel, btnPanel);
+
+    return { newMiniPlayerDom, toggleMiniPlayerDomDisability };
+  };
+
   private resetPlayerDom = () => {
     const durationDom = document.querySelector(".player-duration");
     const currenttimeDom = document.querySelector(".player-currenttime");
+    const durationSeekBarDom = document.querySelector(
+      ".player-duration-seek-bar"
+    );
+    const currentTimeSeekBarDom = document.querySelector(
+      "player-currenttime-seek-bar"
+    );
     const playBtn = document.querySelector(
       ".player-special-btn"
     ) as HTMLButtonElement;
@@ -667,6 +827,12 @@ export class AudioController {
     }
     if (currenttimeDom) {
       currenttimeDom.textContent = "00:00";
+    }
+    if (durationSeekBarDom) {
+      durationSeekBarDom.textContent = "00:00";
+    }
+    if (currentTimeSeekBarDom) {
+      currentTimeSeekBarDom.textContent = "00:00";
     }
 
     if (!this.queue.length) {
@@ -700,15 +866,23 @@ export class AudioController {
       ".player-mobile-currenttime"
     );
     const playBtnMobile = document.querySelector(
-      ".player-mobile-special-btn"
+      ".player-mobile-btn-middle-panel > .player-mobile-special-btn"
+    ) as HTMLButtonElement;
+
+    const miniPlayBtn = document.querySelector(
+      ".queue-mini-player-play-btn"
     ) as HTMLButtonElement;
 
     const icon = playBtnMobile.children[0];
     icon.classList.add("ri-pause-fill");
     icon.classList.remove("ri-play-fill");
 
+    const miniIcon = miniPlayBtn.children[0];
+    miniIcon.classList.add("ri-pause-fill");
+    miniIcon.classList.remove("ri-play-fill");
+
     this.isLoading = true;
-    this.audio.src = "";
+    // this.audio.src = "";
 
     if (durationDomMobile) {
       durationDomMobile.textContent = "00:00";
@@ -725,9 +899,15 @@ export class AudioController {
       const thumbnailDomMobile = document.querySelector(
         ".player-mobile-thumbnail"
       ) as HTMLImageElement;
+      const miniNameDom = document.querySelector(
+        ".queue-mini-player-song-name"
+      );
+      const miniThumbnailDom = document.querySelector(
+        ".queue-mini-player-left-panel > .player-thumbnail-wrapper > .player-thumbnail"
+      ) as HTMLImageElement;
 
-      this.audio.removeAttribute("src"); // Removes the src attribute completely
-      this.audio.load(); // Reloads the element without a source
+      // this.audio.removeAttribute("src"); // Removes the src attribute completely
+      // this.audio.load(); // Reloads the element without a source
       if (thumbnailDomMobile) {
         thumbnailDomMobile.src = "fallback.jpg";
       }
@@ -737,9 +917,24 @@ export class AudioController {
       if (artistDomMobile) {
         artistDomMobile.textContent = "";
       }
+      if (miniNameDom) {
+        miniNameDom.textContent = "";
+      }
+      if (miniThumbnailDom) {
+        miniThumbnailDom.src = "fallback,jpg";
+      }
     }
 
     this.togglePlayerDomDisabilityMobile();
+    this.toggleMiniPlayerDomDisability();
+  };
+
+  private resetPlayerDomByWidth = () => {
+    const width = window.innerWidth;
+    if (width <= this.maxMobileWidth) {
+      this.resetPlayerDomMobile();
+    }
+    this.resetPlayerDom();
   };
 
   private createQueueItemDom = (song: SongObject) => {
@@ -749,8 +944,7 @@ export class AudioController {
     let prevSibling: any;
 
     const _handleClickQueuePlaySong = () => {
-      this.resetPlayerDom();
-      this.resetPlayerDomMobile();
+      this.resetPlayerDomByWidth();
       this.currentOrder = parseInt(itemDom.id);
       this.playSong(this.queue[parseInt(itemDom.id)]);
       this.updateCurrentPlayingSong();
@@ -966,8 +1160,7 @@ export class AudioController {
         this.queue.splice(itemId, 1);
 
         // Reset the player (since no songs are left)
-        this.resetPlayerDom();
-        this.resetPlayerDomMobile();
+        this.resetPlayerDomByWidth();
       } else {
         // Handle other cases
 
@@ -1037,7 +1230,7 @@ export class AudioController {
       }
     });
 
-    newQueueDom.append(container, expandBtn, clearQueueBtn);
+    newQueueDom.append(container, expandBtn, clearQueueBtn, this.miniPlayerDom);
     return { newQueueDom, container };
   };
 
@@ -1073,8 +1266,7 @@ export class AudioController {
   public clearQueue = () => {
     this.currentOrder = 0;
     this.queue = [];
-    this.resetPlayerDom();
-    this.resetPlayerDomMobile();
+    this.resetPlayerDomByWidth();
   };
 
   public seekBarControl = (code: string) => {
@@ -1114,7 +1306,10 @@ export class AudioController {
           ".player-special-btn > .ri-play-fill"
         ) as HTMLElement;
         const iconMobile = document.querySelector(
-          ".player-mobile-special-btn > .ri-play-fill"
+          ".player-mobile-btn-middle-panel > .player-mobile-special-btn > .ri-play-fill"
+        ) as HTMLElement;
+        const iconMini = document.querySelector(
+          ".queue-mini-player-btn-panel > .player-mobile-special-btn > .ri-play-fill"
         ) as HTMLElement;
 
         this.audio.play();
@@ -1122,16 +1317,21 @@ export class AudioController {
         playBtn.title = "Play";
         playBtnMobile.ariaLabel = "Play";
         playBtnMobile.title = "Play";
-        icon.classList.add("ri-pause-fill");
-        icon.classList.remove("ri-play-fill");
-        iconMobile.classList.add("ri-pause-fill");
-        iconMobile.classList.remove("ri-play-fill");
+        icon?.classList.add("ri-pause-fill");
+        icon?.classList.remove("ri-play-fill");
+        iconMobile?.classList.add("ri-pause-fill");
+        iconMobile?.classList.remove("ri-play-fill");
+        iconMini?.classList.add("ri-pause-fill");
+        iconMini?.classList.remove("ri-play-fill");
       } else {
         const icon = document.querySelector(
           ".player-special-btn > .ri-pause-fill"
         ) as HTMLElement;
         const iconMobile = document.querySelector(
-          ".player-mobile-special-btn > .ri-pause-fill"
+          ".player-mobile-btn-middle-panel > .player-mobile-special-btn > .ri-pause-fill"
+        ) as HTMLElement;
+        const iconMini = document.querySelector(
+          ".queue-mini-player-btn-panel > .player-mobile-special-btn > .ri-pause-fill"
         ) as HTMLElement;
 
         this.audio.pause();
@@ -1139,10 +1339,12 @@ export class AudioController {
         playBtn.title = "Pause";
         playBtnMobile.ariaLabel = "Pause";
         playBtnMobile.title = "Pause";
-        icon.classList.add("ri-play-fill");
-        icon.classList.remove("ri-pause-fill");
-        iconMobile.classList.add("ri-play-fill");
-        iconMobile.classList.remove("ri-pause-fill");
+        icon?.classList.add("ri-play-fill");
+        icon?.classList.remove("ri-pause-fill");
+        iconMobile?.classList.add("ri-play-fill");
+        iconMobile?.classList.remove("ri-pause-fill");
+        iconMini?.classList.add("ri-play-fill");
+        iconMini?.classList.remove("ri-pause-fill");
       }
     }
   };
@@ -1219,6 +1421,5 @@ export class AudioController {
       ".player-mobile-queue-expand-btn"
     );
     queueExpandBtnMobile?.classList.toggle("hidden");
-    this.playerDomMobile.classList.add("hidden");
   };
 }
