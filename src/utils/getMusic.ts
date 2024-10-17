@@ -1,8 +1,10 @@
 import axios from "axios";
 
+const baseUrl = import.meta.env.VITE_API_BASE_URL;
+
 const getMusic = async (url: string) => {
   try {
-    const response = await axios.get("http://localhost:3000/api/youtube", {
+    const response = await axios.get(`${baseUrl}/api/youtube`, {
       responseType: "blob",
       params: { url },
     });

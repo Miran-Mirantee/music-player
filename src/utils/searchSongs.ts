@@ -1,8 +1,10 @@
 import axios from "axios";
 
+const baseUrl = import.meta.env.VITE_API_BASE_URL;
+
 const searchSongs = async (query: string) => {
   try {
-    const response = await axios.get("http://localhost:3000/api/searchSongs", {
+    const response = await axios.get(`${baseUrl}/api/searchSongs`, {
       params: { search: query },
     });
 
