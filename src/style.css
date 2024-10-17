@@ -133,7 +133,7 @@ html body {
 }
 
 body {
-  background-image: url("2.png");
+  background-image: url("./2.png");
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
