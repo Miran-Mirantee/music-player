@@ -469,7 +469,7 @@ div.player-song-name {
 .player-mobile {
   z-index: 1;
   width: 100vw;
-  height: 100vh;
+  height: 100%;
   position: absolute;
   background-color: var(--background-color);
   box-sizing: border-box;
@@ -1430,6 +1430,7 @@ div.player-song-name {
     height: 4px;
     pointer-events: none;
     box-sizing: content-box;
+    padding: 0;
   }
 
   .player-bottom-panel {
@@ -1705,6 +1706,7 @@ div.player-song-name {
     height: 4px;
     pointer-events: none;
     box-sizing: content-box;
+    padding: 0;
   }
 
   .player-bottom-panel {
@@ -1930,9 +1932,4 @@ div.player-song-name {
   .player-duration-seek-bar {
     display: none;
   }
-}
-
-/* Ultra-Wide Devices */
-@media (min-width: 1920px) {
-  /* Styles for ultra-wide screens */
 }
