@@ -443,7 +443,7 @@ export class AudioController {
     volumeInput.min = "0";
     volumeInput.max = "1";
     volumeInput.step = "0.01";
-    volumeInput.value = "0.1";
+    volumeInput.value = "0.5";
     volumeInput.type = "range";
     volumeInput.addEventListener("input", (e: any) => {
       this.audio.volume = parseFloat(e.target.value);
