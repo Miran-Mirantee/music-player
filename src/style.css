@@ -1429,6 +1429,7 @@ div.player-song-name {
   .player-top-panel {
     height: 4px;
     pointer-events: none;
+    box-sizing: content-box;
   }
 
   .player-bottom-panel {
@@ -1703,6 +1704,7 @@ div.player-song-name {
   .player-top-panel {
     height: 4px;
     pointer-events: none;
+    box-sizing: content-box;
   }
 
   .player-bottom-panel {

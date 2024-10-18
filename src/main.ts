@@ -37,6 +37,7 @@ import throttle from "./utils/throttle";
  * BUGS:
  *  - Thumbnail doesn't always load (too many requests)
  *  - Need to do something about long video (either hide a long video or implement streaming)
+ *  - Change queue dragging behavior
  */
 
 const state = {
