@@ -7,3 +7,12 @@ A simple music player built with TypeScript and Vite, designed for smooth audio 
 - **Queue Management**: Add, rearrange, shuffle, and remove songs from the queue with ease.
 - **Audio Playback**: Play, pause, skip, loop, and control audio.
 - **Persistent Storage**: Retains playlist data using local storage, so your queue remains intact even after refreshing.
+
+## 🛠️ Built With
+
+- TypeScript
+- Vite
+
+## ⚙️ Live Build
+
+https://music-player-eight-theta.vercel.app/
