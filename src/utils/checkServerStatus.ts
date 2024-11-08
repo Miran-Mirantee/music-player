@@ -6,7 +6,7 @@ const checkServerStatus = async () => {
   let isReady = false;
   while (!isReady) {
     try {
-      const response = await axios.get(`${baseUrl}/health-check`);
+      const response = await axios.get(`${baseUrl}/api/hello`);
       if (response.status == 200) {
         isReady = true;
         // Proceed with your main request or app logic
