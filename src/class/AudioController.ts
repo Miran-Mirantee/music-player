@@ -129,6 +129,7 @@ export class AudioController {
         durationSeekBarDom.textContent = formatTime(duration);
       }
 
+      document.title = this.queue[this.currentOrder].name;
       this.togglePlayerDomDisability();
       this.togglePlayerDomDisabilityMobile();
       this.toggleMiniPlayerDomDisability();
@@ -935,6 +936,8 @@ export class AudioController {
       this.resetPlayerDomMobile();
     }
     this.resetPlayerDom();
+
+    document.title = "Music Player";
   };
 
   private createQueueItemDom = (song: SongObject) => {
