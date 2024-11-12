@@ -16,3 +16,7 @@ A simple music player built with TypeScript and Vite, designed for smooth audio 
 ## ⚙️ Live Build
 
 https://music-player-eight-theta.vercel.app/
+
+### Disclaimer
+
+This project was built for educational purposes only. It is not intended for commercial use or to infringe on any copyright laws.
