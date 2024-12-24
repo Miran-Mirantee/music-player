@@ -20,3 +20,6 @@ https://music-player-eight-theta.vercel.app/
 ### Disclaimer
 
 This project was built for educational purposes only. It is not intended for commercial use or to infringe on any copyright laws.
+<br>
+**Note:** This server experiences a **cold start**, meaning the first request after a period of inactivity may take longer as the server initializes.  
+Subsequent requests will have normal response times.
